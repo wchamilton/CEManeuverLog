@@ -1,0 +1,728 @@
+[
+    {
+        "name": "B.E. 12a/b",
+        "plane_era": "Early War",
+        "fuel": 60,
+        "engine_hp": 8,
+        "engine_critical": 3,
+        "wing_hp": 23,
+        "wing_critical": 5,
+        "fuselage_hp": 20,
+        "fuselage_critical": 5,
+        "tail_hp": 5,
+        "tail_critical": 2,
+        "dive": 2,
+        "climb": 1,
+        "alt": "7",
+        "stability": "B",
+        "maneuvers": [
+            {
+                "name": "0S1",
+                "climb_val": "-",
+                "level_val": "-",
+                "dive_val": "D1"
+            },
+            {
+                "name": "1L0",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "-",
+                "is_bomb_restricted": true
+            },
+            {
+                "name": "1S0",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "-",
+                "is_bomb_restricted": true
+            },
+            {
+                "name": "1R0",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "-",
+                "is_bomb_restricted": true
+            },
+            {
+                "name": "10L1",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D1"
+            },
+            {
+                "name": "8L1",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D1",
+                "can_put_out_fires": true
+            },
+            {
+                "name": "6S1",
+                "climb_val": "C1",
+                "level_val": "L",
+                "dive_val": "D1"
+            },
+            {
+                "name": "2S1",
+                "climb_val": "C1",
+                "level_val": "L",
+                "dive_val": "D1",
+                "can_reload": true
+            },
+            {
+                "name": "7S1",
+                "climb_val": "C1",
+                "level_val": "L",
+                "dive_val": "D1"
+            },
+            {
+                "name": "8R1",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D1",
+                "can_put_out_fires": true
+            },
+            {
+                "name": "10R1",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D1"
+            },
+            {
+                "name": "16L2",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D",
+                "can_put_out_fires": true
+            },
+            {
+                "name": "14L2",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "12S2",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "3S2",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D",
+                "can_reload": true
+            },
+            {
+                "name": "13S2",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "14R2",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "16R2",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D",
+                "can_put_out_fires": true
+            },
+            {
+                "name": "30L2",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "D1",
+                "is_restricted": true
+            },
+            {
+                "name": "31L2",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "D1",
+                "is_restricted": true
+            },
+            {
+                "name": "29S2",
+                "climb_val": "C1",
+                "level_val": "-",
+                "dive_val": "D1",
+                "is_restricted": true,
+                "climb_restricted": true
+            },
+            {
+                "name": "31R2",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "D1",
+                "is_restricted": true
+            },
+            {
+                "name": "30R2",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "D1",
+                "is_restricted": true
+            }
+
+        ],
+        "crew": [
+            {
+                "role": "pilot",
+                "gun_ammo_amt": 20,
+                "gun_box_size": 5,
+                "fire_template": 1,
+                "fire_base_3": 2,
+                "fire_base_2": 3,
+                "fire_base_1": 6,
+                "fire_base_0": 9
+            }
+        ]
+    },
+    {
+        "name": "Halberstadt DII",
+        "plane_era": "Early War",
+        "fuel": 45,
+        "engine_hp": 8,
+        "engine_critical": 3,
+        "wing_hp": 25,
+        "wing_critical": 5,
+        "fuselage_hp": 24,
+        "fuselage_critical": 5,
+        "tail_hp": 4,
+        "tail_critical": 2,
+        "dive": 3,
+        "climb": 1,
+        "alt": "7",
+        "stability": "B",
+        "maneuvers": [
+            {
+                "name": "0S1",
+                "climb_val": "-",
+                "level_val": "-",
+                "dive_val": "D1"
+            },
+            {
+                "name": "1L0",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "-"
+            },
+            {
+                "name": "1S0",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "-"
+            },
+            {
+                "name": "1R0",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "-"
+            },
+            {
+                "name": "10L1",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D1"
+            },
+            {
+                "name": "8L1",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D1",
+                "can_put_out_fires": true
+            },
+            {
+                "name": "6S1",
+                "climb_val": "C1",
+                "level_val": "L",
+                "dive_val": "D1"
+            },
+            {
+                "name": "2S1",
+                "climb_val": "C1",
+                "level_val": "L",
+                "dive_val": "D1",
+                "can_reload": true
+            },
+            {
+                "name": "7S1",
+                "climb_val": "C1",
+                "level_val": "L",
+                "dive_val": "D1"
+            },
+            {
+                "name": "8R1",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D1",
+                "can_put_out_fires": true
+            },
+            {
+                "name": "10R1",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D1"
+            },
+            {
+                "name": "9L2",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "D1"
+            },
+            {
+                "name": "17L2",
+                "climb_val": "-",
+                "level_val": "-",
+                "dive_val": "D1",
+                "can_put_out_fires": true
+            },
+            {
+                "name": "16L2",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D",
+                "can_put_out_fires": true
+            },
+            {
+                "name": "14L2",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "12S2",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "3S2",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D",
+                "can_reload": true
+            },
+            {
+                "name": "13S2",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "14R2",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "16R2",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D",
+                "can_put_out_fires": true
+            },
+            {
+                "name": "17R2",
+                "climb_val": "-",
+                "level_val": "-",
+                "dive_val": "D1",
+                "can_put_out_fires": true
+            },
+            {
+                "name": "9R2",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "D1"
+            },
+            {
+                "name": "30L2",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "D1",
+                "is_restricted": true
+            },
+            {
+                "name": "31L2",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "D1",
+                "is_restricted": true
+            },
+            {
+                "name": "29S2",
+                "climb_val": "C1",
+                "level_val": "-",
+                "dive_val": "D1",
+                "is_restricted": true,
+                "climb_restricted": true
+            },
+            {
+                "name": "31R2",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "D1",
+                "is_restricted": true
+            },
+            {
+                "name": "30R2",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "D1",
+                "is_restricted": true
+            },
+            {
+                "name": "34S3",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "-",
+                "is_restricted": true
+            },
+            {
+                "name": "35S3",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "-",
+                "is_restricted": true
+            }
+        ],
+        "crew": [
+            {
+                "role": "pilot",
+                "gun_ammo_amt": 20,
+                "gun_box_size": 20,
+                "fire_template": 1,
+                "fire_base_3": 2,
+                "fire_base_2": 3,
+                "fire_base_1": 6,
+                "fire_base_0": 9
+            }
+        ]
+    },
+    {
+        "name": "Bristol M1c",
+        "plane_era": "Late War",
+        "fuel": 45,
+        "engine_hp": 6,
+        "engine_critical": 2,
+        "wing_hp": 22,
+        "wing_critical": 5,
+        "fuselage_hp": 20,
+        "fuselage_critical": 5,
+        "tail_hp": 6,
+        "tail_critical": 3,
+        "dive": 3,
+        "climb": 2,
+        "alt": 9,
+        "stability": "B",
+        "maneuvers": [
+            {
+                "name": "0S1",
+                "climb_val": "-",
+                "level_val": "-",
+                "dive_val": "D1"
+            },
+            {
+                "name": "1L0",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "-"
+            },
+            {
+                "name": "1S0",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "-"
+            },
+            {
+                "name": "1R0",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "-"
+            },
+            {
+                "name": "10L1",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D1"
+            },
+            {
+                "name": "8L1",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D1",
+                "can_put_out_fires": true
+            },
+            {
+                "name": "6S1",
+                "climb_val": "C1",
+                "level_val": "L",
+                "dive_val": "D1"
+            },
+            {
+                "name": "2S1",
+                "climb_val": "C1",
+                "level_val": "L",
+                "dive_val": "D1",
+                "can_reload": true
+            },
+            {
+                "name": "7S1",
+                "climb_val": "C1",
+                "level_val": "L",
+                "dive_val": "D1"
+            },
+            {
+                "name": "8R1",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D1",
+                "can_put_out_fires": true
+            },
+            {
+                "name": "10R1",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D1"
+            },
+            {
+                "name": "17L2",
+                "climb_val": "-",
+                "level_val": "-",
+                "dive_val": "D1",
+                "can_put_out_fires": true
+            },
+            {
+                "name": "16L2",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D",
+                "can_put_out_fires": true
+            },
+            {
+                "name": "15L2",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "14L2",
+                "climb_val": "C1",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "12S2",
+                "climb_val": "C1",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "3S2",
+                "climb_val": "C",
+                "level_val": "L",
+                "dive_val": "D",
+                "can_reload": true
+            },
+            {
+                "name": "13S2",
+                "climb_val": "C1",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "14R2",
+                "climb_val": "C1",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "15R2",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "16R2",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D",
+                "can_put_out_fires": true
+            },
+            {
+                "name": "17R2",
+                "climb_val": "-",
+                "level_val": "-",
+                "dive_val": "D1",
+                "can_put_out_fires": true
+            },
+            {
+                "name": "9R2",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "D1"
+            },
+            {
+                "name": "22L3",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "21L3",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "20L3",
+                "climb_val": "C1",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "18S3",
+                "climb_val": "C1",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "4S3",
+                "climb_val": "C",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "19S3",
+                "climb_val": "C1",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "20R3",
+                "climb_val": "C1",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "21R3",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "22R3",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "23R3",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "25S4",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "5S4",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D",
+                "can_reload": true
+            },
+            {
+                "name": "26S4",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D"
+            },
+            {
+                "name": "30L2",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "D1",
+                "is_restricted": true
+            },
+            {
+                "name": "31L2",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "D1",
+                "is_restricted": true
+            },
+            {
+                "name": "29S2",
+                "climb_val": "C1",
+                "level_val": "-",
+                "dive_val": "D1",
+                "is_restricted": true,
+                "climb_restricted": true
+            },
+            {
+                "name": "31R2",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "D1",
+                "is_restricted": true
+            },
+            {
+                "name": "30R2",
+                "climb_val": "-",
+                "level_val": "X",
+                "dive_val": "D1",
+                "is_restricted": true
+            },
+            {
+                "name": "36L3",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D1",
+                "is_restricted": true
+            },
+            {
+                "name": "34S3",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "-",
+                "is_restricted": true
+            },
+            {
+                "name": "35S3",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "-",
+                "is_restricted": true
+            },
+            {
+                "name": "36R3",
+                "climb_val": "-",
+                "level_val": "L",
+                "dive_val": "D1",
+                "is_restricted": true
+            }
+        ],
+        "crew": [
+            {
+                "role": "pilot",
+                "gun_ammo_amt": 20,
+                "gun_box_size": 20,
+                "fire_template": 1,
+                "fire_base_3": 2,
+                "fire_base_2": 3,
+                "fire_base_1": 6,
+                "fire_base_0": 9
+            }
+        ]
+    }
+]
