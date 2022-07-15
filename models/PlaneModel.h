@@ -2,6 +2,8 @@
 #define PLANEMODEL_H
 
 #include <QAbstractItemModel>
+#include <QSortFilterProxyModel>
+#include <QDebug>
 #include "PlaneItems.h"
 
 class PlaneModel : public QAbstractItemModel
@@ -9,7 +11,7 @@ class PlaneModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit PlaneModel(QJsonArray planes, QObject *parent = nullptr);
+    explicit PlaneModel(QObject *parent = nullptr);
     ~PlaneModel() override;
 
     // Basic functionality:
@@ -19,11 +21,30 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
+    Qt::ItemFlags flags(const QModelIndex &idx) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+    void loadPlanesJSON(QJsonArray planes);
+    void prepareTemplateModel();
 
 private:
     BaseItem* root = nullptr;
+};
+
+class PlaneFilterProxy : public QSortFilterProxyModel
+{
+    Q_OBJECT
+public:
+    PlaneFilterProxy(PlaneModel* src_model, QObject* parent = nullptr);
+    void setTypeFilter(BaseItem::ItemType type);
+
+    // QSortFilterProxyModel interface
+protected:
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
+    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
+
+private:
+    BaseItem::ItemType type_filter;
 };
 
 #endif // PLANEMODEL_H

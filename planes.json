@@ -169,11 +169,10 @@
                 "dive_val": "D1",
                 "is_restricted": true
             }
-
         ],
         "crew": [
             {
-                "role": "pilot",
+                "role": "Pilot",
                 "gun_ammo_amt": 20,
                 "gun_box_size": 5,
                 "fire_template": 1,
@@ -394,7 +393,7 @@
         ],
         "crew": [
             {
-                "role": "pilot",
+                "role": "Pilot",
                 "gun_ammo_amt": 20,
                 "gun_box_size": 20,
                 "fire_template": 1,
@@ -714,7 +713,7 @@
         ],
         "crew": [
             {
-                "role": "pilot",
+                "role": "Pilot",
                 "gun_ammo_amt": 20,
                 "gun_box_size": 20,
                 "fire_template": 1,

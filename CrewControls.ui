@@ -6,394 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>395</width>
-    <height>244</height>
+    <width>231</width>
+    <height>62</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_4" columnstretch="0,0,0,0,0,1">
-   <item row="0" column="4">
-    <widget class="QLabel" name="label_16">
-     <property name="text">
-      <string>Ability:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Gun Angle:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="4">
-    <widget class="QFrame" name="frame">
-     <property name="autoFillBackground">
-      <bool>true</bool>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Range</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="Line" name="line_2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="label_5">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>3</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="Line" name="line_7">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="4">
-       <widget class="QLabel" name="label_6">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>2</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="5">
-       <widget class="Line" name="line_11">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="6">
-       <widget class="QLabel" name="label_7">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>1</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="7">
-       <widget class="Line" name="line_12">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="8">
-       <widget class="QLabel" name="label_11">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>0</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="9">
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Fire Base</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="label_14">
-        <property name="text">
-         <string>0</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="4">
-       <widget class="QLabel" name="label_13">
-        <property name="text">
-         <string>0</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="6">
-       <widget class="QLabel" name="label_15">
-        <property name="text">
-         <string>0</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="8">
-       <widget class="QLabel" name="label_12">
-        <property name="text">
-         <string>0</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="Line" name="line_13">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="Line" name="line_14">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="5">
-       <widget class="Line" name="line_15">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="7">
-       <widget class="Line" name="line_16">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="4" column="0" colspan="4">
-    <widget class="QGroupBox" name="shots_fired_grpbox">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="title">
-      <string>Shots Fired</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-     <property name="checked">
-      <bool>false</bool>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QRadioButton" name="radioButton">
-        <property name="text">
-         <string>Short</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QRadioButton" name="radioButton_2">
-        <property name="text">
-         <string>Medium</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QRadioButton" name="radioButton_3">
-        <property name="text">
-         <string>Long</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QComboBox" name="gun_angle"/>
-   </item>
-   <item row="0" column="5">
-    <widget class="QComboBox" name="comboBox"/>
-   </item>
-   <item row="1" column="4" rowspan="2" colspan="2">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Crew Wounds</string>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item alignment="Qt::AlignHCenter">
-       <widget class="QCheckBox" name="wound_1">
-        <property name="text">
-         <string/>
-        </property>
-        <attribute name="buttonGroup">
-         <string notr="true">wounds_buttonGroup</string>
-        </attribute>
-       </widget>
-      </item>
-      <item alignment="Qt::AlignHCenter">
-       <widget class="QCheckBox" name="wound_2">
-        <property name="text">
-         <string/>
-        </property>
-        <attribute name="buttonGroup">
-         <string notr="true">wounds_buttonGroup</string>
-        </attribute>
-       </widget>
-      </item>
-      <item alignment="Qt::AlignHCenter">
-       <widget class="QCheckBox" name="wound_3">
-        <property name="text">
-         <string/>
-        </property>
-        <attribute name="buttonGroup">
-         <string notr="true">wounds_buttonGroup</string>
-        </attribute>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="3" column="4" colspan="2">
-    <widget class="QGroupBox" name="groupBox_4">
-     <property name="title">
-      <string>Reds Obtained</string>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,1,0">
-      <item>
-       <widget class="QPushButton" name="pushButton_2">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normaloff>C:/Users/Wesley/Downloads/icons8-minus-48.png</normaloff>C:/Users/Wesley/Downloads/icons8-minus-48.png</iconset>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QSpinBox" name="spinBox_4"/>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_3">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normaloff>C:/Users/Wesley/Downloads/icons8-add-48.png</normaloff>C:/Users/Wesley/Downloads/icons8-add-48.png</iconset>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="4" column="4" rowspan="2" colspan="2">
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="title">
-      <string>Ammo</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Current Box:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>&lt;ammo&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_9">
-        <property name="text">
-         <string>Total Remaining:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="label_10">
-        <property name="text">
-         <string>&lt;ammo&gt;</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
+  <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0" colspan="4">
     <widget class="QLineEdit" name="lineEdit_2">
      <property name="placeholderText">
@@ -401,63 +21,36 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="2" colspan="2">
-    <spacer name="horizontalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_18">
+   <item row="1" column="0">
+    <widget class="QLabel" name="label">
      <property name="text">
-      <string>Gun State:</string>
+      <string>Wounds:</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="0" colspan="4">
-    <widget class="QPushButton" name="pushButton">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
+   <item row="1" column="1">
+    <widget class="QCheckBox" name="wound_1">
      <property name="text">
-      <string>Reload Gun</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
+      <string>Light</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="QComboBox" name="gun_state">
-     <item>
-      <property name="text">
-       <string>Normal</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Jammed</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Destroyed</string>
-      </property>
-     </item>
+   <item row="1" column="2">
+    <widget class="QCheckBox" name="wound_2">
+     <property name="text">
+      <string>Severe</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QCheckBox" name="wound_3">
+     <property name="text">
+      <string>Dead</string>
+     </property>
     </widget>
    </item>
   </layout>
  </widget>
  <resources/>
  <connections/>
- <buttongroups>
-  <buttongroup name="wounds_buttonGroup"/>
- </buttongroups>
 </ui>

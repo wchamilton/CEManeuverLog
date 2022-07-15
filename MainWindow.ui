@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
-    <height>800</height>
+    <width>1100</width>
+    <height>950</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,28 +17,29 @@
    <bool>true</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,1,0" columnstretch="1,0,0,0,0">
-    <item row="0" column="1" colspan="4">
-     <widget class="QLineEdit" name="lineEdit_3">
+   <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,1,0" columnstretch="1,0">
+    <item row="0" column="0" rowspan="5">
+     <widget class="QGraphicsView" name="graphicsView"/>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLineEdit" name="date">
       <property name="placeholderText">
        <string>Date</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="0" rowspan="6">
-     <widget class="QGraphicsView" name="graphicsView"/>
+    <item row="1" column="1">
+     <widget class="QTabWidget" name="crew_tab">
+      <property name="currentIndex">
+       <number>-1</number>
+      </property>
+     </widget>
     </item>
-    <item row="5" column="4">
-     <widget class="PlanePartDamageTracker" name="tail_grp" native="true"/>
-    </item>
-    <item row="5" column="3">
-     <widget class="PlanePartDamageTracker" name="fusilage_grp" native="true"/>
-    </item>
-    <item row="5" column="2">
-     <widget class="PlanePartDamageTracker" name="wing_grp" native="true"/>
-    </item>
-    <item row="1" column="1" colspan="4">
-     <widget class="QGroupBox" name="groupBox_2">
+    <item row="2" column="1">
+     <widget class="QGroupBox" name="turn_controls_grp">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -56,53 +57,33 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="4">
-        <widget class="QComboBox" name="alt_cmb"/>
+       <item row="5" column="0" colspan="8">
+        <widget class="QPushButton" name="log_turn_btn">
+         <property name="text">
+          <string>Log Turn</string>
+         </property>
+        </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QComboBox" name="maneuver_cmb"/>
+       <item row="3" column="0" colspan="8">
+        <widget class="QTabWidget" name="gun_tab"/>
        </item>
-       <item row="0" column="3">
+       <item row="1" column="0">
         <widget class="QLabel" name="label_4">
          <property name="text">
           <string>Altitude:</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0" colspan="6">
-        <widget class="QTabWidget" name="crew_tab">
-         <property name="currentIndex">
-          <number>-1</number>
-         </property>
-        </widget>
+       <item row="0" column="1" colspan="4">
+        <widget class="QComboBox" name="maneuver_cmb"/>
        </item>
-       <item row="0" column="2">
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="2" column="0" colspan="5">
-        <widget class="QPushButton" name="pushButton">
-         <property name="text">
-          <string>Log Turn</string>
-         </property>
-        </widget>
+       <item row="1" column="1" colspan="4">
+        <widget class="QSpinBox" name="alt_spin"/>
        </item>
       </layout>
      </widget>
     </item>
-    <item row="5" column="1">
-     <widget class="PlanePartDamageTracker" name="engine_grp" native="true"/>
-    </item>
-    <item row="3" column="1" rowspan="2" colspan="4">
+    <item row="3" column="1">
      <widget class="QTableView" name="turn_log">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
@@ -118,6 +99,22 @@
       </property>
      </widget>
     </item>
+    <item row="4" column="1">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="PlanePartDamageTracker" name="engine_grp" native="true"/>
+      </item>
+      <item>
+       <widget class="PlanePartDamageTracker" name="wing_grp" native="true"/>
+      </item>
+      <item>
+       <widget class="PlanePartDamageTracker" name="fusilage_grp" native="true"/>
+      </item>
+      <item>
+       <widget class="PlanePartDamageTracker" name="tail_grp" native="true"/>
+      </item>
+     </layout>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -125,7 +122,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1000</width>
+     <width>1100</width>
      <height>22</height>
     </rect>
    </property>
@@ -133,6 +130,7 @@
     <property name="title">
      <string>Game</string>
     </property>
+    <addaction name="actionPlane_Editor"/>
     <addaction name="actionLoad_Planes"/>
     <addaction name="actionReset"/>
     <addaction name="actionQuit"/>
@@ -159,6 +157,11 @@
   <action name="actionLoad_Planes">
    <property name="text">
     <string>Load Planes</string>
+   </property>
+  </action>
+  <action name="actionPlane_Editor">
+   <property name="text">
+    <string>Create a plane</string>
    </property>
   </action>
  </widget>
