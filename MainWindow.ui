@@ -50,6 +50,16 @@
        <string>Turn Controls</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_4">
+       <item row="5" column="0" colspan="6">
+        <widget class="QPushButton" name="log_turn_btn">
+         <property name="text">
+          <string>Log Turn</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" colspan="2">
+        <widget class="QComboBox" name="maneuver_cmb"/>
+       </item>
        <item row="0" column="0">
         <widget class="QLabel" name="label">
          <property name="text">
@@ -57,15 +67,11 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="0" colspan="8">
-        <widget class="QPushButton" name="log_turn_btn">
-         <property name="text">
-          <string>Log Turn</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0" colspan="8">
+       <item row="3" column="0" colspan="6">
         <widget class="QTabWidget" name="gun_tab"/>
+       </item>
+       <item row="1" column="1" colspan="2">
+        <widget class="QComboBox" name="alt_cmb"/>
        </item>
        <item row="1" column="0">
         <widget class="QLabel" name="label_4">
@@ -73,12 +79,6 @@
           <string>Altitude:</string>
          </property>
         </widget>
-       </item>
-       <item row="0" column="1" colspan="4">
-        <widget class="QComboBox" name="maneuver_cmb"/>
-       </item>
-       <item row="1" column="1" colspan="4">
-        <widget class="QSpinBox" name="alt_spin"/>
        </item>
       </layout>
      </widget>

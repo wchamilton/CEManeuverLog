@@ -3,6 +3,7 @@
 #include <QPen>
 #include <QPainter>
 #include <QDebug>
+#include <cmath>
 
 HexTile::HexTile(TileType type, qreal rotation, QGraphicsItem *parent) :
     QGraphicsItem(parent),
@@ -66,7 +67,7 @@ void HexTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
                                  boundingRect().height()/2 + painter->fontMetrics().height()/2 - 20), "?");
     }
     else if (tile_type == Destination_Tile) {
-        QPixmap plane_png("../CanvasEagles/graphics/plane.png");
+        QPixmap plane_png("../CEManeuverLog/graphics/plane.png");
         qreal plane_width = 2*boundingRect().width()/3;
         qreal plane_height = 2*boundingRect().height()/3;
         painter->drawPixmap(boundingRect().width()/2 - plane_width/2, boundingRect().height()/2 - 5*plane_height/12,

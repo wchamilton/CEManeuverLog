@@ -84,7 +84,7 @@ void ManeuverScene::positionManeuvers()
 //    addItem(background_item);
 
     // for now use shitty png while debugging SVG
-    QGraphicsPixmapItem* pixmap_item = addPixmap(QPixmap("../CanvasEagles/graphics/background.png"));
+    QGraphicsPixmapItem* pixmap_item = addPixmap(QPixmap("../CEManeuverLog/graphics/background.png"));
     pixmap_item->setZValue(-1);
 
     maneuver_map["1L0"]->moveBy(175, 35);

@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     early_war_menu = ui->select_plane_menu->addMenu("Early War");
     late_war_menu = ui->select_plane_menu->addMenu("Late War");
-    loadJSON("../CanvasEagles/planes.json");
+    loadJSON("../CEManeuverLog/planes.json");
 
     maneuver_scene = new ManeuverScene(ui->graphicsView);
     maneuver_scene->positionManeuvers();

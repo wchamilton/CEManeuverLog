@@ -21,6 +21,7 @@ public:
 
 private slots:
     void updatePreview(int row);
+    void exportJSON();
 
 private:
     void setManeuverData(int column, QVariant data);

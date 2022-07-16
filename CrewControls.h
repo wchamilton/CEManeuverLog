@@ -10,10 +10,19 @@ class CrewControls;
 class CrewControls : public QWidget
 {
     Q_OBJECT
+    enum WoundValues {
+        None = 0,
+        Light,
+        Severe,
+        Dead
+    };
 
 public:
     explicit CrewControls(QWidget *parent = nullptr);
     ~CrewControls();
+
+private slots:
+    void setSliderStylesheet(int value);
 
 private:
     Ui::CrewControls *ui;

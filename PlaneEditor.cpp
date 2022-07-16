@@ -125,6 +125,34 @@ void PlaneEditor::updatePreview(int row)
     ui->maneuver_preview_gv->fitInView(maneuver_preview_scene->getManeuver(idx.data().toString()), Qt::KeepAspectRatio);
 }
 
+void PlaneEditor::exportJSON()
+{
+    auto set_plane_data =[&](int col, QVariant data) {
+        plane_model->setData(plane_model->index(0, col), data);
+    };
+    set_plane_data(PlaneItem::Plane_Name, ui->plane_name->text());
+    set_plane_data(PlaneItem::Plane_Era, ui->early_war_btn->isChecked() ? "Early War" : "Late War");
+    set_plane_data(PlaneItem::Fuel, ui->fuel_amt->value());
+    set_plane_data(PlaneItem::Engine_HP, ui->engine_hp->value());
+    set_plane_data(PlaneItem::Engine_Critical, ui->engine_critical_hp->value());
+    set_plane_data(PlaneItem::Wing_HP, ui->wing_hp->value());
+    set_plane_data(PlaneItem::Wing_Critical, ui->wing_critical_hp->value());
+    set_plane_data(PlaneItem::Fuselage_HP, ui->fuselage_hp->value());
+    set_plane_data(PlaneItem::Fuselage_Critical, ui->fuselage_critical_hp->value());
+    set_plane_data(PlaneItem::Tail_HP, ui->tail_hp->value());
+    set_plane_data(PlaneItem::Tail_Critical, ui->tail_critical_hp->value());
+    set_plane_data(PlaneItem::Rated_Dive, ui->rated_dive->value());
+    set_plane_data(PlaneItem::Rated_Climb, ui->rated_climb->value());
+    set_plane_data(PlaneItem::Max_Altitude, ui->max_alt->text());
+    set_plane_data(PlaneItem::Stability, ui->stab_rating->text());
+
+    // Start at 1 since index 0 is used by the [+] tab
+    for (int i=1; i<ui->crew_editor_tab->count(); ++i) {
+        CrewItem* item = new CrewItem(static_cast<PlaneItem*>(plane_model->index(0,0).internalPointer()));
+        static_cast<CrewEditorTab*>(ui->crew_editor_tab->widget(i))->populateCrewItem(item);
+    }
+}
+
 void PlaneEditor::setManeuverData(int column, QVariant data)
 {
     maneuver_proxy_model->setData(maneuver_proxy_model->index(ui->maneuver_selection->currentIndex(), column, ui->maneuver_selection->rootModelIndex()), data);

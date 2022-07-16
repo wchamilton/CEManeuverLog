@@ -97,6 +97,19 @@ void PlaneModel::loadPlanesJSON(QJsonArray planes)
     }
 }
 
+void PlaneModel::loadPlaneJSON(QJsonObject plane)
+{
+    root->addChild(new PlaneItem(plane, root));
+}
+
+QJsonObject PlaneModel::dumpPlaneToJSON(const QModelIndex &index)
+{
+    if (data(index, Qt::UserRole).toInt() == BaseItem::Plane_Item_Type) {
+        return static_cast<PlaneItem*>(index.internalPointer())->toJSON();
+    }
+    return QJsonObject();
+}
+
 void PlaneModel::prepareTemplateModel()
 {
     root->addChild(new PlaneItem(root));

@@ -7,6 +7,7 @@ namespace Ui {
 class CrewEditorTab;
 }
 
+class CrewItem;
 class CrewEditorTab : public QWidget
 {
     Q_OBJECT
@@ -14,6 +15,7 @@ class CrewEditorTab : public QWidget
 public:
     explicit CrewEditorTab(QWidget *parent = nullptr);
     ~CrewEditorTab();
+    void populateCrewItem(CrewItem* crew);
 
 private:
     Ui::CrewEditorTab *ui;

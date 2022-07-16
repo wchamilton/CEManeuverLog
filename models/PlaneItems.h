@@ -17,16 +17,16 @@ public:
     };
 
     BaseItem(ItemType type, BaseItem* item = nullptr) : type(type), parent(item) {}
-    ~BaseItem() { qDeleteAll(children); }
+    virtual ~BaseItem();
 
     QVariant data(int column) const;
     void setData(int column, QVariant data);
     void addChild(BaseItem* item) { children << item; }
-    BaseItem* childAt(int row) { return children.size() > row ? children.at(row) : nullptr; }
+    BaseItem* childAt(int row) const { return children.size() > row ? children.at(row) : nullptr; }
     int childRow(BaseItem* item) { return children.indexOf(item); }
     int row() { return parent->childRow(this); }
     BaseItem* getParent() { return parent; }
-    int childCount() { return children.size(); }
+    int childCount() const { return children.size(); }
     ItemType getType() { return type; }
 
 private:
@@ -42,26 +42,28 @@ public:
     enum PlaneItemCols {
         Plane_Name = 0,
         Plane_Era,
+        Fuel,
         Engine_HP,
         Engine_Critical,
         Wing_HP,
         Wing_Critical,
         Fuselage_HP,
         Fuselage_Critical,
-        Bombs_Carried,
         Tail_HP,
         Tail_Critical,
-        Fuel,
-        Dive,
-        Climb,
-        Altitude,
+        Rated_Dive,
+        Rated_Climb,
+        Max_Altitude,
         Can_Return_To_Max_Alt,
         Stability,
         Is_On_Fire,
+        Is_Gliding,
+        Bombs_Carried,
         COL_COUNT
     };
     PlaneItem(QJsonObject plane, BaseItem* parent = nullptr);
     PlaneItem(BaseItem* parent = nullptr);
+    QJsonObject toJSON() const;
 };
 
 class ManeuverItem : public BaseItem
@@ -88,6 +90,7 @@ public:
     };
     ManeuverItem(QJsonObject maneuver, BaseItem* parent = nullptr);
     ManeuverItem(Maneuver maneuver, BaseItem* parent = nullptr);
+    QJsonObject toJSON() const;
 };
 
 class CrewItem : public BaseItem
@@ -100,6 +103,8 @@ public:
         COL_COUNT
     };
     CrewItem(QJsonObject crew, BaseItem* parent = nullptr);
+    CrewItem(BaseItem* parent = nullptr);
+    QJsonObject toJSON() const;
 };
 
 class GunItem : public BaseItem
@@ -112,13 +117,14 @@ public:
         Fire_Base_2,
         Fire_Base_1,
         Fire_Base_0,
-        Ammo_Box_Size,
-        Ammo_Amount,
-        Reds_Earned, // Move to CrewCols
+        Ammo_Box_Capacity,
+        Ammo_Box_Count,
         Gun_Destroyed,
         COL_COUNT
     };
     GunItem(QJsonObject gun, BaseItem* parent = nullptr);
+    GunItem(BaseItem* parent = nullptr);
+    QJsonObject toJSON() const;
 };
 
 #endif // PLANEITEMS_H

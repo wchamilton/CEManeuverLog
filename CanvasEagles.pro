@@ -59,4 +59,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
-    graphics/Canvas_AircraftSheet.svg
+    graphics/Canvas_AircraftSheet.svg \
+    stylesheet.qss
