@@ -80,7 +80,8 @@ void ManeuverScene::updateManeuver(QString id)
 void ManeuverScene::positionManeuvers()
 {
     // Add the background as a pixmap
-//    QGraphicsSvgItem* background_item = new QGraphicsSvgItem(QString("../CanvasEagles/graphics/Canvas_AircraftSheet.svg"));
+//    QGraphicsSvgItem* background_item = new QGraphicsSvgItem(QString("../CEManeuverLog/graphics/Canvas_AircraftSheet.svg"));
+//    background_item->setZValue(-1);
 //    addItem(background_item);
 
     // for now use shitty png while debugging SVG
@@ -129,11 +130,19 @@ void ManeuverScene::positionManeuvers()
     maneuver_map["25S4"]->moveBy(247, 531);
     maneuver_map["5S4"]->moveBy(292, 531);
     maneuver_map["26S4"]->moveBy(338, 531);
+
+    // Restricted speed 1
+    maneuver_map["28L1"]->moveBy(115, 610);
+    maneuver_map["28R1"]->moveBy(455, 610);
+
+    // Restricted speed 2
     maneuver_map["30L2"]->moveBy(125, 650);
-    maneuver_map["31L2"]->moveBy(180, 630);
+    maneuver_map["31L2"]->moveBy(185, 670);
     maneuver_map["29S2"]->moveBy(291, 650);
-    maneuver_map["31R2"]->moveBy(390, 630);
+    maneuver_map["31R2"]->moveBy(385, 670);
     maneuver_map["30R2"]->moveBy(445, 650);
+
+    // Restricted speed 3
     maneuver_map["36L3"]->moveBy(140, 770);
     maneuver_map["34S3"]->moveBy(230, 780);
     maneuver_map["32S3"]->moveBy(270, 780);

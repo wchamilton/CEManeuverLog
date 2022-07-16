@@ -159,10 +159,10 @@ QString ManeuverGraphic::getID() const
 
 QString ManeuverGraphic::getTolerances() const
 {
-    QString tolerances = maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Climb_Value).data().toString() + "/" +
-                 maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Level_Value).data().toString() + "/" +
-                 maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Dive_Value).data().toString();
-    return tolerances;
+    QStringList tolerances = {maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Climb_Value).data().toString(),
+                              maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Level_Value).data().toString(),
+                              maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Dive_Value).data().toString()};
+    return tolerances.join("/");
 }
 
 QString ManeuverGraphic::getAdditionalInfo() const

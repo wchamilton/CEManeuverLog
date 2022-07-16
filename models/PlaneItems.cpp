@@ -21,21 +21,21 @@ void BaseItem::setData(int column, QVariant data)
 
 PlaneItem::PlaneItem(QJsonObject plane, BaseItem *parent) : BaseItem(Plane_Item_Type, parent)
 {
-    setData(Plane_Name,        plane.value("name").toString());
-    setData(Plane_Era,         plane.value("plane_era").toString());
-    setData(Fuel,              plane.value("fuel").toInt());
-    setData(Engine_HP,         plane.value("engine_hp").toInt());
-    setData(Engine_Critical,   plane.value("engine_critical").toInt());
-    setData(Wing_HP,           plane.value("wing_hp").toInt());
-    setData(Wing_Critical,     plane.value("wing_critical").toInt());
-    setData(Fuselage_HP,       plane.value("fuselage_hp").toInt());
-    setData(Fuselage_Critical, plane.value("fuselage_critical").toInt());
-    setData(Tail_HP,           plane.value("tail_hp").toInt());
-    setData(Tail_Critical,     plane.value("tail_critical").toInt());
-    setData(Rated_Dive,        plane.value("rated_dive").toInt());
-    setData(Rated_Climb,       plane.value("rated_climb").toInt());
-    setData(Max_Altitude,      plane.value("max_alt").toString());
-    setData(Stability,         plane.value("stability").toString());
+    setData(Plane_Name,        plane.value("name"));
+    setData(Plane_Era,         plane.value("plane_era"));
+    setData(Fuel,              plane.value("fuel"));
+    setData(Engine_HP,         plane.value("engine_hp"));
+    setData(Engine_Critical,   plane.value("engine_critical"));
+    setData(Wing_HP,           plane.value("wing_hp"));
+    setData(Wing_Critical,     plane.value("wing_critical"));
+    setData(Fuselage_HP,       plane.value("fuselage_hp"));
+    setData(Fuselage_Critical, plane.value("fuselage_critical"));
+    setData(Tail_HP,           plane.value("tail_hp"));
+    setData(Tail_Critical,     plane.value("tail_critical"));
+    setData(Rated_Dive,        plane.value("rated_dive"));
+    setData(Rated_Climb,       plane.value("rated_climb"));
+    setData(Max_Altitude,      plane.value("max_alt"));
+    setData(Stability,         plane.value("stability"));
     setData(Is_Gliding,        false);
     setData(Is_On_Fire,        false);
 
@@ -79,7 +79,7 @@ QJsonObject PlaneItem::toJSON() const
     QJsonArray maneuvers;
     QJsonArray crew;
     for (int i=0; i<childCount(); ++i) {
-        if (childAt(i)->getType() == Maneuver_Item_Type) {
+        if (childAt(i)->getType() == Maneuver_Item_Type && childAt(i)->data(ManeuverItem::Added_To_Schedule).toBool()) {
             maneuvers << static_cast<ManeuverItem*>(childAt(i))->toJSON();
         }
         else if (childAt(i)->getType() == Crew_Item_Type) {
@@ -89,51 +89,66 @@ QJsonObject PlaneItem::toJSON() const
 
     plane["maneuvers"] = maneuvers;
     plane["crew"] = crew;
+    return plane;
 }
 
 ManeuverItem::ManeuverItem(QJsonObject maneuver, BaseItem *parent) : BaseItem(Maneuver_Item_Type, parent)
 {
     QString name = maneuver.value("name").toString();
     setData(Maneuver_Name,        name);
-    setData(Speed,                name.right(1).toInt());
-    setData(Direction,            name.right(2).left(1));
-    setData(Climb_Value,          maneuver.value("climb_val").toString());
-    setData(Level_Value,          maneuver.value("level_val").toString());
-    setData(Dive_Value,           maneuver.value("dive_val").toString());
     setData(IsEnabled,            true); // By default all available maneuvers are enabled
     setData(Can_Be_Used,          true); // This needs to be set dynamically turn by turn
-    setData(Can_Reload,           maneuver.contains("can_reload"));
-    setData(Observer_Can_Reload,  maneuver.contains("observer_can_reload"));
-    setData(Is_Restricted,        maneuver.contains("is_restricted"));
-    setData(Climb_Restricted,     maneuver.contains("climb_restricted"));
-    setData(Can_Put_Out_Fires,    maneuver.contains("can_put_out_fires"));
-    setData(Can_Be_Repeated,      maneuver.contains("can_be_repeated"));
-    setData(Is_Weight_Restricted, maneuver.contains("is_weight_restricted"));
+    setData(Speed,                name.right(1).toInt());
+    setData(Direction,            name.right(2).left(1));
+    QStringList tolerances =      maneuver.value("tolerances").toString().split("/");
+    setData(Climb_Value,          tolerances.at(0));
+    setData(Level_Value,          tolerances.at(1));
+    setData(Dive_Value,           tolerances.at(2));
+    setData(Can_Be_Repeated,      maneuver.value("can_be_repeated"));
+    setData(Can_Reload,           maneuver.value("can_reload"));
+    setData(Can_Put_Out_Fires,    maneuver.value("can_put_out_fires"));
+    setData(Observer_Can_Reload,  maneuver.value("observer_can_reload"));
+    setData(Is_Restricted,        maneuver.value("is_restricted"));
+    setData(Is_Weight_Restricted, maneuver.value("is_weight_restricted"));
+    setData(Is_Climb_Restricted,  maneuver.value("is_climb_restricted"));
+    setData(Causes_Spin_Check,    maneuver.value("causes_spin_check"));
 }
 
 ManeuverItem::ManeuverItem(Maneuver maneuver, BaseItem *parent) : BaseItem(Maneuver_Item_Type, parent)
 {
-    setData(Maneuver_Name,     maneuver.name);
-    setData(Speed,             maneuver.name.right(1).toInt());
-    setData(Direction,         maneuver.name.right(2).left(1));
-    setData(IsEnabled,         true);
-    setData(Can_Be_Repeated,   true);
-    setData(Climb_Value,       maneuver.climb_value);
-    setData(Level_Value,       maneuver.level_value);
-    setData(Dive_Value,        maneuver.dive_value);
-    setData(Is_Restricted,     maneuver.is_restricted);
-    setData(Climb_Restricted,  maneuver.is_climb_restricted);
-    setData(Causes_Spin_Check, maneuver.causes_spin_check);
+    setData(Maneuver_Name,       maneuver.name);
+    setData(Speed,               maneuver.name.right(1).toInt());
+    setData(Direction,           maneuver.name.right(2).left(1));
+    setData(IsEnabled,           true);
+    setData(Can_Be_Repeated,     true);
+    setData(Added_To_Schedule,       false); // Maneuvers need to be added to the schedule to be saved
+    setData(Climb_Value,         maneuver.climb_value);
+    setData(Level_Value,         maneuver.level_value);
+    setData(Dive_Value,          maneuver.dive_value);
+    setData(Is_Restricted,       maneuver.is_restricted);
+    setData(Is_Climb_Restricted, maneuver.is_climb_restricted);
+    setData(Causes_Spin_Check,   maneuver.causes_spin_check);
 }
 
 QJsonObject ManeuverItem::toJSON() const
 {
-
+    QJsonObject maneuver;
+    QStringList tolerances = {data(Climb_Value).toString(), data(Level_Value).toString(), data(Dive_Value).toString()};
+    maneuver["name"] =                 data(Maneuver_Name).toString();
+    maneuver["tolerances"] =           tolerances.join("/");
+    maneuver["can_be_repeated"] =      data(Can_Be_Repeated).toBool();
+    maneuver["can_reload"] =           data(Can_Reload).toBool();
+    maneuver["can_put_out_fires"] =    data(Can_Put_Out_Fires).toBool();
+    maneuver["observer_can_reload"] =  data(Observer_Can_Reload).toBool();
+    maneuver["is_restricted"] =        data(Is_Restricted).toBool();
+    maneuver["is_weight_restricted"] = data(Is_Weight_Restricted).toBool();
+    maneuver["is_climb_restricted"] =  data(Is_Climb_Restricted).toBool();
+    maneuver["causes_spin_check"] =    data(Causes_Spin_Check).toBool();
+    return maneuver;
 }
 
 CrewItem::CrewItem(QJsonObject crew, BaseItem *parent) : BaseItem(Crew_Item_Type, parent)
 {
-    // TODO: Add container/controls for special abilities
     setData(Crew_Role, crew.value("role").toString());
     setData(Wounds, 0);
 }
@@ -142,25 +157,38 @@ CrewItem::CrewItem(BaseItem *parent) : BaseItem(BaseItem::Crew_Item_Type, parent
 
 QJsonObject CrewItem::toJSON() const
 {
-
+    QJsonObject crew;
+    crew["role"] = data(Crew_Role).toString();
+    if (childCount() > 0) {
+        crew["gun"] = static_cast<GunItem*>(childAt(0))->toJSON();
+    }
+    return crew;
 }
 
 GunItem::GunItem(QJsonObject gun, BaseItem *parent) : BaseItem(Gun_Item_Type, parent)
 {
-    setData(Ammo_Box_Capacity, gun.value("gun_box_size").toInt());
-    int ammo_count = gun.value("gun_ammo_amt").toInt();
-    setData(Ammo_Box_Count,   ammo_count);
-    setData(Fire_Template, gun.value("fire_template").toInt());
-    setData(Fire_Base_3,   gun.value("fire_base_3").toInt());
-    setData(Fire_Base_2,   gun.value("fire_base_2").toInt());
-    setData(Fire_Base_1,   gun.value("fire_base_1").toInt());
-    setData(Fire_Base_0,   gun.value("fire_base_0").toInt());
-    setData(Gun_Destroyed, false);
+    setData(Ammo_Box_Capacity, gun.value("ammo_box_capacity"));
+    setData(Ammo_Box_Count,    gun.value("ammo_box_count"));
+    setData(Fire_Template,     gun.value("fire_template").toInt());
+    setData(Fire_Base_3,       gun.value("fire_base_3").toInt());
+    setData(Fire_Base_2,       gun.value("fire_base_2").toInt());
+    setData(Fire_Base_1,       gun.value("fire_base_1").toInt());
+    setData(Fire_Base_0,       gun.value("fire_base_0").toInt());
+    setData(Gun_Destroyed,     false);
 }
 
 GunItem::GunItem(BaseItem *parent) : BaseItem(BaseItem::Gun_Item_Type, parent) {}
 
 QJsonObject GunItem::toJSON() const
 {
-
+    QJsonObject gun;
+    gun["name"] = data(Gun_Name).toString();
+    gun["fire_template"]     = data(Fire_Template).toInt();
+    gun["fire_base_3"]       = data(Fire_Base_3).toInt();
+    gun["fire_base_2"]       = data(Fire_Base_2).toInt();
+    gun["fire_base_1"]       = data(Fire_Base_1).toInt();
+    gun["fire_base_0"]       = data(Fire_Base_0).toInt();
+    gun["ammo_box_capacity"] = data(Ammo_Box_Capacity).toInt();
+    gun["ammo_box_count"]    = data(Ammo_Box_Count).toInt();
+    return gun;
 }

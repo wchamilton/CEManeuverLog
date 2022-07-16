@@ -18,6 +18,7 @@ CrewEditorTab::~CrewEditorTab()
 void CrewEditorTab::populateCrewItem(CrewItem *crew)
 {
     crew->setData(CrewItem::Crew_Role, ui->role_cmb->currentText());
+    // Add gun controls
     if (ui->gun_grp->isChecked()) {
         GunItem* gun_item = new GunItem(crew);
         gun_item->setData(GunItem::Gun_Name, ui->gun_name->text());
@@ -28,5 +29,6 @@ void CrewEditorTab::populateCrewItem(CrewItem *crew)
         gun_item->setData(GunItem::Fire_Base_0, ui->fire_base_0->value());
         gun_item->setData(GunItem::Ammo_Box_Capacity, ui->ammo_per_box->value());
         gun_item->setData(GunItem::Ammo_Box_Count, ui ->ammo_box_count->value());
+        crew->addChild(gun_item);
     }
 }

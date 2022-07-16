@@ -7,6 +7,10 @@
 #include <QPersistentModelIndex>
 #include <QDataWidgetMapper>
 #include <QVariant>
+#include <QFileDialog>
+#include <QSettings>
+#include <QJsonDocument>
+#include <QTextCodec>
 
 #include "CrewEditorTab.h"
 #include "models/PlaneModel.h"
@@ -86,6 +90,8 @@ PlaneEditor::PlaneEditor(QWidget *parent) :
         removeManeuverFromSchedule(idx);
     });
 
+    connect(ui->export_json, &QPushButton::pressed, this, &PlaneEditor::exportJSON);
+
     connect(ui->maneuver_selection, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &PlaneEditor::updatePreview);
     connect(ui->crew_editor_tab, &QTabWidget::tabCloseRequested, this, [&](int index) { ui->crew_editor_tab->removeTab(index); });
     connect(tb, &QToolButton::clicked, this, [&]() {
@@ -127,30 +133,62 @@ void PlaneEditor::updatePreview(int row)
 
 void PlaneEditor::exportJSON()
 {
-    auto set_plane_data =[&](int col, QVariant data) {
-        plane_model->setData(plane_model->index(0, col), data);
-    };
-    set_plane_data(PlaneItem::Plane_Name, ui->plane_name->text());
-    set_plane_data(PlaneItem::Plane_Era, ui->early_war_btn->isChecked() ? "Early War" : "Late War");
-    set_plane_data(PlaneItem::Fuel, ui->fuel_amt->value());
-    set_plane_data(PlaneItem::Engine_HP, ui->engine_hp->value());
-    set_plane_data(PlaneItem::Engine_Critical, ui->engine_critical_hp->value());
-    set_plane_data(PlaneItem::Wing_HP, ui->wing_hp->value());
-    set_plane_data(PlaneItem::Wing_Critical, ui->wing_critical_hp->value());
-    set_plane_data(PlaneItem::Fuselage_HP, ui->fuselage_hp->value());
-    set_plane_data(PlaneItem::Fuselage_Critical, ui->fuselage_critical_hp->value());
-    set_plane_data(PlaneItem::Tail_HP, ui->tail_hp->value());
-    set_plane_data(PlaneItem::Tail_Critical, ui->tail_critical_hp->value());
-    set_plane_data(PlaneItem::Rated_Dive, ui->rated_dive->value());
-    set_plane_data(PlaneItem::Rated_Climb, ui->rated_climb->value());
-    set_plane_data(PlaneItem::Max_Altitude, ui->max_alt->text());
-    set_plane_data(PlaneItem::Stability, ui->stab_rating->text());
+    PlaneItem* plane = static_cast<PlaneItem*>(plane_model->index(0,0).internalPointer());
+
+    plane->setData(PlaneItem::Plane_Name, ui->plane_name->text());
+    plane->setData(PlaneItem::Plane_Era, ui->early_war_btn->isChecked() ? "Early War" : "Late War");
+    plane->setData(PlaneItem::Fuel, ui->fuel_amt->value());
+    plane->setData(PlaneItem::Engine_HP, ui->engine_hp->value());
+    plane->setData(PlaneItem::Engine_Critical, ui->engine_critical_hp->value());
+    plane->setData(PlaneItem::Wing_HP, ui->wing_hp->value());
+    plane->setData(PlaneItem::Wing_Critical, ui->wing_critical_hp->value());
+    plane->setData(PlaneItem::Fuselage_HP, ui->fuselage_hp->value());
+    plane->setData(PlaneItem::Fuselage_Critical, ui->fuselage_critical_hp->value());
+    plane->setData(PlaneItem::Tail_HP, ui->tail_hp->value());
+    plane->setData(PlaneItem::Tail_Critical, ui->tail_critical_hp->value());
+    plane->setData(PlaneItem::Rated_Dive, ui->rated_dive->value());
+    plane->setData(PlaneItem::Rated_Climb, ui->rated_climb->value());
+    plane->setData(PlaneItem::Max_Altitude, ui->max_alt->text());
+    plane->setData(PlaneItem::Stability, ui->stab_rating->text());
 
     // Start at 1 since index 0 is used by the [+] tab
     for (int i=1; i<ui->crew_editor_tab->count(); ++i) {
-        CrewItem* item = new CrewItem(static_cast<PlaneItem*>(plane_model->index(0,0).internalPointer()));
+        CrewItem* item = new CrewItem(plane);
         static_cast<CrewEditorTab*>(ui->crew_editor_tab->widget(i))->populateCrewItem(item);
+        plane->addChild(item);
     }
+
+    QSettings settings;
+    QString planes_dir = "/home";
+    if (settings.contains("planes_dir")) {
+        planes_dir = settings.value("planes_dir").toString();
+    }
+
+    QString file_path = QFileDialog::getSaveFileName(this, tr("Save Plane"), planes_dir, tr("JSON files (*.json)"));
+    if (file_path == "") {
+        return;
+    }
+
+    QFileInfo file_info(file_path);
+    if (file_info.completeSuffix() != "json") {
+        file_info.setFile(file_path + ".json");
+    }
+
+    QFile file(file_info.absoluteFilePath());
+    if (!file.open(QIODevice::WriteOnly|QIODevice::Text)) {
+        return;
+    }
+
+    // Ensure that if there are any unicode characters, they're preserved properly
+    QTextStream out(&file);
+    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+    out.setCodec(codec);
+    QString configDoc = codec->fromUnicode(QString(QJsonDocument(plane_model->dumpPlaneToJSON(plane_model->index(0,0))).toJson()));
+
+    out << configDoc;
+    out.flush();
+    file.close();
+    settings.setValue("planes_dir", file_info.dir().absolutePath());
 }
 
 void PlaneEditor::setManeuverData(int column, QVariant data)
@@ -163,9 +201,11 @@ void PlaneEditor::setManeuverData(int column, QVariant data)
 void PlaneEditor::addManeuverToSchedule(QPersistentModelIndex idx)
 {
     maneuver_schedule_scene->addManeuver(idx);
+    maneuver_proxy_model->setData(idx.sibling(idx.row(), ManeuverItem::Added_To_Schedule), true);
 }
 
 void PlaneEditor::removeManeuverFromSchedule(QPersistentModelIndex idx)
 {
     maneuver_schedule_scene->removeManeuver(idx);
+    maneuver_proxy_model->setData(idx.sibling(idx.row(), ManeuverItem::Added_To_Schedule), false);
 }

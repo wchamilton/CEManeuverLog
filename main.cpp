@@ -2,6 +2,8 @@
 
 #include <QApplication>
 #include <QFile>
+#include <QStyle>
+#include <QDesktopWidget>
 
 int main(int argc, char *argv[])
 {
@@ -12,6 +14,7 @@ int main(int argc, char *argv[])
     a.setStyleSheet(style_sheet);
 
     MainWindow w;
+    w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w.size(), qApp->desktop()->availableGeometry()));
     w.show();
     return a.exec();
 }

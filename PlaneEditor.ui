@@ -7,116 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>1050</width>
-    <height>900</height>
+    <height>805</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Plane Creator</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_3" rowstretch="1,0" columnstretch="0,1">
+  <layout class="QGridLayout" name="gridLayout_9" columnstretch="0,1">
    <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Plane</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="5" column="1">
-       <widget class="QSpinBox" name="engine_critical_hp"/>
-      </item>
-      <item row="14" column="0">
-       <widget class="QLabel" name="label_13">
-        <property name="text">
-         <string>Max Altitude:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="1">
-       <widget class="QSpinBox" name="tail_hp"/>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Fuel:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>Wing HP:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="13" column="1">
-       <widget class="QSpinBox" name="rated_dive"/>
-      </item>
-      <item row="9" column="0">
-       <widget class="QLabel" name="label_17">
-        <property name="text">
-         <string>Fuselage Critical HP:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QSpinBox" name="fuel_amt"/>
-      </item>
-      <item row="4" column="1">
-       <widget class="QSpinBox" name="engine_hp"/>
-      </item>
-      <item row="13" column="0">
-       <widget class="QLabel" name="label_12">
-        <property name="text">
-         <string>Rated Dive:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0" colspan="2">
-       <widget class="QTabWidget" name="crew_editor_tab">
-        <property name="tabsClosable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="12" column="1">
-       <widget class="QSpinBox" name="rated_climb"/>
-      </item>
-      <item row="12" column="0">
-       <widget class="QLabel" name="label_11">
-        <property name="text">
-         <string>Rated Climb:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>Engine HP:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="1">
-       <widget class="QSpinBox" name="fuselage_critical_hp"/>
-      </item>
-      <item row="10" column="0">
-       <widget class="QLabel" name="label_10">
-        <property name="text">
-         <string>Tail HP:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="15" column="0">
-       <widget class="QLabel" name="label_14">
-        <property name="text">
-         <string>Stability Rating:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="1">
-       <widget class="QSpinBox" name="wing_hp"/>
-      </item>
-      <item row="8" column="1">
-       <widget class="QSpinBox" name="fuselage_hp"/>
-      </item>
+     <layout class="QGridLayout" name="gridLayout_8" columnstretch="0,1">
       <item row="0" column="0" colspan="2">
        <widget class="QLineEdit" name="plane_name">
         <property name="placeholderText">
@@ -124,16 +27,7 @@
         </property>
        </widget>
       </item>
-      <item row="15" column="1">
-       <widget class="QLineEdit" name="stab_rating"/>
-      </item>
-      <item row="7" column="1">
-       <widget class="QSpinBox" name="wing_critical_hp"/>
-      </item>
-      <item row="14" column="1">
-       <widget class="QLineEdit" name="max_alt"/>
-      </item>
-      <item row="16" column="0" colspan="2">
+      <item row="8" column="0" colspan="2">
        <widget class="QGroupBox" name="groupBox_2">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
@@ -145,6 +39,18 @@
          <string>Maneuver</string>
         </property>
         <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0,0,0,0,0">
+         <property name="leftMargin">
+          <number>5</number>
+         </property>
+         <property name="rightMargin">
+          <number>5</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>1</number>
+         </property>
          <item row="2" column="0">
           <widget class="QLabel" name="label_2">
            <property name="text">
@@ -255,6 +161,13 @@
            </property>
           </widget>
          </item>
+         <item row="4" column="0" colspan="2">
+          <widget class="QCheckBox" name="set_can_reload">
+           <property name="text">
+            <string>Can reload</string>
+           </property>
+          </widget>
+         </item>
          <item row="9" column="0" colspan="3">
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <item>
@@ -298,13 +211,6 @@
              <string>L</string>
             </property>
            </item>
-          </widget>
-         </item>
-         <item row="4" column="0" colspan="2">
-          <widget class="QCheckBox" name="set_can_reload">
-           <property name="text">
-            <string>Can reload</string>
-           </property>
           </widget>
          </item>
          <item row="6" column="0" colspan="2">
@@ -357,36 +263,266 @@
         </item>
        </layout>
       </item>
-      <item row="8" column="0">
-       <widget class="QLabel" name="label_9">
-        <property name="text">
-         <string>Fuselage HP:</string>
+      <item row="5" column="0" colspan="2">
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <widget class="QGroupBox" name="groupBox_3">
+          <property name="title">
+           <string>Engine</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_4">
+           <property name="leftMargin">
+            <number>5</number>
+           </property>
+           <property name="topMargin">
+            <number>5</number>
+           </property>
+           <property name="rightMargin">
+            <number>5</number>
+           </property>
+           <property name="bottomMargin">
+            <number>2</number>
+           </property>
+           <property name="verticalSpacing">
+            <number>0</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>HP:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="engine_hp"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_15">
+             <property name="text">
+              <string>Critical HP:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="engine_critical_hp"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QGroupBox" name="groupBox_4">
+          <property name="title">
+           <string>Wing</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <property name="leftMargin">
+            <number>5</number>
+           </property>
+           <property name="topMargin">
+            <number>5</number>
+           </property>
+           <property name="rightMargin">
+            <number>5</number>
+           </property>
+           <property name="bottomMargin">
+            <number>2</number>
+           </property>
+           <property name="verticalSpacing">
+            <number>0</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>HP:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="wing_hp"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_16">
+             <property name="text">
+              <string>Critical HP:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="wing_critical_hp"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QGroupBox" name="groupBox_5">
+          <property name="title">
+           <string>Fuselage</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_6">
+           <property name="leftMargin">
+            <number>5</number>
+           </property>
+           <property name="topMargin">
+            <number>5</number>
+           </property>
+           <property name="rightMargin">
+            <number>5</number>
+           </property>
+           <property name="bottomMargin">
+            <number>2</number>
+           </property>
+           <property name="verticalSpacing">
+            <number>0</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_9">
+             <property name="text">
+              <string>HP:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="fuselage_hp"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_17">
+             <property name="text">
+              <string>Critical HP:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="fuselage_critical_hp"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QGroupBox" name="groupBox_6">
+          <property name="title">
+           <string>Tail</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_7">
+           <property name="leftMargin">
+            <number>5</number>
+           </property>
+           <property name="topMargin">
+            <number>5</number>
+           </property>
+           <property name="rightMargin">
+            <number>5</number>
+           </property>
+           <property name="bottomMargin">
+            <number>2</number>
+           </property>
+           <property name="verticalSpacing">
+            <number>0</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_10">
+             <property name="text">
+              <string>HP:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="tail_hp"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_18">
+             <property name="text">
+              <string>Critical HP:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="tail_critical_hp"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="3" column="0" colspan="2">
+       <widget class="QTabWidget" name="crew_editor_tab">
+        <property name="tabsClosable">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="label_15">
+      <item row="6" column="0" colspan="2">
+       <widget class="QGroupBox" name="groupBox_7">
+        <property name="title">
+         <string>Ratings</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <property name="leftMargin">
+          <number>5</number>
+         </property>
+         <property name="topMargin">
+          <number>5</number>
+         </property>
+         <property name="rightMargin">
+          <number>5</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>Rated Climb:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="rated_climb"/>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>Max Altitude:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QLineEdit" name="max_alt"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>Rated Dive:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="rated_dive"/>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="label_14">
+           <property name="text">
+            <string>Stability Rating:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <widget class="QLineEdit" name="stab_rating"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_6">
         <property name="text">
-         <string>Engine Critical HP:</string>
+         <string>Fuel Capacity:</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="0">
-       <widget class="QLabel" name="label_16">
-        <property name="text">
-         <string>Wing Critical HP:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="0">
-       <widget class="QLabel" name="label_18">
-        <property name="text">
-         <string>Tail Critical HP:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="1">
-       <widget class="QSpinBox" name="tail_critical_hp"/>
+      <item row="4" column="1">
+       <widget class="QSpinBox" name="fuel_amt"/>
       </item>
      </layout>
     </widget>
@@ -403,6 +539,38 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>plane_name</tabstop>
+  <tabstop>early_war_btn</tabstop>
+  <tabstop>late_war_btn</tabstop>
+  <tabstop>crew_editor_tab</tabstop>
+  <tabstop>fuel_amt</tabstop>
+  <tabstop>engine_hp</tabstop>
+  <tabstop>engine_critical_hp</tabstop>
+  <tabstop>wing_hp</tabstop>
+  <tabstop>wing_critical_hp</tabstop>
+  <tabstop>fuselage_hp</tabstop>
+  <tabstop>fuselage_critical_hp</tabstop>
+  <tabstop>tail_hp</tabstop>
+  <tabstop>tail_critical_hp</tabstop>
+  <tabstop>rated_climb</tabstop>
+  <tabstop>rated_dive</tabstop>
+  <tabstop>max_alt</tabstop>
+  <tabstop>stab_rating</tabstop>
+  <tabstop>maneuver_selection</tabstop>
+  <tabstop>set_climb</tabstop>
+  <tabstop>set_level</tabstop>
+  <tabstop>set_dive</tabstop>
+  <tabstop>set_can_reload</tabstop>
+  <tabstop>set_obs_can_reload</tabstop>
+  <tabstop>set_can_put_out_fires</tabstop>
+  <tabstop>set_can_repeat</tabstop>
+  <tabstop>set_weight_restricted</tabstop>
+  <tabstop>add_maneuver</tabstop>
+  <tabstop>remove_maneuver</tabstop>
+  <tabstop>export_json</tabstop>
+  <tabstop>maneuver_schedule_gv</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
  <buttongroups>

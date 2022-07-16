@@ -397,6 +397,18 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>gun_state</tabstop>
+  <tabstop>gun_angle</tabstop>
+  <tabstop>shots_fired_grpbox</tabstop>
+  <tabstop>radioButton</tabstop>
+  <tabstop>radioButton_2</tabstop>
+  <tabstop>radioButton_3</tabstop>
+  <tabstop>spinBox</tabstop>
+  <tabstop>pushButton</tabstop>
+  <tabstop>spinBox_2</tabstop>
+  <tabstop>drop_bomb_btn</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

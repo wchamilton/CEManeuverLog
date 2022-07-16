@@ -7,6 +7,7 @@
 #include <QJsonArray>
 #include <QMessageBox>
 #include <QDebug>
+#include <QDesktopWidget>
 
 #include "models/PlaneModel.h"
 #include "graphics/ManeuverScene.h"
@@ -27,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     early_war_menu = ui->select_plane_menu->addMenu("Early War");
     late_war_menu = ui->select_plane_menu->addMenu("Late War");
-    loadJSON("../CEManeuverLog/planes.json");
+    loadJSON("../planes/Albratross_DI-DII.json");
 
     maneuver_scene = new ManeuverScene(ui->graphicsView);
     maneuver_scene->positionManeuvers();
@@ -53,17 +54,19 @@ MainWindow::~MainWindow()
 void MainWindow::loadJSON(QString file_path)
 {
     QFile file(file_path);
-    file.open(QIODevice::ReadOnly|QIODevice::Text);
+    if (!file.open(QIODevice::ReadOnly|QIODevice::Text)) {
+        qWarning() << "Could not open" << file_path;
+        return;
+    }
     QJsonDocument planes_doc = QJsonDocument::fromJson(QString(file.readAll()).toUtf8());
     file.close();
 
-    QJsonArray planes_array = planes_doc.array();
     delete plane_model;
     delete maneuver_proxy_model;
     delete crew_proxy_model;
 
     plane_model = new PlaneModel(this);
-    plane_model->loadPlanesJSON(planes_array);
+    plane_model->loadPlaneJSON(planes_doc.object());
 
     maneuver_proxy_model = new PlaneFilterProxy(plane_model, this);
     maneuver_proxy_model->setTypeFilter(BaseItem::Maneuver_Item_Type);

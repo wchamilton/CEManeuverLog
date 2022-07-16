@@ -402,10 +402,6 @@
         <property name="text">
          <string/>
         </property>
-        <property name="icon">
-         <iconset>
-          <normaloff>C:/Users/Wesley/Downloads/icons8-question-mark-64.png</normaloff>C:/Users/Wesley/Downloads/icons8-question-mark-64.png</iconset>
-        </property>
         <property name="autoRaise">
          <bool>true</bool>
         </property>
@@ -416,6 +412,19 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>role_cmb</tabstop>
+  <tabstop>gun_grp</tabstop>
+  <tabstop>gun_name</tabstop>
+  <tabstop>fire_template_spin</tabstop>
+  <tabstop>toolButton</tabstop>
+  <tabstop>ammo_box_count</tabstop>
+  <tabstop>ammo_per_box</tabstop>
+  <tabstop>fire_base_3</tabstop>
+  <tabstop>fire_base_2</tabstop>
+  <tabstop>fire_base_1</tabstop>
+  <tabstop>fire_base_0</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
