@@ -90,16 +90,13 @@ bool PlaneModel::setData(const QModelIndex &index, const QVariant &value, int ro
     return true;
 }
 
-void PlaneModel::loadPlanesJSON(QJsonArray planes)
+QModelIndex PlaneModel::loadPlaneJSON(QJsonObject plane)
 {
-    for (int i=0; i<planes.size(); ++i) {
-        root->addChild(new PlaneItem(planes.at(i).toObject(), root));
-    }
-}
-
-void PlaneModel::loadPlaneJSON(QJsonObject plane)
-{
-    root->addChild(new PlaneItem(plane, root));
+    beginInsertRows(QModelIndex(), rowCount(), rowCount()+1);
+    PlaneItem *item = new PlaneItem(plane, root);
+    root->addChild(item);
+    endInsertRows();
+    return index(item->row(), PlaneItem::Plane_Name);
 }
 
 QJsonObject PlaneModel::dumpPlaneToJSON(const QModelIndex &index)
@@ -115,21 +112,35 @@ void PlaneModel::prepareTemplateModel()
     root->addChild(new PlaneItem(root));
 }
 
+void PlaneModel::clearModel()
+{
+    beginResetModel();
+    delete root;
+    root = new BaseItem(BaseItem::Base_Item_Type);
+    endResetModel();
+}
+
 PlaneFilterProxy::PlaneFilterProxy(PlaneModel *src_model, QObject *parent) : QSortFilterProxyModel(parent)
 {
     setSourceModel(src_model);
+    type_filters << BaseItem::Plane_Item_Type; // All items are children of the plane item
 }
 
-void PlaneFilterProxy::setTypeFilter(BaseItem::ItemType type)
+void PlaneFilterProxy::setTypeFilter(QList<BaseItem::ItemType> type)
 {
-    type_filter = type;
+    type_filters = type;
+    invalidate();
+}
+
+void PlaneFilterProxy::expandFilter(BaseItem::ItemType type)
+{
+    type_filters << type;
     invalidate();
 }
 
 bool PlaneFilterProxy::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
-    return sourceModel()->index(source_row, 0, source_parent).data(Qt::UserRole).toInt() == type_filter ||
-            sourceModel()->index(source_row, 0, source_parent).data(Qt::UserRole).toInt() == BaseItem::Plane_Item_Type; // Need to allow parent
+    return type_filters.contains((BaseItem::ItemType)sourceModel()->index(source_row, 0, source_parent).data(Qt::UserRole).toInt()); // Need to allow parent
 }
 
 bool PlaneFilterProxy::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const

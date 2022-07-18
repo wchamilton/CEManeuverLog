@@ -6,22 +6,53 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>198</width>
-    <height>74</height>
+    <width>413</width>
+    <height>75</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="3">
-    <widget class="QLineEdit" name="name">
-     <property name="placeholderText">
-      <string>Name</string>
+  <layout class="QGridLayout" name="gridLayout" columnstretch="0,1,0,0,0,0">
+   <item row="0" column="2" rowspan="2">
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
     </widget>
    </item>
-   <item row="1" column="2">
+   <item row="0" column="4" rowspan="2">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QPushButton" name="score_red_btn">
+     <property name="text">
+      <string>Score Red Hit</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="5">
+    <widget class="QPushButton" name="add_wound_btn">
+     <property name="text">
+      <string>Add Wound</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QComboBox" name="comboBox"/>
+   </item>
+   <item row="0" column="3">
+    <widget class="QSpinBox" name="reds_spin">
+     <property name="suffix">
+      <string> reds</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="5">
     <widget class="QSlider" name="wounds">
      <property name="enabled">
       <bool>true</bool>
@@ -91,10 +122,17 @@ border-radius: 4px;
      </property>
     </widget>
    </item>
-   <item row="1" column="0" colspan="2">
-    <widget class="QPushButton" name="add_wound_btn">
+   <item row="1" column="0">
+    <widget class="QLabel" name="label">
      <property name="text">
-      <string>Add Wound</string>
+      <string>Ability:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QLineEdit" name="name">
+     <property name="placeholderText">
+      <string>Name</string>
      </property>
     </widget>
    </item>

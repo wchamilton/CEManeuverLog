@@ -17,7 +17,7 @@
    <bool>true</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,1,0" columnstretch="1,0">
+   <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,1,0" columnstretch="1,0">
     <item row="0" column="0" rowspan="5">
      <widget class="QGraphicsView" name="graphicsView"/>
     </item>
@@ -49,17 +49,7 @@
       <property name="title">
        <string>Turn Controls</string>
       </property>
-      <layout class="QGridLayout" name="gridLayout_4">
-       <item row="5" column="0" colspan="6">
-        <widget class="QPushButton" name="log_turn_btn">
-         <property name="text">
-          <string>Log Turn</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1" colspan="2">
-        <widget class="QComboBox" name="maneuver_cmb"/>
-       </item>
+      <layout class="QGridLayout" name="gridLayout_3" columnstretch="0,1,0,1">
        <item row="0" column="0">
         <widget class="QLabel" name="label">
          <property name="text">
@@ -67,16 +57,26 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="0" colspan="6">
-        <widget class="QTabWidget" name="gun_tab"/>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="maneuver_cmb"/>
        </item>
-       <item row="1" column="1" colspan="2">
-        <widget class="QComboBox" name="alt_cmb"/>
-       </item>
-       <item row="1" column="0">
+       <item row="0" column="2">
         <widget class="QLabel" name="label_4">
          <property name="text">
           <string>Altitude:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QComboBox" name="alt_cmb"/>
+       </item>
+       <item row="1" column="0" colspan="4">
+        <widget class="QTabWidget" name="gun_tab"/>
+       </item>
+       <item row="2" column="0" colspan="4">
+        <widget class="QPushButton" name="log_turn_btn">
+         <property name="text">
+          <string>Log Turn</string>
          </property>
         </widget>
        </item>
@@ -100,17 +100,17 @@
      </widget>
     </item>
     <item row="4" column="1">
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
        <widget class="PlanePartDamageTracker" name="engine_grp" native="true"/>
       </item>
-      <item>
+      <item row="0" column="1">
        <widget class="PlanePartDamageTracker" name="wing_grp" native="true"/>
       </item>
-      <item>
-       <widget class="PlanePartDamageTracker" name="fusilage_grp" native="true"/>
+      <item row="1" column="0">
+       <widget class="PlanePartDamageTracker" name="fuselage_grp" native="true"/>
       </item>
-      <item>
+      <item row="1" column="1">
        <widget class="PlanePartDamageTracker" name="tail_grp" native="true"/>
       </item>
      </layout>
@@ -130,9 +130,9 @@
     <property name="title">
      <string>Game</string>
     </property>
-    <addaction name="actionPlane_Editor"/>
+    <addaction name="actionCreate_plane"/>
+    <addaction name="actionEdit_plane"/>
     <addaction name="actionLoad_Planes"/>
-    <addaction name="actionReset"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="select_plane_menu">
@@ -140,8 +140,24 @@
      <string>Select a Plane</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuSelect_Scenario">
+    <property name="title">
+     <string>Select Scenario</string>
+    </property>
+    <addaction name="actionDogfight"/>
+    <addaction name="actionBombing_Run"/>
+    <addaction name="actionScouting_Mission"/>
+   </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
+    <addaction name="actionSet_Plane_Auto_Load_Location"/>
+   </widget>
    <addaction name="game_menu"/>
    <addaction name="select_plane_menu"/>
+   <addaction name="menuSelect_Scenario"/>
+   <addaction name="menuSettings"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionReset">
@@ -153,15 +169,43 @@
    <property name="text">
     <string>Quit</string>
    </property>
+   <property name="menuRole">
+    <enum>QAction::QuitRole</enum>
+   </property>
   </action>
   <action name="actionLoad_Planes">
    <property name="text">
-    <string>Load Planes</string>
+    <string>Load a Plane</string>
    </property>
   </action>
-  <action name="actionPlane_Editor">
+  <action name="actionCreate_plane">
    <property name="text">
-    <string>Create a plane</string>
+    <string>Create a new plane</string>
+   </property>
+  </action>
+  <action name="actionEdit_plane">
+   <property name="text">
+    <string>Edit an existing plane</string>
+   </property>
+  </action>
+  <action name="actionDogfight">
+   <property name="text">
+    <string>Dogfight</string>
+   </property>
+  </action>
+  <action name="actionBombing_Run">
+   <property name="text">
+    <string>Bombing Run</string>
+   </property>
+  </action>
+  <action name="actionScouting_Mission">
+   <property name="text">
+    <string>Scouting Mission</string>
+   </property>
+  </action>
+  <action name="actionSet_Plane_Auto_Load_Location">
+   <property name="text">
+    <string>Set Auto-Load Location</string>
    </property>
   </action>
  </widget>
@@ -174,5 +218,22 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>actionQuit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>549</x>
+     <y>474</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

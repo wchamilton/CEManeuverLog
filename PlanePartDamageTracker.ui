@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>PlanePartDamageTracker</class>
  <widget class="QGroupBox" name="PlanePartDamageTracker">
+  <property name="enabled">
+   <bool>false</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -22,14 +25,14 @@
     </widget>
    </item>
    <item row="2" column="0" colspan="3">
-    <widget class="QPushButton" name="pushButton_2">
+    <widget class="QPushButton" name="damage_btn">
      <property name="text">
       <string>Damage</string>
      </property>
     </widget>
    </item>
    <item row="1" column="1" colspan="2">
-    <widget class="QSpinBox" name="spinBox_4"/>
+    <widget class="QSpinBox" name="current_hp"/>
    </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label_2">
@@ -39,9 +42,9 @@
     </widget>
    </item>
    <item row="0" column="1" colspan="2">
-    <widget class="QLabel" name="label_5">
+    <widget class="QLabel" name="status_lbl">
      <property name="text">
-      <string>&lt;status&gt;</string>
+      <string>Normal</string>
      </property>
     </widget>
    </item>

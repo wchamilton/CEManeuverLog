@@ -24,10 +24,10 @@ public:
     Qt::ItemFlags flags(const QModelIndex &idx) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
-    void loadPlanesJSON(QJsonArray planes);
-    void loadPlaneJSON(QJsonObject plane);
+    QModelIndex loadPlaneJSON(QJsonObject plane);
     QJsonObject dumpPlaneToJSON(const QModelIndex &index);
     void prepareTemplateModel();
+    void clearModel();
 
 private:
     BaseItem* root = nullptr;
@@ -38,7 +38,8 @@ class PlaneFilterProxy : public QSortFilterProxyModel
     Q_OBJECT
 public:
     PlaneFilterProxy(PlaneModel* src_model, QObject* parent = nullptr);
-    void setTypeFilter(BaseItem::ItemType type);
+    void setTypeFilter(QList<BaseItem::ItemType> type);
+    void expandFilter(BaseItem::ItemType type);
 
     // QSortFilterProxyModel interface
 protected:
@@ -46,7 +47,7 @@ protected:
     bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
 
 private:
-    BaseItem::ItemType type_filter;
+    QList<BaseItem::ItemType> type_filters;
 };
 
 #endif // PLANEMODEL_H

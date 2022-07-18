@@ -17,6 +17,7 @@ class PlaneEditor : public QDialog
 
 public:
     explicit PlaneEditor(QWidget *parent = nullptr);
+    PlaneEditor(const QJsonObject &plane_object, QWidget *parent = nullptr);
     ~PlaneEditor();
 
 private slots:
@@ -24,6 +25,7 @@ private slots:
     void exportJSON();
 
 private:
+    void initWidgets();
     void setManeuverData(int column, QVariant data);
     void addManeuverToSchedule(QPersistentModelIndex idx);
     void removeManeuverFromSchedule(QPersistentModelIndex idx);

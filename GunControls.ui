@@ -6,44 +6,29 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>419</width>
-    <height>263</height>
+    <width>428</width>
+    <height>246</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_4">
+  <layout class="QGridLayout" name="gridLayout_4" columnstretch="0,1,3">
    <item row="0" column="0">
-    <widget class="QLabel" name="label_18">
+    <widget class="QLabel" name="label_10">
      <property name="text">
-      <string>Gun State:</string>
+      <string>Guns Jammed:</string>
      </property>
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QComboBox" name="gun_state">
-     <item>
-      <property name="text">
-       <string>Normal</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Jammed</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Destroyed</string>
-      </property>
-     </item>
+    <widget class="QSpinBox" name="guns_jammed_cmb">
+     <property name="maximum">
+      <number>1</number>
+     </property>
     </widget>
    </item>
-   <item row="0" column="4">
-    <widget class="QComboBox" name="gun_angle"/>
-   </item>
-   <item row="1" column="0" colspan="3">
+   <item row="0" column="2" rowspan="3">
     <widget class="QFrame" name="frame">
      <property name="autoFillBackground">
       <bool>true</bool>
@@ -160,13 +145,6 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0" colspan="9">
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="0">
        <widget class="QLabel" name="label">
         <property name="font">
@@ -181,7 +159,7 @@
        </widget>
       </item>
       <item row="2" column="2">
-       <widget class="QLabel" name="label_14">
+       <widget class="QLabel" name="fire_base_3">
         <property name="text">
          <string>0</string>
         </property>
@@ -191,7 +169,7 @@
        </widget>
       </item>
       <item row="2" column="4">
-       <widget class="QLabel" name="label_13">
+       <widget class="QLabel" name="fire_base_2">
         <property name="text">
          <string>0</string>
         </property>
@@ -201,7 +179,7 @@
        </widget>
       </item>
       <item row="2" column="6">
-       <widget class="QLabel" name="label_15">
+       <widget class="QLabel" name="fire_base_1">
         <property name="text">
          <string>0</string>
         </property>
@@ -211,7 +189,7 @@
        </widget>
       </item>
       <item row="2" column="8">
-       <widget class="QLabel" name="label_12">
+       <widget class="QLabel" name="fire_base_0">
         <property name="text">
          <string>0</string>
         </property>
@@ -248,166 +226,219 @@
         </property>
        </widget>
       </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="1" column="3" rowspan="2" colspan="2">
-    <widget class="QGroupBox" name="bomb_controls">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="title">
-      <string>Bombs</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
-      <item>
-       <widget class="QSpinBox" name="spinBox_2">
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
-        </property>
-        <property name="suffix">
-         <string> remaining</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="drop_bomb_btn">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Drop Bomb</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
+      <item row="1" column="0" colspan="9">
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="2" column="0" rowspan="2" colspan="3">
-    <widget class="QGroupBox" name="shots_fired_grpbox">
-     <property name="title">
-      <string>Shots Fired</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="2">
-       <widget class="QRadioButton" name="radioButton_3">
-        <property name="text">
-         <string>Long</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QRadioButton" name="radioButton_2">
-        <property name="text">
-         <string>Medium</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QRadioButton" name="radioButton">
-        <property name="text">
-         <string>Short</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_17">
-        <property name="text">
-         <string>Red Hits:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QSpinBox" name="spinBox"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="3" column="3" rowspan="2" colspan="2">
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="title">
-      <string>Ammo</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Current Box:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>&lt;ammo&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_9">
-        <property name="text">
-         <string>Total Remaining:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="label_10">
-        <property name="text">
-         <string>&lt;ammo&gt;</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="4" column="0" colspan="3">
-    <widget class="QPushButton" name="pushButton">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_18">
      <property name="text">
-      <string>Reload Gun</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
+      <string>Guns Destroyed:</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="3">
+   <item row="1" column="1">
+    <widget class="QSpinBox" name="guns_destroyed_cmb">
+     <property name="maximum">
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
       <string>Gun Angle:</string>
      </property>
     </widget>
    </item>
+   <item row="2" column="1">
+    <widget class="QComboBox" name="gun_angle">
+     <item>
+      <property name="text">
+       <string>1</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>2</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>3</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>4</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>5</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>6</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="3">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string>Shots Fired</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0" rowspan="3">
+         <widget class="QSlider" name="burst_len">
+          <property name="maximum">
+           <number>2</number>
+          </property>
+          <property name="pageStep">
+           <number>1</number>
+          </property>
+          <property name="value">
+           <number>2</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QPushButton" name="long_burst_btn">
+          <property name="text">
+           <string>Long Burst</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="med_burst_btn">
+          <property name="text">
+           <string>Medium Burst</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QPushButton" name="short_burst_btn">
+          <property name="text">
+           <string>Short Burst</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="title">
+        <string>Ammo</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Current Box:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="ammo_box_current">
+          <property name="text">
+           <string>20</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>Total Remaining:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLabel" name="ammo_total">
+          <property name="text">
+           <string>20</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="2">
+         <widget class="QPushButton" name="reload_btn">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Reload Gun</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="bombs_grp">
+       <property name="title">
+        <string>Bombs</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QSpinBox" name="bombs_available">
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+          <property name="buttonSymbols">
+           <enum>QAbstractSpinBox::NoButtons</enum>
+          </property>
+          <property name="suffix">
+           <string> available</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="drop_bomb_btn">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Drop Bomb</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
   </layout>
  </widget>
  <tabstops>
-  <tabstop>gun_state</tabstop>
   <tabstop>gun_angle</tabstop>
-  <tabstop>shots_fired_grpbox</tabstop>
-  <tabstop>radioButton</tabstop>
-  <tabstop>radioButton_2</tabstop>
-  <tabstop>radioButton_3</tabstop>
-  <tabstop>spinBox</tabstop>
-  <tabstop>pushButton</tabstop>
-  <tabstop>spinBox_2</tabstop>
-  <tabstop>drop_bomb_btn</tabstop>
  </tabstops>
  <resources/>
  <connections/>

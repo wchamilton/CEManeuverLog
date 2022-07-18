@@ -43,8 +43,8 @@ void ManeuverGraphic::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     painter->setFont(font);
 
     painter->drawText(hex_center - painter->fontMetrics().width(getID())/2, hex_height + 3*painter->fontMetrics().height()/4, getID());
-    painter->drawText(hex_center - painter->fontMetrics().width(getTolerances())/2, hex_height + 7*painter->fontMetrics().height()/4, getTolerances());
-    painter->drawText(hex_center - painter->fontMetrics().width(getAdditionalInfo())/2, hex_height + 10*painter->fontMetrics().height()/4, getAdditionalInfo());
+    painter->drawText(hex_center - painter->fontMetrics().width(getTolerances())/2, hex_height + 6*painter->fontMetrics().height()/4, getTolerances());
+    painter->drawText(hex_center - painter->fontMetrics().width(getAdditionalInfo())/2, hex_height + 9*painter->fontMetrics().height()/4, getAdditionalInfo());
 }
 
 void ManeuverGraphic::addHex(Maneuver::Directions position, HexTile::TileType tile_type, qreal rotation)

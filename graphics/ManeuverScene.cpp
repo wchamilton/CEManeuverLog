@@ -58,16 +58,19 @@ void ManeuverScene::setManeuvers(QPersistentModelIndex plane_idx)
     const QAbstractItemModel* plane_model = plane_idx.model();
     QMap<QString, QPersistentModelIndex> maneuver_indexes;
 
-    // Iterate over the child items of the plane index
-    for (int i=0; i<plane_model->rowCount(plane_idx); ++i) {
-        QPersistentModelIndex index = plane_model->index(i, ManeuverItem::Maneuver_Name, plane_idx);
-        QString name = index.data().toString();
-        maneuver_indexes[name] = index;
+    if (plane_idx.isValid()) {
+        // Iterate over the child items of the plane index
+        for (int i=0; i<plane_model->rowCount(plane_idx); ++i) {
+            QPersistentModelIndex index = plane_model->index(i, ManeuverItem::Maneuver_Name, plane_idx);
+            QString name = index.data().toString();
+            maneuver_indexes[name] = index;
+        }
     }
 
     for (auto key : maneuver_map.keys()) {
         maneuver_map[key]->setModelIndex(maneuver_indexes.keys().contains(key) ? maneuver_indexes[key] : QPersistentModelIndex());
     }
+    update();
 }
 
 void ManeuverScene::updateManeuver(QString id)

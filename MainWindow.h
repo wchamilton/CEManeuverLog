@@ -27,7 +27,9 @@ private slots:
     void setSelectedPlane();
 
 private:
-    void generatePlaneMenu();
+    void autoLoadPlanes();
+    void clearUI();
+    void generatePlaneMenu(QPersistentModelIndex idx);
 
     Ui::MainWindow *ui;
     PlaneModel* plane_model = nullptr;

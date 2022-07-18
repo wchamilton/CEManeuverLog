@@ -13,6 +13,7 @@ class GunControls : public QWidget
 
 public:
     explicit GunControls(QWidget *parent = nullptr);
+    GunControls(QPersistentModelIndex idx, QWidget *parent = nullptr);
     ~GunControls();
 
 private:

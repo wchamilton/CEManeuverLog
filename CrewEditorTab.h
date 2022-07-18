@@ -16,6 +16,7 @@ public:
     explicit CrewEditorTab(QWidget *parent = nullptr);
     ~CrewEditorTab();
     void populateCrewItem(CrewItem* crew);
+    void populateFromJSON(QJsonObject crew);
 
 private:
     Ui::CrewEditorTab *ui;

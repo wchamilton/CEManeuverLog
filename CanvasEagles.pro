@@ -28,7 +28,8 @@ SOURCES += \
     main.cpp \
     MainWindow.cpp \
     models/PlaneItems.cpp \
-    models/PlaneModel.cpp
+    models/PlaneModel.cpp \
+    GunEditorTab.cpp
 
 HEADERS += \
     CEManeuvers.h \
@@ -43,7 +44,8 @@ HEADERS += \
     graphics/ManeuverGraphic.h \
     graphics/ManeuverScene.h \
     models/PlaneItems.h \
-    models/PlaneModel.h
+    models/PlaneModel.h \
+    GunEditorTab.h
 
 FORMS += \
     CrewControls.ui \
@@ -51,7 +53,8 @@ FORMS += \
     GunControls.ui \
     MainWindow.ui \
     PlaneEditor.ui \
-    PlanePartDamageTracker.ui
+    PlanePartDamageTracker.ui \
+    GunEditorTab.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -1,13 +1,20 @@
 #include "CrewEditorTab.h"
 #include "ui_CrewEditorTab.h"
 
+#include <QJsonArray>
+
 #include "models/PlaneItems.h"
+#include "GunEditorTab.h"
 
 CrewEditorTab::CrewEditorTab(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CrewEditorTab)
 {
     ui->setupUi(this);
+    connect(ui->add_gun_btn, &QPushButton::released, this, [&]() {
+        ui->gun_tab_widget->addTab(new GunEditorTab(ui->gun_tab_widget), QString("%1's Gun").arg(ui->role_cmb->currentText()));
+    });
+    connect(ui->gun_tab_widget, &QTabWidget::tabCloseRequested, this, [&](int index) { ui->gun_tab_widget->removeTab(index); });
 }
 
 CrewEditorTab::~CrewEditorTab()
@@ -19,16 +26,31 @@ void CrewEditorTab::populateCrewItem(CrewItem *crew)
 {
     crew->setData(CrewItem::Crew_Role, ui->role_cmb->currentText());
     // Add gun controls
-    if (ui->gun_grp->isChecked()) {
+    for (int i=0; i<ui->gun_tab_widget->count(); ++i) {
         GunItem* gun_item = new GunItem(crew);
-        gun_item->setData(GunItem::Gun_Name, ui->gun_name->text());
-        gun_item->setData(GunItem::Fire_Template, ui->fire_template_spin->value());
-        gun_item->setData(GunItem::Fire_Base_3, ui->fire_base_3->value());
-        gun_item->setData(GunItem::Fire_Base_2, ui->fire_base_2->value());
-        gun_item->setData(GunItem::Fire_Base_1, ui->fire_base_1->value());
-        gun_item->setData(GunItem::Fire_Base_0, ui->fire_base_0->value());
-        gun_item->setData(GunItem::Ammo_Box_Capacity, ui->ammo_per_box->value());
-        gun_item->setData(GunItem::Ammo_Box_Count, ui ->ammo_box_count->value());
+        static_cast<GunEditorTab*>(ui->gun_tab_widget->widget(i))->populateGunItem(gun_item);
         crew->addChild(gun_item);
+    }
+}
+
+void CrewEditorTab::populateFromJSON(QJsonObject crew)
+{
+    ui->role_cmb->setCurrentText(crew["role"].toString());
+    QJsonArray guns = crew["guns"].toArray();
+
+    for (int i=0; i<guns.count(); ++i) {
+        QJsonObject gun = guns.at(i).toObject();
+        QString gun_prefix = "";
+        if (gun["gun_links"].toInt() == 2) {
+            gun_prefix = "Twin ";
+        }
+        else if (gun["gun_links"].toInt() == 3) {
+            gun_prefix = "Triple ";
+        }
+
+        GunEditorTab* tab = new GunEditorTab(ui->gun_tab_widget);
+        tab->populateFromJSON(gun);
+
+        ui->gun_tab_widget->addTab(tab, QString("%1's %2%3").arg(crew["role"].toString()).arg(gun_prefix).arg(gun["name"].toString()));
     }
 }

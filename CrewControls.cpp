@@ -6,11 +6,21 @@ CrewControls::CrewControls(QWidget *parent) :
     ui(new Ui::CrewControls)
 {
     ui->setupUi(this);
-    connect(ui->add_wound_btn, &QPushButton::pressed, this, [&](){
+    connect(ui->score_red_btn, &QPushButton::pressed, this, [&]() {
+        ui->reds_spin->setValue(ui->reds_spin->value()+1);
+    });
+    connect(ui->add_wound_btn, &QPushButton::pressed, this, [&]() {
         ui->wounds->setValue(ui->wounds->value()+1);
     });
     connect(ui->wounds, &QSlider::valueChanged, this, [&](int value){
-        setSliderStylesheet(value);
+        QString colour;
+        switch (value) {
+            case WoundValues::None: colour = "blue"; break;
+            case WoundValues::Light: colour = "yellow"; break;
+            case WoundValues::Severe: colour = "red"; break;
+            case WoundValues::Dead: colour = "gray"; break;
+        }
+        setSliderStylesheet(colour);
     });
 }
 
@@ -19,15 +29,8 @@ CrewControls::~CrewControls()
     delete ui;
 }
 
-void CrewControls::setSliderStylesheet(int value)
+void CrewControls::setSliderStylesheet(QString colour)
 {
-    QString colour;
-    switch (value) {
-        case WoundValues::None: colour = "blue"; break;
-        case WoundValues::Light: colour = "yellow"; break;
-        case WoundValues::Severe: colour = "red"; break;
-        case WoundValues::Dead: colour = "gray"; break;
-    }
     QString stylesheet;
     stylesheet = QString(
         "QSlider::groove:horizontal {"

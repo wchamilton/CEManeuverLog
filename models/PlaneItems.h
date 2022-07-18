@@ -51,8 +51,8 @@ public:
         Fuselage_Critical,
         Tail_HP,
         Tail_Critical,
-        Rated_Dive,
         Rated_Climb,
+        Rated_Dive,
         Max_Altitude,
         Can_Return_To_Max_Alt,
         Stability,
@@ -113,6 +113,7 @@ class GunItem : public BaseItem
 public:
     enum GunCols {
         Gun_Name,
+        Gun_Count,
         Fire_Template,
         Fire_Base_3,
         Fire_Base_2,

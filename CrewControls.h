@@ -22,7 +22,7 @@ public:
     ~CrewControls();
 
 private slots:
-    void setSliderStylesheet(int value);
+    void setSliderStylesheet(QString colour);
 
 private:
     Ui::CrewControls *ui;
