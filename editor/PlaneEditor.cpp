@@ -104,7 +104,7 @@ PlaneEditor::~PlaneEditor()
 }
 
 void PlaneEditor::updatePreview(int row)
-{   
+{
     QPersistentModelIndex idx(maneuver_proxy_model->index(row, ManeuverItem::Maneuver_Name, ui->maneuver_selection->rootModelIndex()));
 
     // Set the widgets with index contents
@@ -263,6 +263,12 @@ void PlaneEditor::initWidgets()
         QString new_text = QInputDialog::getText(this, "New Tab Name", "Tab name:", QLineEdit::Normal, ui->crew_editor_tab->tabText(index));
         if (!new_text.isNull()) {
             ui->crew_editor_tab->setTabText(index, new_text);
+        }
+    });
+
+    connect(maneuver_schedule_scene, &ManeuverScene::maneuverSelectionChanged, [&](QString name){
+        if (name != "") {
+            ui->maneuver_selection->setCurrentIndex(ui->maneuver_selection->findText(name));
         }
     });
 }
