@@ -15,6 +15,9 @@ ManeuverGraphic::ManeuverGraphic(ShiftText shift_val, QGraphicsItem *parent) :
 {
     setScale(0.27);
     setAcceptHoverEvents(true);
+    GraphicsItemFlags f = flags();
+    f = f|ItemIsSelectable;
+    setFlags(f);
     // Always start with a starting hex
     addHex(Maneuver::Stationary, HexTile::Starting_Tile);
     setVisible(false);
@@ -22,7 +25,7 @@ ManeuverGraphic::ManeuverGraphic(ShiftText shift_val, QGraphicsItem *parent) :
 
 QRectF ManeuverGraphic::boundingRect() const
 {
-    // Use the bounding box constructed in the shape() function
+    // Use the polygon constructed in the shape() function
     return shape().boundingRect();
 }
 
@@ -131,6 +134,17 @@ void ManeuverGraphic::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
         }
     }
     QGraphicsItem::hoverLeaveEvent(event);
+}
+
+QVariant ManeuverGraphic::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
+{
+    if (change == QGraphicsItem::ItemSelectedChange) {
+        for (auto child : childItems()) {
+            static_cast<HexTile*>(child)->setSelected(value.toBool());
+        }
+    }
+
+    return QGraphicsItem::itemChange(change, value);
 }
 
 void ManeuverGraphic::moveTile(HexTile *tile, Maneuver::Directions position)

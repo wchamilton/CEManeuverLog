@@ -16,45 +16,44 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    main.cpp \
     CEManeuvers.cpp \
-    CrewControls.cpp \
-    CrewEditorTab.cpp \
-    GunControls.cpp \
-    PlaneEditor.cpp \
-    PlanePartDamageTracker.cpp \
+    turn_logger/MainWindow.cpp \
+    turn_logger/CrewControls.cpp \
+    turn_logger/GunControls.cpp \
+    turn_logger/PlanePartDamageTracker.cpp \
     graphics/HexTile.cpp \
     graphics/ManeuverGraphic.cpp \
     graphics/ManeuverScene.cpp \
-    main.cpp \
-    MainWindow.cpp \
     models/PlaneItems.cpp \
     models/PlaneModel.cpp \
-    GunEditorTab.cpp
+    editor/PlaneEditor.cpp \
+    editor/CrewEditorTab.cpp \
+    editor/GunEditorTab.cpp
 
 HEADERS += \
     CEManeuvers.h \
-    CrewControls.h \
-    CrewEditorTab.h \
-    GunControls.h \
-    MainWindow.h \
-    PlaneEditor.h \
-    PlanePartDamageTracker.h \
-    ScrollEater.h \
+    turn_logger/MainWindow.h \
+    turn_logger/CrewControls.h \
+    turn_logger/GunControls.h \
+    turn_logger/PlanePartDamageTracker.h \
     graphics/HexTile.h \
     graphics/ManeuverGraphic.h \
     graphics/ManeuverScene.h \
     models/PlaneItems.h \
     models/PlaneModel.h \
-    GunEditorTab.h
+    editor/PlaneEditor.h \
+    editor/CrewEditorTab.h \
+    editor/GunEditorTab.h
 
 FORMS += \
-    CrewControls.ui \
-    CrewEditorTab.ui \
-    GunControls.ui \
-    MainWindow.ui \
-    PlaneEditor.ui \
-    PlanePartDamageTracker.ui \
-    GunEditorTab.ui
+    turn_logger/MainWindow.ui \
+    turn_logger/CrewControls.ui \
+    turn_logger/GunControls.ui \
+    turn_logger/PlanePartDamageTracker.ui \
+    editor/PlaneEditor.ui \
+    editor/CrewEditorTab.ui \
+    editor/GunEditorTab.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

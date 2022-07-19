@@ -76,7 +76,7 @@
        <item row="2" column="0" colspan="4">
         <widget class="QPushButton" name="log_turn_btn">
          <property name="text">
-          <string>Log Turn</string>
+          <string>End Turn</string>
          </property>
         </widget>
        </item>
@@ -213,7 +213,7 @@
   <customwidget>
    <class>PlanePartDamageTracker</class>
    <extends>QWidget</extends>
-   <header>PlanePartDamageTracker.h</header>
+   <header>turn_logger/PlanePartDamageTracker.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

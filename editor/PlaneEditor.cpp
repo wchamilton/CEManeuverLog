@@ -17,7 +17,6 @@
 #include "models/PlaneModel.h"
 #include "graphics/ManeuverScene.h"
 #include "graphics/ManeuverGraphic.h"
-#include "ScrollEater.h"
 
 PlaneEditor::PlaneEditor(QWidget *parent) :
     QDialog(parent),

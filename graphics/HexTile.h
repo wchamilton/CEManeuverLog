@@ -27,6 +27,7 @@ public:
     void setHovered(bool hovered) { this->hovered = hovered; }
     void setWeightRestricted(bool is_weight_restricted) { this->is_weight_restricted = is_weight_restricted; }
     void setIsAvailable(bool is_available) { this->is_available = is_available; }
+    void setSelected(bool selected) { is_selected = selected; QGraphicsItem::setSelected(selected); }
     QPolygon getHexPoly() { return hex_poly; }
 
 private:
@@ -34,6 +35,7 @@ private:
     bool hovered = false;
     bool is_weight_restricted = false;
     bool is_available = true;
+    bool is_selected = false;
     QPolygon hex_poly;
 };
 

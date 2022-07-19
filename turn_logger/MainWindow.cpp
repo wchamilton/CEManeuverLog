@@ -12,7 +12,8 @@
 
 #include "models/PlaneModel.h"
 #include "graphics/ManeuverScene.h"
-#include "PlaneEditor.h"
+#include "graphics/ManeuverGraphic.h"
+#include "editor/PlaneEditor.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -84,6 +85,16 @@ MainWindow::MainWindow(QWidget *parent) :
             settings.setValue("auto-load_location", load_location);
             autoLoadPlanes();
         }
+    });
+
+    connect(maneuver_scene, &ManeuverScene::maneuverSelectionChanged, [&](QString name){
+        ui->maneuver_cmb->blockSignals(true);
+        ui->maneuver_cmb->setCurrentIndex(ui->maneuver_cmb->findText(name));
+        ui->maneuver_cmb->blockSignals(false);
+    });
+    connect(ui->maneuver_cmb, &QComboBox::currentTextChanged, this, [&](QString name){
+        maneuver_scene->clearSelection();
+        maneuver_scene->getManeuver(name)->setSelected(true);
     });
 }
 

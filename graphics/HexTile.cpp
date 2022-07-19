@@ -39,13 +39,17 @@ void HexTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
 
     QPen pen;
     pen.setWidth(3);
+    QPainterPath path;
+    path.addPolygon(hex_poly);
+    painter->fillPath(path, is_weight_restricted ? Qt::lightGray : Qt::white);
+    if (is_selected) {
+        pen.setColor(Qt::darkGreen);
+        pen.setWidth(8);
+    }
     if (hovered) {
         pen.setWidth(10);
     }
     painter->setPen(pen);
-    QPainterPath path;
-    path.addPolygon(hex_poly);
-    painter->fillPath(path, is_weight_restricted ? Qt::lightGray : Qt::white);
     painter->drawPolygon(hex_poly);
     painter->setPen(old_pen);
 

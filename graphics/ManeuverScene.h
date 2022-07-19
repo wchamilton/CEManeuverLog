@@ -19,6 +19,9 @@ public:
     void updateManeuver(QString id);
     void positionManeuvers();
 
+signals:
+    void maneuverSelectionChanged(QString maneuver);
+
 private:
     QMap<QString, ManeuverGraphic*> maneuver_map;
 };
