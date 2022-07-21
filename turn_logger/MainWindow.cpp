@@ -94,7 +94,6 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->maneuver_cmb->blockSignals(true);
         ui->maneuver_cmb->setCurrentIndex(ui->maneuver_cmb->findText(name));
         ui->alt_cmb->setDisabled(name == "");
-        ui->alt_cmb->setCurrentIndex(-1);
         ui->log_turn_btn->setDisabled(name == "");
         if (name != "") {
             setAvailableAltitudes();
@@ -105,7 +104,6 @@ MainWindow::MainWindow(QWidget *parent) :
         maneuver_scene->clearSelection();
         maneuver_scene->getManeuver(name)->setSelected(true);
         ui->alt_cmb->setDisabled(name == "");
-        ui->alt_cmb->setCurrentIndex(-1);
         ui->log_turn_btn->setDisabled(name == "");
         if (name != "") {
             setAvailableAltitudes();
@@ -137,7 +135,6 @@ void MainWindow::setSelectedPlane()
 {
     ui->turn_controls_grp->setEnabled(true);
 
-//    QPersistentModelIndex plane_idx = static_cast<QAction*>(sender())->data().toPersistentModelIndex();
     QPersistentModelIndex plane_idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();
     maneuver_scene->setManeuvers(maneuver_proxy_model->mapFromSource(plane_idx));
     maneuver_scene->update();
@@ -177,7 +174,6 @@ void MainWindow::setSelectedPlane()
     for (int i=plane_idx.sibling(plane_idx.row(), PlaneItem::Max_Altitude).data().toInt(); i>0; --i) {
         ui->alt_cmb->addItem(QString::number(i));
     }
-    ui->alt_cmb->setCurrentIndex(-1);
     ui->turn_log->setEnabled(true);
 }
 
@@ -199,16 +195,21 @@ void MainWindow::logTurn()
         fuel_used += t.fuel_used;
     }
     int max_fuel = idx.sibling(idx.row(), PlaneItem::Fuel).data().toInt();
+    int fuel_remaining = max_fuel - fuel_used >= 0 ? max_fuel - fuel_used : 0;
 
     QTreeWidgetItem* log_item_maneuver = new QTreeWidgetItem(ui->turn_log);
     log_item_maneuver->setText(0, QString("Turn %1 - %2").arg(turn_history.size()).arg(turn.maneuver));
     log_item_maneuver->setText(1, ui->alt_cmb->currentText());
-    log_item_maneuver->setText(2, QString("%1/%2").arg(max_fuel - fuel_used).arg(max_fuel));
+    log_item_maneuver->setText(2, QString("%1/%2").arg(fuel_remaining).arg(max_fuel));
     // Calculate if below 25% fuel remaining
-    if (max_fuel - fuel_used <= max_fuel * 0.25) {
+    if (fuel_remaining <= max_fuel * 0.25) {
         log_item_maneuver->setForeground(2, Qt::red);
     }
+    else if (fuel_remaining <= max_fuel * 0.5) {
+        log_item_maneuver->setForeground(2, QColor(255,80,50));
+    }
     ui->turn_log->addTopLevelItem(log_item_maneuver);
+    ui->turn_log->scrollToItem(log_item_maneuver);
     setAvailableAltitudes();
 }
 
@@ -261,19 +262,20 @@ int MainWindow::calculateFuelUsed()
 {
     // Baseline for fuel used is the speed of the maneuver
     int fuel_used = maneuver_proxy_model->index(ui->maneuver_cmb->currentIndex(), ManeuverItem::Speed, ui->maneuver_cmb->rootModelIndex()).data().toInt();
+    // First turn should assume that the altitude is what the plane has been at already, thus just return the speed
+    if (turn_history.isEmpty()) {
+        return fuel_used;
+    }
 
-    // Check what the previous turn's altitude was. If turn 1, just use the current altitude
-    auto idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();
-    int max = idx.sibling(idx.row(), PlaneItem::Max_Altitude).data().toInt();
-    int prev_alt = turn_history.isEmpty() ? max : turn_history.last().alt;
-    int alt_delta = ui->alt_cmb->currentText().toInt() - prev_alt;
+    // Calculate the delta of the current altitude vs the previous turn's altitude
+    int alt_delta = ui->alt_cmb->currentText().toInt() - turn_history.last().alt;
 
     // Check for zoom climbing
     int prev_delta = 0;
     if (turn_history.size() >= 2) {
         prev_delta = turn_history.last().alt - turn_history.at(turn_history.size() - 2).alt;
     }
-    bool zoom_climbing = prev_delta == -2 && alt_delta == 1;
+    bool zoom_climbing = prev_delta <= -2 && alt_delta == 1;
 
     return zoom_climbing ? fuel_used - 1 : (fuel_used + alt_delta);
 }
@@ -317,5 +319,4 @@ void MainWindow::setAvailableAltitudes()
         }
         item->setEnabled(item->text().toInt() >= min && item->text().toInt() <= max);
     }
-
 }
