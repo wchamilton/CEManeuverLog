@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QDesktopWidget>
 #include <QSettings>
+#include <QStandardItemModel>
 
 #include "models/PlaneModel.h"
 #include "graphics/ManeuverScene.h"
@@ -21,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->actionQuit->setShortcut(Qt::ControlModifier+Qt::Key_Q);
+    ui->turn_log->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     // Init the models
     plane_model = new PlaneModel(this);
@@ -41,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     early_war_menu = ui->select_plane_menu->addMenu("Early War");
     late_war_menu = ui->select_plane_menu->addMenu("Late War");
+    plane_action_group = new QActionGroup(this);
 
     maneuver_scene = new ManeuverScene(ui->graphicsView);
     maneuver_scene->positionManeuvers();
@@ -90,12 +93,25 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(maneuver_scene, &ManeuverScene::maneuverSelectionChanged, [&](QString name){
         ui->maneuver_cmb->blockSignals(true);
         ui->maneuver_cmb->setCurrentIndex(ui->maneuver_cmb->findText(name));
+        ui->alt_cmb->setDisabled(name == "");
+        ui->alt_cmb->setCurrentIndex(-1);
+        ui->log_turn_btn->setDisabled(name == "");
+        if (name != "") {
+            setAvailableAltitudes();
+        }
         ui->maneuver_cmb->blockSignals(false);
     });
     connect(ui->maneuver_cmb, &QComboBox::currentTextChanged, this, [&](QString name){
         maneuver_scene->clearSelection();
         maneuver_scene->getManeuver(name)->setSelected(true);
+        ui->alt_cmb->setDisabled(name == "");
+        ui->alt_cmb->setCurrentIndex(-1);
+        ui->log_turn_btn->setDisabled(name == "");
+        if (name != "") {
+            setAvailableAltitudes();
+        }
     });
+    connect(ui->log_turn_btn, &QPushButton::released, this, &MainWindow::logTurn);
 }
 
 MainWindow::~MainWindow()
@@ -121,7 +137,8 @@ void MainWindow::setSelectedPlane()
 {
     ui->turn_controls_grp->setEnabled(true);
 
-    QPersistentModelIndex plane_idx = static_cast<QAction*>(sender())->data().toPersistentModelIndex();
+//    QPersistentModelIndex plane_idx = static_cast<QAction*>(sender())->data().toPersistentModelIndex();
+    QPersistentModelIndex plane_idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();
     maneuver_scene->setManeuvers(maneuver_proxy_model->mapFromSource(plane_idx));
     maneuver_scene->update();
     ui->maneuver_cmb->setEnabled(true);
@@ -155,6 +172,44 @@ void MainWindow::setSelectedPlane()
     ui->wing_grp->setModelIndexes(plane_idx.sibling(plane_idx.row(), PlaneItem::Wing_HP), plane_idx.sibling(plane_idx.row(), PlaneItem::Wing_Critical));
     ui->fuselage_grp->setModelIndexes(plane_idx.sibling(plane_idx.row(), PlaneItem::Fuselage_HP), plane_idx.sibling(plane_idx.row(), PlaneItem::Fuselage_Critical));
     ui->tail_grp->setModelIndexes(plane_idx.sibling(plane_idx.row(), PlaneItem::Tail_HP), plane_idx.sibling(plane_idx.row(), PlaneItem::Tail_Critical));
+
+    // Countdown rather than count up
+    for (int i=plane_idx.sibling(plane_idx.row(), PlaneItem::Max_Altitude).data().toInt(); i>0; --i) {
+        ui->alt_cmb->addItem(QString::number(i));
+    }
+    ui->alt_cmb->setCurrentIndex(-1);
+    ui->turn_log->setEnabled(true);
+}
+
+void MainWindow::logTurn()
+{
+    auto idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();
+
+    TurnData turn;
+    turn.maneuver = ui->maneuver_cmb->currentText();
+    turn.alt = ui->alt_cmb->currentText().toInt();
+    turn.fuel_used = calculateFuelUsed();
+//    for (int i=0; i<crew_proxy_model->rowCount(crew_proxy_model->mapFromSource(idx)); ++i) {
+//        crew_proxy_model->index(i, )
+//    }
+    turn_history << turn;
+
+    int fuel_used = 0;
+    for (auto t : turn_history) {
+        fuel_used += t.fuel_used;
+    }
+    int max_fuel = idx.sibling(idx.row(), PlaneItem::Fuel).data().toInt();
+
+    QTreeWidgetItem* log_item_maneuver = new QTreeWidgetItem(ui->turn_log);
+    log_item_maneuver->setText(0, QString("Turn %1 - %2").arg(turn_history.size()).arg(turn.maneuver));
+    log_item_maneuver->setText(1, ui->alt_cmb->currentText());
+    log_item_maneuver->setText(2, QString("%1/%2").arg(max_fuel - fuel_used).arg(max_fuel));
+    // Calculate if below 25% fuel remaining
+    if (max_fuel - fuel_used <= max_fuel * 0.25) {
+        log_item_maneuver->setForeground(2, Qt::red);
+    }
+    ui->turn_log->addTopLevelItem(log_item_maneuver);
+    setAvailableAltitudes();
 }
 
 void MainWindow::autoLoadPlanes()
@@ -197,5 +252,70 @@ void MainWindow::generatePlaneMenu(QPersistentModelIndex idx)
         plane_action = late_war_menu->addAction(idx.data().toString());
     }
     plane_action->setData(idx);
+    plane_action->setCheckable(true);
+    plane_action_group->addAction(plane_action);
     connect(plane_action, &QAction::triggered, this, &MainWindow::setSelectedPlane);
+}
+
+int MainWindow::calculateFuelUsed()
+{
+    // Baseline for fuel used is the speed of the maneuver
+    int fuel_used = maneuver_proxy_model->index(ui->maneuver_cmb->currentIndex(), ManeuverItem::Speed, ui->maneuver_cmb->rootModelIndex()).data().toInt();
+
+    // Check what the previous turn's altitude was. If turn 1, just use the current altitude
+    auto idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();
+    int max = idx.sibling(idx.row(), PlaneItem::Max_Altitude).data().toInt();
+    int prev_alt = turn_history.isEmpty() ? max : turn_history.last().alt;
+    int alt_delta = ui->alt_cmb->currentText().toInt() - prev_alt;
+
+    // Check for zoom climbing
+    int prev_delta = 0;
+    if (turn_history.size() >= 2) {
+        prev_delta = turn_history.last().alt - turn_history.at(turn_history.size() - 2).alt;
+    }
+    bool zoom_climbing = prev_delta == -2 && alt_delta == 1;
+
+    return zoom_climbing ? fuel_used - 1 : (fuel_used + alt_delta);
+}
+
+void MainWindow::setAvailableAltitudes()
+{
+    auto * model = qobject_cast<QStandardItemModel*>(ui->alt_cmb->model());
+    if(!model) {
+        return;
+    }
+    QString maneuver_dive_val = maneuver_proxy_model->index(ui->maneuver_cmb->currentIndex(), ManeuverItem::Dive_Value, ui->maneuver_cmb->rootModelIndex()).data().toString();
+    QString maneuver_climb_val = maneuver_proxy_model->index(ui->maneuver_cmb->currentIndex(), ManeuverItem::Climb_Value, ui->maneuver_cmb->rootModelIndex()).data().toString();
+    auto idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();
+    int min = 1;
+    int max = idx.sibling(idx.row(), PlaneItem::Max_Altitude).data().toInt();
+    int prev_alt = turn_history.isEmpty() ? max : turn_history.last().alt;
+
+    // Determine if the minimum needs to be adjusted
+    if (maneuver_dive_val == "D1") {
+        min = prev_alt - 1;
+    }
+    else if (maneuver_dive_val == "-") {
+        min = prev_alt;
+    }
+
+    // Determine if the maximum needs to be adjusted
+    if (!(idx.sibling(idx.row(), PlaneItem::Can_Return_To_Max_Alt).data().toBool() || turn_history.isEmpty())) {
+        max--;
+    }
+    if (maneuver_climb_val == "C1") {
+        max = prev_alt + 1;
+    }
+    else if (maneuver_climb_val == "-") {
+        max = prev_alt;
+    }
+
+    for (int i=0; i<ui->alt_cmb->count(); ++i) {
+        auto * item = model->item(i);
+        if(!item) {
+            continue;
+        }
+        item->setEnabled(item->text().toInt() >= min && item->text().toInt() <= max);
+    }
+
 }

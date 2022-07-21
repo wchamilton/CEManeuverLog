@@ -21,23 +21,24 @@ void BaseItem::setData(int column, QVariant data)
 
 PlaneItem::PlaneItem(QJsonObject plane, BaseItem *parent) : BaseItem(Plane_Item_Type, parent)
 {
-    setData(Plane_Name,        plane["name"].toVariant());
-    setData(Plane_Era,         plane["plane_era"].toVariant());
-    setData(Fuel,              plane["fuel"].toVariant());
-    setData(Engine_HP,         plane["engine_hp"].toVariant());
-    setData(Engine_Critical,   plane["engine_critical"].toVariant());
-    setData(Wing_HP,           plane["wing_hp"].toVariant());
-    setData(Wing_Critical,     plane["wing_critical"].toVariant());
-    setData(Fuselage_HP,       plane["fuselage_hp"].toVariant());
-    setData(Fuselage_Critical, plane["fuselage_critical"].toVariant());
-    setData(Tail_HP,           plane["tail_hp"].toVariant());
-    setData(Tail_Critical,     plane["tail_critical"].toVariant());
-    setData(Rated_Climb,       plane["rated_climb"].toVariant());
-    setData(Rated_Dive,        plane["rated_dive"].toVariant());
-    setData(Max_Altitude,      plane["max_alt"].toVariant());
-    setData(Stability,         plane["stability"].toVariant());
-    setData(Is_Gliding,        false);
-    setData(Is_On_Fire,        false);
+    setData(Plane_Name,            plane["name"].toVariant());
+    setData(Plane_Era,             plane["plane_era"].toVariant());
+    setData(Fuel,                  plane["fuel"].toVariant());
+    setData(Engine_HP,             plane["engine_hp"].toVariant());
+    setData(Engine_Critical,       plane["engine_critical"].toVariant());
+    setData(Wing_HP,               plane["wing_hp"].toVariant());
+    setData(Wing_Critical,         plane["wing_critical"].toVariant());
+    setData(Fuselage_HP,           plane["fuselage_hp"].toVariant());
+    setData(Fuselage_Critical,     plane["fuselage_critical"].toVariant());
+    setData(Tail_HP,               plane["tail_hp"].toVariant());
+    setData(Tail_Critical,         plane["tail_critical"].toVariant());
+    setData(Rated_Climb,           plane["rated_climb"].toVariant());
+    setData(Rated_Dive,            plane["rated_dive"].toVariant());
+    setData(Max_Altitude,          plane["max_alt"].toString().left(1).toInt());
+    setData(Can_Return_To_Max_Alt, plane["max_alt"].toString().right(1) == "+");
+    setData(Stability,             plane["stability"].toVariant());
+    setData(Is_Gliding,            false);
+    setData(Is_On_Fire,            false);
 
     QJsonArray maneuvers = plane.value("maneuvers").toArray();
     for (int i=0; i<maneuvers.size(); ++i) {
