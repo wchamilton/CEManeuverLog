@@ -267,17 +267,18 @@ int MainWindow::calculateFuelUsed()
         return fuel_used;
     }
 
-    // Calculate the delta of the current altitude vs the previous turn's altitude
-    int alt_delta = ui->alt_cmb->currentText().toInt() - turn_history.last().alt;
+    // Check if the current altitude is higher than the previous turn's altitude
+    bool climbing = ui->alt_cmb->currentText().toInt() > turn_history.last().alt;
 
     // Check for zoom climbing
     int prev_delta = 0;
     if (turn_history.size() >= 2) {
         prev_delta = turn_history.last().alt - turn_history.at(turn_history.size() - 2).alt;
     }
-    bool zoom_climbing = prev_delta <= -2 && alt_delta == 1;
+    bool zoom_climbing = prev_delta <= -2 && climbing;
 
-    return zoom_climbing ? fuel_used - 1 : (fuel_used + alt_delta);
+    // If climbing, add one fuel unless zoom climbing
+    return climbing ? zoom_climbing ? fuel_used : fuel_used + 1 : fuel_used;
 }
 
 void MainWindow::setAvailableAltitudes()
