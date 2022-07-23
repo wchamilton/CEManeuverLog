@@ -90,22 +90,20 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
-    connect(maneuver_scene, &ManeuverScene::maneuverSelectionChanged, [&](QString name){
+    connect(maneuver_scene, &ManeuverScene::maneuverSelectionChanged, ui->maneuver_cmb, [&](QString name){
         ui->maneuver_cmb->blockSignals(true);
         ui->maneuver_cmb->setCurrentIndex(ui->maneuver_cmb->findText(name));
         ui->alt_cmb->setDisabled(name == "");
         ui->log_turn_btn->setDisabled(name == "");
-        if (name != "") {
-            setAvailableAltitudes();
-        }
+        setAvailableAltitudes();
         ui->maneuver_cmb->blockSignals(false);
     });
-    connect(ui->maneuver_cmb, &QComboBox::currentTextChanged, this, [&](QString name){
+    connect(ui->maneuver_cmb, &QComboBox::currentTextChanged, maneuver_scene, [&](QString name){
         maneuver_scene->clearSelection();
-        maneuver_scene->getManeuver(name)->setSelected(true);
         ui->alt_cmb->setDisabled(name == "");
         ui->log_turn_btn->setDisabled(name == "");
         if (name != "") {
+            maneuver_scene->getManeuver(name)->setSelected(true);
             setAvailableAltitudes();
         }
     });
@@ -141,6 +139,9 @@ void MainWindow::setSelectedPlane()
     ui->maneuver_cmb->setEnabled(true);
     ui->maneuver_cmb->setRootModelIndex(maneuver_proxy_model->mapFromSource(plane_idx));
     ui->maneuver_cmb->setCurrentIndex(-1);
+
+    ui->turn_log->clear();
+    turn_history.clear();
 
     // Populate the crew tab and the gun tabs for each crew
     ui->crew_tab->clear();
@@ -283,6 +284,11 @@ int MainWindow::calculateFuelUsed()
 
 void MainWindow::setAvailableAltitudes()
 {
+    // If it's the start of the game, don't restrict altitudes
+    if (turn_history.isEmpty()) {
+        return;
+    }
+
     auto * model = qobject_cast<QStandardItemModel*>(ui->alt_cmb->model());
     if(!model) {
         return;
@@ -290,27 +296,25 @@ void MainWindow::setAvailableAltitudes()
     QString maneuver_dive_val = maneuver_proxy_model->index(ui->maneuver_cmb->currentIndex(), ManeuverItem::Dive_Value, ui->maneuver_cmb->rootModelIndex()).data().toString();
     QString maneuver_climb_val = maneuver_proxy_model->index(ui->maneuver_cmb->currentIndex(), ManeuverItem::Climb_Value, ui->maneuver_cmb->rootModelIndex()).data().toString();
     auto idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();
-    int min = 1;
-    int max = idx.sibling(idx.row(), PlaneItem::Max_Altitude).data().toInt();
-    int prev_alt = turn_history.isEmpty() ? max : turn_history.last().alt;
 
-    // Determine if the minimum needs to be adjusted
-    if (maneuver_dive_val == "D1") {
-        min = prev_alt - 1;
-    }
-    else if (maneuver_dive_val == "-") {
-        min = prev_alt;
-    }
+    // Determine the minimum altitude the player can dive to
+    int min = maneuver_dive_val == "D1" ? turn_history.last().alt - 1 : maneuver_dive_val == "-" ? turn_history.last().alt : 1;
 
-    // Determine if the maximum needs to be adjusted
+    // Determine if the player can climb
+    int can_climb_to = idx.sibling(idx.row(), PlaneItem::Rated_Climb).data().toInt() + turn_history.last().alt;
+    int max_alt = idx.sibling(idx.row(), PlaneItem::Max_Altitude).data().toInt();
+
     if (!(idx.sibling(idx.row(), PlaneItem::Can_Return_To_Max_Alt).data().toBool() || turn_history.isEmpty())) {
-        max--;
+        max_alt--;
     }
     if (maneuver_climb_val == "C1") {
-        max = prev_alt + 1;
+        max_alt = std::min(turn_history.last().alt + 1, max_alt);
     }
     else if (maneuver_climb_val == "-") {
-        max = prev_alt;
+        max_alt = turn_history.last().alt;
+    }
+    else if (maneuver_climb_val == "C") {
+        max_alt = std::min(max_alt, can_climb_to);
     }
 
     for (int i=0; i<ui->alt_cmb->count(); ++i) {
@@ -318,6 +322,6 @@ void MainWindow::setAvailableAltitudes()
         if(!item) {
             continue;
         }
-        item->setEnabled(item->text().toInt() >= min && item->text().toInt() <= max);
+        item->setEnabled(item->text().toInt() >= min && item->text().toInt() <= max_alt);
     }
 }

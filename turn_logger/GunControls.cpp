@@ -33,6 +33,13 @@ GunControls::GunControls(QPersistentModelIndex idx, QWidget *parent) :
     connect(ui->long_burst_btn, &QPushButton::released, this, [&]() { ui->burst_len->setValue(2); });
     connect(ui->med_burst_btn, &QPushButton::released, this, [&]() { ui->burst_len->setValue(1); });
     connect(ui->short_burst_btn, &QPushButton::released, this, [&]() { ui->burst_len->setValue(0); });
+    connect(ui->burst_len, &QSlider::valueChanged, this, [&](int value) {
+        switch (value) {
+            case 0: ui->short_burst_btn->setChecked(true); break;
+            case 1: ui->med_burst_btn->setChecked(true); break;
+            case 2: ui->long_burst_btn->setChecked(true); break;
+        }
+    });
 }
 
 GunControls::~GunControls()

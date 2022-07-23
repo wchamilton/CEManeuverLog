@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1100</width>
-    <height>950</height>
+    <height>1000</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,21 +18,60 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,1,0" columnstretch="1,0">
-    <item row="0" column="0" rowspan="5">
-     <widget class="QGraphicsView" name="graphicsView"/>
+    <item row="4" column="1">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="PlanePartDamageTracker" name="engine_grp" native="true"/>
+      </item>
+      <item row="0" column="1">
+       <widget class="PlanePartDamageTracker" name="wing_grp" native="true"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="PlanePartDamageTracker" name="fuselage_grp" native="true"/>
+      </item>
+      <item row="1" column="1">
+       <widget class="PlanePartDamageTracker" name="tail_grp" native="true"/>
+      </item>
+     </layout>
     </item>
-    <item row="0" column="1">
-     <widget class="QLineEdit" name="date">
-      <property name="placeholderText">
-       <string>Date</string>
+    <item row="3" column="1">
+     <widget class="QTreeWidget" name="turn_log">
+      <property name="enabled">
+       <bool>false</bool>
       </property>
-     </widget>
-    </item>
-    <item row="1" column="1">
-     <widget class="QTabWidget" name="crew_tab">
-      <property name="currentIndex">
-       <number>-1</number>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::NoSelection</enum>
+      </property>
+      <property name="animated">
+       <bool>true</bool>
+      </property>
+      <column>
+       <property name="text">
+        <string>Maneuver / Crew Name</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Altitude / Action Taken</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Fuel Remaining</string>
+       </property>
+      </column>
      </widget>
     </item>
     <item row="2" column="1">
@@ -90,61 +129,22 @@
       </layout>
      </widget>
     </item>
-    <item row="4" column="1">
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="PlanePartDamageTracker" name="engine_grp" native="true"/>
-      </item>
-      <item row="0" column="1">
-       <widget class="PlanePartDamageTracker" name="wing_grp" native="true"/>
-      </item>
-      <item row="1" column="0">
-       <widget class="PlanePartDamageTracker" name="fuselage_grp" native="true"/>
-      </item>
-      <item row="1" column="1">
-       <widget class="PlanePartDamageTracker" name="tail_grp" native="true"/>
-      </item>
-     </layout>
-    </item>
-    <item row="3" column="1">
-     <widget class="QTreeWidget" name="turn_log">
-      <property name="enabled">
-       <bool>false</bool>
+    <item row="1" column="1">
+     <widget class="QTabWidget" name="crew_tab">
+      <property name="currentIndex">
+       <number>-1</number>
       </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="editTriggers">
-       <set>QAbstractItemView::NoEditTriggers</set>
-      </property>
-      <property name="alternatingRowColors">
-       <bool>true</bool>
-      </property>
-      <property name="selectionMode">
-       <enum>QAbstractItemView::NoSelection</enum>
-      </property>
-      <property name="animated">
-       <bool>true</bool>
-      </property>
-      <column>
-       <property name="text">
-        <string>Maneuver / Crew Name</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Altitude / Action Taken</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Fuel Remaining</string>
-       </property>
-      </column>
      </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLineEdit" name="date">
+      <property name="placeholderText">
+       <string>Date</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0" rowspan="5">
+     <widget class="QGraphicsView" name="graphicsView"/>
     </item>
    </layout>
   </widget>

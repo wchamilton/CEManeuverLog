@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QGraphicsScene>
 #include <QMap>
+#include <QPersistentModelIndex>
 
 class ManeuverGraphic;
 class ManeuverScene : public QGraphicsScene
@@ -24,6 +25,9 @@ signals:
 
 private:
     QMap<QString, ManeuverGraphic*> maneuver_map;
+    QGraphicsPixmapItem* background_item;
+    QGraphicsTextItem* plane_name;
+    QGraphicsTextItem* plane_tolerances;
 };
 
 #endif // MANEUVERSCENE_H

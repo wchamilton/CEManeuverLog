@@ -28,6 +28,26 @@ ManeuverScene::ManeuverScene(QObject *parent) : QGraphicsScene(parent)
                                   maneuver.final_rotation);
         addItem(maneuver_map[maneuver.name]);
     }
+
+    // Add the background as a pixmap
+//    QGraphicsSvgItem* background_item = new QGraphicsSvgItem(QString("../CEManeuverLog/graphics/Canvas_AircraftSheet.svg"));
+//    background_item->setZValue(-1);
+//    addItem(background_item);
+
+    // for now use shitty png while debugging SVG
+    background_item = addPixmap(QPixmap("../CEManeuverLog/graphics/background.png"));
+    background_item->setZValue(-1);
+    plane_name = addText("");
+    plane_tolerances = addText("");
+    QFont font = plane_name->font();
+    font.setPixelSize(16);
+    font.setBold(true);
+    plane_name->setFont(font);
+    font.setPixelSize(14);
+    plane_tolerances->setFont(font);
+    plane_name->moveBy(background_item->boundingRect().width()/2 - plane_name->boundingRect().width()/2, background_item->boundingRect().height());
+    plane_tolerances->moveBy(background_item->boundingRect().width()/2 - plane_tolerances->boundingRect().width()/2, background_item->boundingRect().height() + plane_name->boundingRect().height());
+
     connect(this, &ManeuverScene::selectionChanged, this, [&](){
         if (selectedItems().isEmpty()) {
             emit maneuverSelectionChanged(QString());
@@ -72,6 +92,15 @@ void ManeuverScene::setManeuvers(QPersistentModelIndex plane_idx)
             QString name = index.data().toString();
             maneuver_indexes[name] = index;
         }
+        plane_name->setPlainText(plane_idx.data().toString());
+        plane_name->setX(background_item->boundingRect().width()/2 - plane_name->boundingRect().width()/2);
+        plane_tolerances->setPlainText(QString("Dive: %1 | Climb: %2 | Altitude: %3%4 | Stability: %5")
+                                       .arg(plane_idx.sibling(plane_idx.row(), PlaneItem::Rated_Dive).data().toString())
+                                       .arg(plane_idx.sibling(plane_idx.row(), PlaneItem::Rated_Climb).data().toString())
+                                       .arg(plane_idx.sibling(plane_idx.row(), PlaneItem::Max_Altitude).data().toString())
+                                       .arg(plane_idx.sibling(plane_idx.row(), PlaneItem::Can_Return_To_Max_Alt).data().toBool() ? "+" : "")
+                                       .arg(plane_idx.sibling(plane_idx.row(), PlaneItem::Stability).data().toString()));
+        plane_tolerances->setX(background_item->boundingRect().width()/2 - plane_tolerances->boundingRect().width()/2);
     }
 
     for (auto key : maneuver_map.keys()) {
@@ -89,15 +118,6 @@ void ManeuverScene::updateManeuver(QString id)
 
 void ManeuverScene::positionManeuvers()
 {
-    // Add the background as a pixmap
-//    QGraphicsSvgItem* background_item = new QGraphicsSvgItem(QString("../CEManeuverLog/graphics/Canvas_AircraftSheet.svg"));
-//    background_item->setZValue(-1);
-//    addItem(background_item);
-
-    // for now use shitty png while debugging SVG
-    QGraphicsPixmapItem* pixmap_item = addPixmap(QPixmap("../CEManeuverLog/graphics/background.png"));
-    pixmap_item->setZValue(-1);
-
     maneuver_map["1L0"]->moveBy(175, 35);
     maneuver_map["1S0"]->moveBy(275, 35);
     maneuver_map["1R0"]->moveBy(395, 35);
