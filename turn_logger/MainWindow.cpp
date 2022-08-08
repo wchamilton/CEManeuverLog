@@ -46,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
     plane_action_group = new QActionGroup(this);
 
     maneuver_scene = new ManeuverScene(ui->graphicsView);
+    maneuver_scene->applyScheduleBG();
     maneuver_scene->positionManeuvers();
     ui->graphicsView->setScene(maneuver_scene);
     ui->graphicsView->setRenderHints(QPainter::Antialiasing);

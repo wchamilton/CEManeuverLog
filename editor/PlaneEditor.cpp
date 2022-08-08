@@ -209,6 +209,7 @@ void PlaneEditor::initWidgets()
     // Initialize the scenes and apply them to the graphics views
     maneuver_preview_scene = new ManeuverScene(ui->maneuver_preview_gv);
     maneuver_schedule_scene = new ManeuverScene(ui->maneuver_schedule_gv);
+    maneuver_schedule_scene->applyScheduleBG();
     maneuver_schedule_scene->positionManeuvers();
     ui->maneuver_preview_gv->setScene(maneuver_preview_scene);
     ui->maneuver_schedule_gv->setScene(maneuver_schedule_scene);

@@ -29,25 +29,6 @@ ManeuverScene::ManeuverScene(QObject *parent) : QGraphicsScene(parent)
         addItem(maneuver_map[maneuver.name]);
     }
 
-    // Add the background as a pixmap
-//    QGraphicsSvgItem* background_item = new QGraphicsSvgItem(QString("../CEManeuverLog/graphics/Canvas_AircraftSheet.svg"));
-//    background_item->setZValue(-1);
-//    addItem(background_item);
-
-    // for now use shitty png while debugging SVG
-    background_item = addPixmap(QPixmap("../CEManeuverLog/graphics/background.png"));
-    background_item->setZValue(-1);
-    plane_name = addText("");
-    plane_tolerances = addText("");
-    QFont font = plane_name->font();
-    font.setPixelSize(16);
-    font.setBold(true);
-    plane_name->setFont(font);
-    font.setPixelSize(14);
-    plane_tolerances->setFont(font);
-    plane_name->moveBy(background_item->boundingRect().width()/2 - plane_name->boundingRect().width()/2, background_item->boundingRect().height());
-    plane_tolerances->moveBy(background_item->boundingRect().width()/2 - plane_tolerances->boundingRect().width()/2, background_item->boundingRect().height() + plane_name->boundingRect().height());
-
     connect(this, &ManeuverScene::selectionChanged, this, [&](){
         if (selectedItems().isEmpty()) {
             emit maneuverSelectionChanged(QString());
@@ -114,6 +95,28 @@ void ManeuverScene::updateManeuver(QString id)
     if (maneuver_map.keys().contains(id)) {
         maneuver_map[id]->updateManeuverState();
     }
+}
+
+void ManeuverScene::applyScheduleBG()
+{
+    // Add the background as a pixmap
+//    QGraphicsSvgItem* background_item = new QGraphicsSvgItem(QString("../CEManeuverLog/graphics/Canvas_AircraftSheet.svg"));
+//    background_item->setZValue(-1);
+//    addItem(background_item);
+
+    // for now use shitty png while debugging SVG
+    background_item = addPixmap(QPixmap("../CEManeuverLog/graphics/background.png"));
+    background_item->setZValue(-1);
+    plane_name = addText("");
+    plane_tolerances = addText("");
+    QFont font = plane_name->font();
+    font.setPixelSize(16);
+    font.setBold(true);
+    plane_name->setFont(font);
+    font.setPixelSize(14);
+    plane_tolerances->setFont(font);
+    plane_name->moveBy(background_item->boundingRect().width()/2 - plane_name->boundingRect().width()/2, background_item->boundingRect().height());
+    plane_tolerances->moveBy(background_item->boundingRect().width()/2 - plane_tolerances->boundingRect().width()/2, background_item->boundingRect().height() + plane_name->boundingRect().height());
 }
 
 void ManeuverScene::positionManeuvers()

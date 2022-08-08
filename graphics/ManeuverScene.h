@@ -18,6 +18,7 @@ public:
     void setManeuver(QPersistentModelIndex maneuver_idx);
     void setManeuvers(QPersistentModelIndex plane_idx);
     void updateManeuver(QString id);
+    void applyScheduleBG();
     void positionManeuvers();
 
 signals:

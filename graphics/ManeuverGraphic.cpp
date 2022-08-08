@@ -42,12 +42,12 @@ void ManeuverGraphic::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     QFont font = painter->font();
     font.setPixelSize(32);
     font.setBold(true);
-    font.setLetterSpacing(QFont::PercentageSpacing, 105);
+    font.setLetterSpacing(QFont::PercentageSpacing, 110);
     painter->setFont(font);
 
-    painter->drawText(hex_center - painter->fontMetrics().width(getID())/2, hex_height + 3*painter->fontMetrics().height()/4, getID());
-    painter->drawText(hex_center - painter->fontMetrics().width(getTolerances())/2, hex_height + 6*painter->fontMetrics().height()/4, getTolerances());
-    painter->drawText(hex_center - painter->fontMetrics().width(getAdditionalInfo())/2, hex_height + 9*painter->fontMetrics().height()/4, getAdditionalInfo());
+    painter->drawText(hex_center - painter->fontMetrics().width(getID())/2, hex_height + painter->fontMetrics().height(), getID());
+    painter->drawText(hex_center - painter->fontMetrics().width(getTolerances())/2, hex_height + 2*painter->fontMetrics().height(), getTolerances());
+    painter->drawText(hex_center - painter->fontMetrics().width(getAdditionalInfo())/2, hex_height + 3*painter->fontMetrics().height(), getAdditionalInfo());
 }
 
 void ManeuverGraphic::addHex(Maneuver::Directions position, HexTile::TileType tile_type, qreal rotation)
