@@ -142,24 +142,19 @@ void MainWindow::setSelectedPlane()
 
     ui->turn_log->clear();
     turn_history.clear();
-
-    // Populate the crew tab and the gun tabs for each crew
     ui->crew_tab->clear();
     ui->gun_tab->clear();
+
+    // Iterate over the crew members
     for (int i=0; i<crew_proxy_model->rowCount(crew_proxy_model->mapFromSource(plane_idx)); ++i) {
         QPersistentModelIndex crew_idx = crew_proxy_model->index(i, CrewItem::Crew_Role, crew_proxy_model->mapFromSource(plane_idx));
         ui->crew_tab->addTab(new CrewControls(ui->crew_tab), crew_idx.data().toString());
 
+        // Iterate over the crew weapons
         for (int j=0; j<crew_proxy_model->rowCount(crew_idx); ++j) {
             QPersistentModelIndex gun_idx = crew_proxy_model->index(j, GunItem::Gun_Name, crew_idx);
-            QString gun_prefix = "";
             int gun_count = gun_idx.sibling(gun_idx.row(), GunItem::Gun_Count).data().toInt();
-            if (gun_count == 2) {
-                gun_prefix = "Twin ";
-            }
-            else if (gun_count == 3) {
-                gun_prefix = "Triple ";
-            }
+            QString gun_prefix = gun_count == 1 ? "" : gun_count == 2 ? "Twin " : "Triple ";
             ui->gun_tab->addTab(new GunControls(gun_idx, ui->gun_tab),
                                 QString("%1's %2%3").arg(crew_idx.data().toString()).arg(gun_prefix).arg(gun_idx.data().toString()));
         }
