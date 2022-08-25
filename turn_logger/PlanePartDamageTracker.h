@@ -20,12 +20,12 @@ public:
 
 private slots:
     void takeDamage();
+    void setBorderColour(int value);
 
 private:
     Ui::PlanePartDamageTracker *ui;
 
-    QPersistentModelIndex hp;
-    QPersistentModelIndex critical_hp;
+    int critical_hp;
 };
 
 #endif // PLANEPARTDAMAGETRACKER_H
