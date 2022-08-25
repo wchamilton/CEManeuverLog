@@ -29,7 +29,8 @@ SOURCES += \
     models/PlaneModel.cpp \
     editor/PlaneEditor.cpp \
     editor/CrewEditorTab.cpp \
-    editor/GunEditorTab.cpp
+    editor/GunEditorTab.cpp \
+    turn_logger/CrewTurnOptions.cpp
 
 HEADERS += \
     CEManeuvers.h \
@@ -44,7 +45,8 @@ HEADERS += \
     models/PlaneModel.h \
     editor/PlaneEditor.h \
     editor/CrewEditorTab.h \
-    editor/GunEditorTab.h
+    editor/GunEditorTab.h \
+    turn_logger/CrewTurnOptions.h
 
 FORMS += \
     turn_logger/MainWindow.ui \
@@ -53,7 +55,8 @@ FORMS += \
     turn_logger/PlanePartDamageTracker.ui \
     editor/PlaneEditor.ui \
     editor/CrewEditorTab.ui \
-    editor/GunEditorTab.ui
+    editor/GunEditorTab.ui \
+    turn_logger/CrewTurnOptions.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

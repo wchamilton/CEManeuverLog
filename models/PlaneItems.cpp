@@ -150,7 +150,8 @@ QJsonObject ManeuverItem::toJSON() const
 
 CrewItem::CrewItem(QJsonObject crew, BaseItem *parent) : BaseItem(Crew_Item_Type, parent)
 {
-    setData(Crew_Role, crew.value("role").toString());
+    setData(Crew_Role, crew["role"].toString());
+    setData(Can_Drop_Bombs, crew["can_drop_bombs"].toBool());
     setData(Wounds, 0);
     QJsonArray guns = crew.value("guns").toArray();
 
@@ -165,6 +166,7 @@ QJsonObject CrewItem::toJSON() const
 {
     QJsonObject crew;
     crew["role"] = data(Crew_Role).toString();
+    crew["can_drop_bombs"] = data(Can_Drop_Bombs).toBool();
     for (int i=0; i<childCount(); ++i) {
         crew["gun"] = static_cast<GunItem*>(childAt(i))->toJSON();
     }

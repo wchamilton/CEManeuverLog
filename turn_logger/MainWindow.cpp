@@ -15,6 +15,7 @@
 #include "graphics/ManeuverScene.h"
 #include "graphics/ManeuverGraphic.h"
 #include "editor/PlaneEditor.h"
+#include "CrewTurnOptions.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -40,6 +41,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->wing_grp->setTitle("Wing");
     ui->fuselage_grp->setTitle("Fuselage");
     ui->tail_grp->setTitle("Tail");
+
+    // Hide the bomb controls for now
+    ui->bombCountSpin->hide();
+    ui->dropBombBtn->hide();
 
     early_war_menu = ui->select_plane_menu->addMenu("Early War");
     late_war_menu = ui->select_plane_menu->addMenu("Late War");
@@ -96,7 +101,9 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->maneuver_cmb->setCurrentIndex(ui->maneuver_cmb->findText(name));
         ui->alt_cmb->setDisabled(name == "");
         ui->log_turn_btn->setDisabled(name == "");
-        setAvailableAltitudes();
+        if (name != "") {
+            setAvailableAltitudes();
+        }
         ui->maneuver_cmb->blockSignals(false);
     });
     connect(ui->maneuver_cmb, &QComboBox::currentTextChanged, maneuver_scene, [&](QString name){
@@ -144,20 +151,22 @@ void MainWindow::setSelectedPlane()
     ui->turn_log->clear();
     turn_history.clear();
     ui->crew_tab->clear();
-    ui->gun_tab->clear();
+    ui->crew_turn->clear();
 
     // Iterate over the crew members
     for (int i=0; i<crew_proxy_model->rowCount(crew_proxy_model->mapFromSource(plane_idx)); ++i) {
         QPersistentModelIndex crew_idx = crew_proxy_model->index(i, CrewItem::Crew_Role, crew_proxy_model->mapFromSource(plane_idx));
         ui->crew_tab->addTab(new CrewControls(ui->crew_tab), crew_idx.data().toString());
 
+        CrewTurnOptions* cto = new CrewTurnOptions(ui->crew_turn);
+        ui->crew_turn->addTab(cto, crew_idx.data().toString());
+
         // Iterate over the crew weapons
         for (int j=0; j<crew_proxy_model->rowCount(crew_idx); ++j) {
             QPersistentModelIndex gun_idx = crew_proxy_model->index(j, GunItem::Gun_Name, crew_idx);
             int gun_count = gun_idx.sibling(gun_idx.row(), GunItem::Gun_Count).data().toInt();
             QString gun_prefix = gun_count == 1 ? "" : gun_count == 2 ? "Twin " : "Triple ";
-            ui->gun_tab->addTab(new GunControls(gun_idx, ui->gun_tab),
-                                QString("%1's %2%3").arg(crew_idx.data().toString()).arg(gun_prefix).arg(gun_idx.data().toString()));
+            cto->addAction(QString("%1%2").arg(gun_prefix).arg(gun_idx.data().toString()), new GunControls(gun_idx, cto));
         }
     }
 
@@ -197,7 +206,8 @@ void MainWindow::logTurn()
     QTreeWidgetItem* log_item_maneuver = new QTreeWidgetItem(ui->turn_log);
     log_item_maneuver->setText(0, QString("Turn %1 - %2").arg(turn_history.size()).arg(turn.maneuver));
     log_item_maneuver->setText(1, ui->alt_cmb->currentText());
-    log_item_maneuver->setText(2, QString("%1/%2").arg(fuel_remaining).arg(max_fuel));
+    log_item_maneuver->setTextAlignment(1, Qt::AlignHCenter);
+    log_item_maneuver->setText(2, QString("%1/%2 (%3%)").arg(fuel_remaining).arg(max_fuel).arg(QString::number((double)fuel_remaining/max_fuel*100, 'f', 2)));
     // Calculate if below 25% fuel remaining
     if (fuel_remaining <= max_fuel * 0.25) {
         log_item_maneuver->setForeground(2, Qt::red);
@@ -235,7 +245,7 @@ void MainWindow::clearUI()
     ui->fuselage_grp->clear();
     ui->tail_grp->clear();
     ui->crew_tab->clear();
-    ui->gun_tab->clear();
+    ui->crew_turn->clear();
 
     maneuver_scene->setManeuvers(QPersistentModelIndex());
 }

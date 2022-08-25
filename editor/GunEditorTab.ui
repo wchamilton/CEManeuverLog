@@ -21,33 +21,6 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1" colspan="3">
-    <widget class="QLineEdit" name="gun_name">
-     <property name="placeholderText">
-      <string>Gun name</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="4">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Ammo boxes:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="5">
-    <widget class="QSpinBox" name="ammo_box_count">
-     <property name="toolTip">
-      <string>Belt fed guns should be set to 1 box</string>
-     </property>
-     <property name="buttonSymbols">
-      <enum>QAbstractSpinBox::NoButtons</enum>
-     </property>
-     <property name="minimum">
-      <number>1</number>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="0" colspan="2">
     <widget class="QLabel" name="label_9">
      <property name="text">
@@ -90,60 +63,12 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="4">
-    <widget class="QLabel" name="label_8">
-     <property name="text">
-      <string>Ammo per box:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="5">
-    <widget class="QSpinBox" name="ammo_per_box">
-     <property name="toolTip">
-      <string>Belt fed guns should be set to 1 box</string>
-     </property>
-     <property name="buttonSymbols">
-      <enum>QAbstractSpinBox::NoButtons</enum>
-     </property>
-     <property name="minimum">
-      <number>0</number>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="0" colspan="2">
     <widget class="QLabel" name="label_12">
      <property name="text">
       <string>Gun Links:</string>
      </property>
     </widget>
-   </item>
-   <item row="2" column="2" colspan="4">
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QRadioButton" name="single_gun">
-       <property name="text">
-        <string>Single</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="twin_linked">
-       <property name="text">
-        <string>Twin</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="triple_linked">
-       <property name="text">
-        <string>Triple</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </item>
    <item row="3" column="0" colspan="6">
     <widget class="QFrame" name="fire_base_frame">
@@ -381,6 +306,63 @@
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QSpinBox" name="gun_links">
+     <property name="buttonSymbols">
+      <enum>QAbstractSpinBox::NoButtons</enum>
+     </property>
+     <property name="minimum">
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="4">
+    <widget class="QLabel" name="label_8">
+     <property name="text">
+      <string>Ammo per box:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="5">
+    <widget class="QSpinBox" name="ammo_per_box">
+     <property name="toolTip">
+      <string>Belt fed guns should be set to 1 box</string>
+     </property>
+     <property name="buttonSymbols">
+      <enum>QAbstractSpinBox::NoButtons</enum>
+     </property>
+     <property name="minimum">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="5">
+    <widget class="QSpinBox" name="ammo_box_count">
+     <property name="toolTip">
+      <string>Belt fed guns should be set to 1 box</string>
+     </property>
+     <property name="buttonSymbols">
+      <enum>QAbstractSpinBox::NoButtons</enum>
+     </property>
+     <property name="minimum">
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="4">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Ammo boxes:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="5">
+    <widget class="QLineEdit" name="gun_name">
+     <property name="placeholderText">
+      <string>Gun name</string>
+     </property>
     </widget>
    </item>
   </layout>

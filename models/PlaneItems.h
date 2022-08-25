@@ -100,6 +100,7 @@ public:
     enum CrewCols {
         Crew_Name = 0,
         Crew_Role,
+        Can_Drop_Bombs,
         Wounds,
         COL_COUNT
     };
