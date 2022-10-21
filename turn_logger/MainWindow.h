@@ -40,7 +40,10 @@ public:
 private slots:
     void loadJSON(QString file_path);
     void setSelectedPlane();
-    void logTurn();
+    void logMovement();
+    void logCrewAction();
+    void setManeuver(QString maneuver_name);
+    void setSceneManeuver(QString maneuver_name);
 
 private:
     void autoLoadPlanes();
@@ -54,6 +57,7 @@ private:
     PlaneFilterProxy* maneuver_proxy_model = nullptr;
     PlaneFilterProxy* crew_proxy_model = nullptr;
     ManeuverScene* maneuver_scene = nullptr;
+    ManeuverScene* maneuver_preview_scene = nullptr;
     QMenu* early_war_menu = nullptr;
     QMenu* late_war_menu = nullptr;
     QActionGroup* plane_action_group = nullptr;

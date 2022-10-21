@@ -238,12 +238,16 @@ void PlaneEditor::initWidgets()
 
     connect(ui->add_maneuver, &QPushButton::pressed, this, [&]() {
         QPersistentModelIndex idx(maneuver_proxy_model->index(ui->maneuver_selection->currentIndex(), ManeuverItem::Maneuver_Name, ui->maneuver_selection->rootModelIndex()));
-        addManeuverToSchedule(idx);
+        if (idx.isValid()) {
+            addManeuverToSchedule(idx);
+        }
     });
 
     connect(ui->remove_maneuver, &QPushButton::pressed, this, [&]() {
         QPersistentModelIndex idx(maneuver_proxy_model->index(ui->maneuver_selection->currentIndex(), ManeuverItem::Maneuver_Name, ui->maneuver_selection->rootModelIndex()));
-        removeManeuverFromSchedule(idx);
+        if (idx.isValid()) {
+            removeManeuverFromSchedule(idx);
+        }
     });
 
     connect(ui->export_json, &QPushButton::pressed, this, &PlaneEditor::exportJSON);

@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QStyle>
 #include <QDesktopWidget>
+#include <QSettings>
 
 int main(int argc, char *argv[])
 {
@@ -12,6 +13,10 @@ int main(int argc, char *argv[])
     file.open(QFile::ReadOnly);
     QString style_sheet = QLatin1String(file.readAll());
     a.setStyleSheet(style_sheet);
+
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+    qApp->setOrganizationName("Name Pending");
+    qApp->setApplicationName("CEManeuverLog");
 
     MainWindow w;
     w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w.size(), qApp->desktop()->availableGeometry()));
