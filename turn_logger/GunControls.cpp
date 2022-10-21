@@ -27,9 +27,6 @@ GunControls::GunControls(QPersistentModelIndex idx, QWidget *parent) :
     ui->ammo_total->setText(QVariant(idx.sibling(idx.row(), GunItem::Ammo_Box_Capacity).data().toInt() *
                                      idx.sibling(idx.row(), GunItem::Ammo_Box_Count).data().toInt()).toString());
 
-    ui->guns_jammed_cmb->setMaximum(idx.sibling(idx.row(), GunItem::Gun_Count).data().toInt());
-    ui->guns_destroyed_cmb->setMaximum(idx.sibling(idx.row(), GunItem::Gun_Count).data().toInt());
-
     connect(ui->long_burst_btn, &QPushButton::released, this, [&]() { ui->burst_len->setValue(2); });
     connect(ui->med_burst_btn, &QPushButton::released, this, [&]() { ui->burst_len->setValue(1); });
     connect(ui->short_burst_btn, &QPushButton::released, this, [&]() { ui->burst_len->setValue(0); });

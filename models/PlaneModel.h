@@ -38,8 +38,9 @@ class PlaneFilterProxy : public QSortFilterProxyModel
     Q_OBJECT
 public:
     PlaneFilterProxy(PlaneModel* src_model, QObject* parent = nullptr);
-    void setTypeFilter(QList<BaseItem::ItemType> type);
+    void setTypeFilter(QList<BaseItem::ItemType> types);
     void expandFilter(BaseItem::ItemType type);
+    void expandFilter(QList<BaseItem::ItemType> types);
 
     // QSortFilterProxyModel interface
 protected:

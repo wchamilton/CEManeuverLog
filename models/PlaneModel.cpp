@@ -92,7 +92,7 @@ bool PlaneModel::setData(const QModelIndex &index, const QVariant &value, int ro
 
 QModelIndex PlaneModel::loadPlaneJSON(QJsonObject plane)
 {
-    beginInsertRows(QModelIndex(), rowCount(), rowCount()+1);
+    beginInsertRows(QModelIndex(), rowCount(), rowCount());
     PlaneItem *item = new PlaneItem(plane, root);
     root->addChild(item);
     endInsertRows();
@@ -126,15 +126,21 @@ PlaneFilterProxy::PlaneFilterProxy(PlaneModel *src_model, QObject *parent) : QSo
     type_filters << BaseItem::Plane_Item_Type; // All items are children of the plane item
 }
 
-void PlaneFilterProxy::setTypeFilter(QList<BaseItem::ItemType> type)
+void PlaneFilterProxy::setTypeFilter(QList<BaseItem::ItemType> types)
 {
-    type_filters = type;
+    type_filters = types;
     invalidate();
 }
 
 void PlaneFilterProxy::expandFilter(BaseItem::ItemType type)
 {
     type_filters << type;
+    invalidate();
+}
+
+void PlaneFilterProxy::expandFilter(QList<BaseItem::ItemType> types)
+{
+    type_filters << types;
     invalidate();
 }
 

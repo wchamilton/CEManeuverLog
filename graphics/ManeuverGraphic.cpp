@@ -40,7 +40,7 @@ void ManeuverGraphic::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     }
 
     QFont font = painter->font();
-    font.setPixelSize(32);
+    font.setPointSize(25);
     font.setBold(true);
     font.setFamily("Tahoma");
     font.setLetterSpacing(QFont::PercentageSpacing, 110);
@@ -78,7 +78,7 @@ QPainterPath ManeuverGraphic::shape() const
         default: break;
     }
     QFont font;
-    font.setPixelSize(32);
+    font.setPointSize(25);
     font.setBold(true);
     font.setLetterSpacing(QFont::PercentageSpacing, 110);
     QFontMetrics font_metrics(font);

@@ -6,56 +6,45 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>413</width>
-    <height>75</height>
+    <width>378</width>
+    <height>325</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout" columnstretch="0,1,0,0,0,0">
-   <item row="0" column="2" rowspan="2">
-    <widget class="Line" name="line_2">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0" colspan="3">
+    <widget class="QLineEdit" name="name">
+     <property name="placeholderText">
+      <string>Crew Member Name</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="4" rowspan="2">
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="3">
-    <widget class="QPushButton" name="score_red_btn">
-     <property name="text">
-      <string>Score Red Hit</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="5">
-    <widget class="QPushButton" name="add_wound_btn">
-     <property name="text">
-      <string>Add Wound</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QComboBox" name="comboBox"/>
-   </item>
-   <item row="0" column="3">
+   <item row="1" column="0">
     <widget class="QSpinBox" name="reds_spin">
      <property name="suffix">
       <string> reds</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="5">
+   <item row="1" column="1" rowspan="2">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
     <widget class="QSlider" name="wounds">
      <property name="enabled">
       <bool>true</bool>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
      <property name="styleSheet">
       <string notr="true">QSlider::groove:horizontal {
@@ -122,18 +111,43 @@ border-radius: 4px;
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label">
+   <item row="2" column="0">
+    <widget class="QPushButton" name="score_red_btn">
      <property name="text">
-      <string>Ability:</string>
+      <string>Score Red Hit</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QLineEdit" name="name">
-     <property name="placeholderText">
-      <string>Name</string>
+   <item row="2" column="2">
+    <widget class="QPushButton" name="add_wound_btn">
+     <property name="text">
+      <string>Add Wound</string>
      </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="3">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Actions</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout" columnstretch="0,1">
+      <item row="0" column="0">
+       <widget class="QListWidget" name="listWidget"/>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QPushButton" name="pushButton_4">
+        <property name="toolTip">
+         <string>Note only one action can be logged per crew per turn</string>
+        </property>
+        <property name="text">
+         <string>Log Action</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QStackedWidget" name="stackedWidget"/>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>
