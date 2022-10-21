@@ -15,7 +15,6 @@
 #include "graphics/ManeuverScene.h"
 #include "graphics/ManeuverGraphic.h"
 #include "editor/PlaneEditor.h"
-#include "CrewTurnOptions.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -33,18 +32,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->maneuver_cmb->setModel(maneuver_proxy_model);
 
     crew_proxy_model = new PlaneFilterProxy(plane_model, this);
-    crew_proxy_model->expandFilter(BaseItem::Crew_Item_Type);
-    crew_proxy_model->expandFilter(BaseItem::Gun_Item_Type);
+    crew_proxy_model->expandFilter({BaseItem::Crew_Item_Type, BaseItem::Gun_Item_Type});
 
     // Set up the damage trackers
     ui->engine_grp->setTitle("Engine");
     ui->wing_grp->setTitle("Wing");
     ui->fuselage_grp->setTitle("Fuselage");
     ui->tail_grp->setTitle("Tail");
-
-    // Hide the bomb controls for now
-    ui->bombCountSpin->hide();
-    ui->dropBombBtn->hide();
 
     early_war_menu = ui->select_plane_menu->addMenu("Early War");
     late_war_menu = ui->select_plane_menu->addMenu("Late War");
@@ -56,13 +50,20 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->graphicsView->setScene(maneuver_scene);
     ui->graphicsView->setRenderHints(QPainter::Antialiasing);
 
+    maneuver_preview_scene = new ManeuverScene(ui->selected_maneuver_graphic);
+    ui->selected_maneuver_graphic->setScene(maneuver_preview_scene);
+    ui->selected_maneuver_graphic->setRenderHints(QPainter::Antialiasing);
+
     // Load the planes if a location has been already set
     autoLoadPlanes();
     ui->maneuver_cmb->setCurrentIndex(-1);
 
     connect(ui->actionLoad_Planes, &QAction::triggered, this, [&]{
         QString file_path = QFileDialog::getOpenFileName(this, tr("Open File"), "/home", tr("JSON files (*.json)"));
+        ui->maneuver_cmb->blockSignals(true);
         loadJSON(file_path);
+        ui->maneuver_cmb->blockSignals(false);
+        plane_action_group->actions().last()->trigger();
     });
 
     connect(ui->actionCreate_plane, &QAction::triggered, this, [&]{
@@ -85,6 +86,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->actionSet_Plane_Auto_Load_Location, &QAction::triggered, this, [&] {
         QSettings settings;
+        settings.beginGroup("CanvasEagles");
         QString load_location = "/home";
         if (settings.contains("auto-load_location")) {
             load_location = settings.value("auto-load_location").toString();
@@ -94,28 +96,12 @@ MainWindow::MainWindow(QWidget *parent) :
             settings.setValue("auto-load_location", load_location);
             autoLoadPlanes();
         }
+        settings.endGroup();
     });
 
-    connect(maneuver_scene, &ManeuverScene::maneuverSelectionChanged, ui->maneuver_cmb, [&](QString name){
-        ui->maneuver_cmb->blockSignals(true);
-        ui->maneuver_cmb->setCurrentIndex(ui->maneuver_cmb->findText(name));
-        ui->alt_cmb->setDisabled(name == "");
-        ui->log_turn_btn->setDisabled(name == "");
-        if (name != "") {
-            setAvailableAltitudes();
-        }
-        ui->maneuver_cmb->blockSignals(false);
-    });
-    connect(ui->maneuver_cmb, &QComboBox::currentTextChanged, maneuver_scene, [&](QString name){
-        maneuver_scene->clearSelection();
-        ui->alt_cmb->setDisabled(name == "");
-        ui->log_turn_btn->setDisabled(name == "");
-        if (name != "") {
-            maneuver_scene->getManeuver(name)->setSelected(true);
-            setAvailableAltitudes();
-        }
-    });
-    connect(ui->log_turn_btn, &QPushButton::released, this, &MainWindow::logTurn);
+    connect(maneuver_scene, &ManeuverScene::maneuverSelectionChanged, this, &MainWindow::setManeuver);
+    connect(ui->maneuver_cmb, &QComboBox::currentTextChanged, this, &MainWindow::setManeuver);
+    connect(ui->log_turn_btn, &QPushButton::released, this, &MainWindow::logMovement);
 }
 
 MainWindow::~MainWindow()
@@ -151,22 +137,17 @@ void MainWindow::setSelectedPlane()
     ui->turn_log->clear();
     turn_history.clear();
     ui->crew_tab->clear();
-    ui->crew_turn->clear();
 
     // Iterate over the crew members
     for (int i=0; i<crew_proxy_model->rowCount(crew_proxy_model->mapFromSource(plane_idx)); ++i) {
         QPersistentModelIndex crew_idx = crew_proxy_model->index(i, CrewItem::Crew_Role, crew_proxy_model->mapFromSource(plane_idx));
         ui->crew_tab->addTab(new CrewControls(ui->crew_tab), crew_idx.data().toString());
 
-        CrewTurnOptions* cto = new CrewTurnOptions(ui->crew_turn);
-        ui->crew_turn->addTab(cto, crew_idx.data().toString());
-
         // Iterate over the crew weapons
         for (int j=0; j<crew_proxy_model->rowCount(crew_idx); ++j) {
             QPersistentModelIndex gun_idx = crew_proxy_model->index(j, GunItem::Gun_Name, crew_idx);
             int gun_count = gun_idx.sibling(gun_idx.row(), GunItem::Gun_Count).data().toInt();
             QString gun_prefix = gun_count == 1 ? "" : gun_count == 2 ? "Twin " : "Triple ";
-            cto->addAction(QString("%1%2").arg(gun_prefix).arg(gun_idx.data().toString()), new GunControls(gun_idx, cto));
         }
     }
 
@@ -183,7 +164,7 @@ void MainWindow::setSelectedPlane()
     ui->turn_log->setEnabled(true);
 }
 
-void MainWindow::logTurn()
+void MainWindow::logMovement()
 {
     auto idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();
 
@@ -191,9 +172,6 @@ void MainWindow::logTurn()
     turn.maneuver = ui->maneuver_cmb->currentText();
     turn.alt = ui->alt_cmb->currentText().toInt();
     turn.fuel_used = calculateFuelUsed();
-//    for (int i=0; i<crew_proxy_model->rowCount(crew_proxy_model->mapFromSource(idx)); ++i) {
-//        crew_proxy_model->index(i, )
-//    }
     turn_history << turn;
 
     int fuel_used = 0;
@@ -206,8 +184,7 @@ void MainWindow::logTurn()
     QTreeWidgetItem* log_item_maneuver = new QTreeWidgetItem(ui->turn_log);
     log_item_maneuver->setText(0, QString("Turn %1 - %2").arg(turn_history.size()).arg(turn.maneuver));
     log_item_maneuver->setText(1, ui->alt_cmb->currentText());
-    log_item_maneuver->setTextAlignment(1, Qt::AlignHCenter);
-    log_item_maneuver->setText(2, QString("%1/%2 (%3%)").arg(fuel_remaining).arg(max_fuel).arg(QString::number((double)fuel_remaining/max_fuel*100, 'f', 2)));
+    log_item_maneuver->setText(2, QString("%1/%2").arg(fuel_remaining).arg(max_fuel));
     // Calculate if below 25% fuel remaining
     if (fuel_remaining <= max_fuel * 0.25) {
         log_item_maneuver->setForeground(2, Qt::red);
@@ -220,10 +197,68 @@ void MainWindow::logTurn()
     setAvailableAltitudes();
 }
 
+void MainWindow::logCrewAction()
+{
+    // Grab the currently selected crew and apply the action taken. This should also overwrite a previous one in case
+    // the user changes their mind during the turn
+}
+
+void MainWindow::setManeuver(QString maneuver_name)
+{
+    // If selection was done from scene, update combobox
+    if (sender() == ui->maneuver_cmb){
+        maneuver_scene->blockSignals(true);
+        if (!maneuver_scene->selectedItems().isEmpty()) {
+            maneuver_scene->clearSelection();
+        }
+        maneuver_scene->getManeuver(maneuver_name)->setSelected(true);
+        maneuver_scene->blockSignals(false);
+    }
+    // If selection was done from combobox, update scene
+    else if (sender() == maneuver_scene) {
+        ui->maneuver_cmb->blockSignals(true);
+        if (maneuver_name == "") {
+            ui->alt_cmb->setDisabled(true);
+            ui->log_turn_btn->setDisabled(true);
+        }
+        if (ui->maneuver_cmb->currentText() != maneuver_name) {
+            ui->maneuver_cmb->setCurrentIndex(ui->maneuver_cmb->findText(maneuver_name));
+        }
+        ui->maneuver_cmb->blockSignals(false);
+    }
+
+    // If the name is blank then assume selection cleared, otherwise update the preview with the maneuver
+    if (maneuver_name == "") {
+        maneuver_preview_scene->setManeuver(QPersistentModelIndex());
+        maneuver_preview_scene->update();
+    }
+    else {
+        QPersistentModelIndex idx(maneuver_proxy_model->index(ui->maneuver_cmb->currentIndex(), ManeuverItem::Maneuver_Name, ui->maneuver_cmb->rootModelIndex()));
+        maneuver_preview_scene->setManeuver(idx);
+        ui->selected_maneuver_graphic->fitInView(maneuver_preview_scene->getManeuver(idx.data().toString()), Qt::KeepAspectRatio);
+    }
+
+    setAvailableAltitudes();
+}
+
+void MainWindow::setSceneManeuver(QString maneuver_name)
+{
+//    maneuver_scene->clearSelection();
+//    if (maneuver_name != "") {
+//        maneuver_scene->getManeuver(maneuver_name)->setSelected(true);
+//        QPersistentModelIndex idx(maneuver_proxy_model->index(ui->maneuver_cmb->currentIndex(), ManeuverItem::Maneuver_Name, ui->maneuver_cmb->rootModelIndex()));
+//        maneuver_preview_scene->setManeuver(idx);
+//        ui->selected_maneuver_graphic->fitInView(maneuver_preview_scene->getManeuver(idx.data().toString()), Qt::KeepAspectRatio);
+//        setAvailableAltitudes();
+//    }
+}
+
 void MainWindow::autoLoadPlanes()
 {
     QSettings settings;
+    settings.beginGroup("CanvasEagles");
     QString load_location = settings.contains("auto-load_location") ? settings.value("auto-load_location").toString() : "";
+    settings.endGroup();
     if (load_location != "") {
         clearUI();
         QDir planes_dir(load_location);
@@ -245,7 +280,6 @@ void MainWindow::clearUI()
     ui->fuselage_grp->clear();
     ui->tail_grp->clear();
     ui->crew_tab->clear();
-    ui->crew_turn->clear();
 
     maneuver_scene->setManeuvers(QPersistentModelIndex());
 }
