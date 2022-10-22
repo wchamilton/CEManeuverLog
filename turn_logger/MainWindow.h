@@ -23,13 +23,13 @@ class MainWindow : public QMainWindow
     struct CrewAction {
         QString name;
         QString action_taken;
-        int shots_fired;
+        int shots_fired = 0;
     };
 
     struct TurnData {
         QString maneuver;
-        int alt;
-        int fuel_used;
+        int alt = 0;
+        int fuel_used = 0;
         QList<CrewAction> crew_actions;
     };
 
@@ -43,6 +43,7 @@ private slots:
     void logMovement();
     void logCrewAction();
     void setManeuver(QString maneuver_name);
+    void addTurn();
 
 private:
     void autoLoadPlanes();

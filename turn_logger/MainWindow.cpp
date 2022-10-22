@@ -136,7 +136,6 @@ void MainWindow::setSelectedPlane()
     ui->maneuver_cmb->setCurrentIndex(-1);
 
     ui->turn_log->clear();
-    turn_history.clear();
     ui->crew_tab->clear();
 
     // Iterate over the crew members
@@ -156,17 +155,13 @@ void MainWindow::setSelectedPlane()
         ui->alt_cmb->addItem(QString::number(i));
     }
     ui->turn_log->setEnabled(true);
+
+    addTurn();
 }
 
 void MainWindow::logMovement()
 {
     auto idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();
-
-    TurnData turn;
-    turn.maneuver = ui->maneuver_cmb->currentText();
-    turn.alt = ui->alt_cmb->currentText().toInt();
-    turn.fuel_used = calculateFuelUsed();
-    turn_history << turn;
 
     int fuel_used = 0;
     for (auto t : turn_history) {
@@ -175,8 +170,8 @@ void MainWindow::logMovement()
     int max_fuel = idx.sibling(idx.row(), PlaneItem::Fuel).data().toInt();
     int fuel_remaining = max_fuel - fuel_used >= 0 ? max_fuel - fuel_used : 0;
 
-    QTreeWidgetItem* log_item_maneuver = new QTreeWidgetItem(ui->turn_log);
-    log_item_maneuver->setText(0, QString("Turn %1 - %2").arg(turn_history.size()).arg(turn.maneuver));
+    QTreeWidgetItem* log_item_maneuver = ui->turn_log->topLevelItem(ui->turn_log->topLevelItemCount() -2); // newest item is occupied by the add button
+    log_item_maneuver->setText(0, QString("Turn %1 - %2").arg(ui->turn_log->topLevelItemCount()-1).arg(ui->maneuver_cmb->currentText()));
     log_item_maneuver->setText(1, ui->alt_cmb->currentText());
     log_item_maneuver->setText(2, QString("%1/%2").arg(fuel_remaining).arg(max_fuel));
     // Calculate if below 25% fuel remaining
@@ -186,9 +181,8 @@ void MainWindow::logMovement()
     else if (fuel_remaining <= max_fuel * 0.5) {
         log_item_maneuver->setForeground(2, QColor(255,80,50));
     }
-    ui->turn_log->addTopLevelItem(log_item_maneuver);
-    ui->turn_log->scrollToItem(log_item_maneuver);
-    setAvailableAltitudes();
+//    ui->turn_log->addTopLevelItem(log_item_maneuver);
+//    ui->turn_log->scrollToItem(log_item_maneuver);
 }
 
 void MainWindow::logCrewAction()
@@ -234,6 +228,42 @@ void MainWindow::setManeuver(QString maneuver_name)
     }
 
     setAvailableAltitudes();
+}
+
+void MainWindow::addTurn()
+{
+    if (ui->turn_log->topLevelItemCount() == 0) {
+        QPushButton* next_turn_btn = new QPushButton(tr("Start Turn %1").arg(ui->turn_log->topLevelItemCount() + 1));
+
+        QTreeWidgetItem* next_turn_btn_item = new QTreeWidgetItem(ui->turn_log);
+        next_turn_btn_item->setFirstColumnSpanned(true);
+        ui->turn_log->setItemWidget(next_turn_btn_item, 0, next_turn_btn);
+
+        connect(next_turn_btn, &QPushButton::clicked, this, [&]() {
+            QTreeWidgetItem* btn_item = ui->turn_log->currentItem();
+            QTreeWidgetItem* turn_item = new QTreeWidgetItem({tr("Turn %1 - ?").arg(ui->turn_log->topLevelItemCount()), "---", "---"});
+            ui->turn_log->insertTopLevelItem(ui->turn_log->topLevelItemCount()-1, turn_item);
+            ui->turn_log->addTopLevelItem(btn_item);
+            static_cast<QPushButton*>(sender())->setText(tr("Start Turn %1").arg(ui->turn_log->topLevelItemCount()));
+
+            QPersistentModelIndex plane_idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();
+            // Iterate over the crew members
+            for (int i=0; i<crew_proxy_model->rowCount(crew_proxy_model->mapFromSource(plane_idx)); ++i) {
+                QPersistentModelIndex crew_idx = crew_proxy_model->index(i, CrewItem::Crew_Role, crew_proxy_model->mapFromSource(plane_idx));
+                turn_item->addChild(new QTreeWidgetItem({crew_idx.data().toString()}));
+            }
+            turn_item->setExpanded(true);
+
+            TurnData td;
+            td.maneuver = ui->maneuver_cmb->currentText();
+            td.alt = ui->alt_cmb->currentText().toInt();
+            td.fuel_used = calculateFuelUsed();
+
+            turn_history << td;
+
+            setAvailableAltitudes();
+        });
+    }
 }
 
 void MainWindow::autoLoadPlanes()
@@ -286,6 +316,7 @@ int MainWindow::calculateFuelUsed()
 {
     // Baseline for fuel used is the speed of the maneuver
     int fuel_used = maneuver_proxy_model->index(ui->maneuver_cmb->currentIndex(), ManeuverItem::Speed, ui->maneuver_cmb->rootModelIndex()).data().toInt();
+
     // First turn should assume that the altitude is what the plane has been at already, thus just return the speed
     if (turn_history.isEmpty()) {
         return fuel_used;
