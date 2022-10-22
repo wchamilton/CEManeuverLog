@@ -26,7 +26,11 @@
       <property name="childrenCollapsible">
        <bool>false</bool>
       </property>
-      <widget class="QGraphicsView" name="graphicsView"/>
+      <widget class="QGraphicsView" name="graphicsView">
+       <property name="renderHints">
+        <set>QPainter::Antialiasing|QPainter::TextAntialiasing</set>
+       </property>
+      </widget>
       <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0,0">
         <item>
@@ -88,6 +92,9 @@
              </property>
              <property name="interactive">
               <bool>false</bool>
+             </property>
+             <property name="renderHints">
+              <set>QPainter::Antialiasing|QPainter::TextAntialiasing</set>
              </property>
             </widget>
            </item>

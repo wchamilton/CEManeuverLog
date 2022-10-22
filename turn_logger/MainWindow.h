@@ -43,7 +43,6 @@ private slots:
     void logMovement();
     void logCrewAction();
     void setManeuver(QString maneuver_name);
-    void setSceneManeuver(QString maneuver_name);
 
 private:
     void autoLoadPlanes();

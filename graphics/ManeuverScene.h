@@ -13,6 +13,7 @@ class ManeuverScene : public QGraphicsScene
 public:
     ManeuverScene(QObject *parent = nullptr);
     ManeuverGraphic* getManeuver(QString maneuver_name);
+    QString getSelectedManeuver();
     void addManeuver(QPersistentModelIndex maneuver_idx);
     void removeManeuver(QPersistentModelIndex maneuver_idx);
     void setManeuver(QPersistentModelIndex maneuver_idx);
@@ -20,9 +21,6 @@ public:
     void updateManeuver(QString id);
     void applyScheduleBG();
     void positionManeuvers();
-
-signals:
-    void maneuverSelectionChanged(QString maneuver);
 
 private:
     QMap<QString, ManeuverGraphic*> maneuver_map;

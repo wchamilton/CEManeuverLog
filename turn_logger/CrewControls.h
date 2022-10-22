@@ -7,6 +7,7 @@ namespace Ui {
 class CrewControls;
 }
 
+class PlaneFilterProxy;
 class CrewControls : public QWidget
 {
     Q_OBJECT
@@ -18,13 +19,15 @@ class CrewControls : public QWidget
     };
 
 public:
-    explicit CrewControls(QWidget *parent = nullptr);
+    explicit CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_idx, QWidget *parent = nullptr);
     ~CrewControls();
 
 private slots:
     void setSliderStylesheet(QString colour);
 
 private:
+    void populateGunControls(QPersistentModelIndex gun_idx);
+
     Ui::CrewControls *ui;
 };
 

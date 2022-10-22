@@ -2,8 +2,6 @@
 #include <QJsonArray>
 #include <QDebug>
 
-#include "CEManeuvers.h"
-
 BaseItem::~BaseItem()
 {
     qDeleteAll(children);
@@ -167,9 +165,12 @@ QJsonObject CrewItem::toJSON() const
     QJsonObject crew;
     crew["role"] = data(Crew_Role).toString();
     crew["can_drop_bombs"] = data(Can_Drop_Bombs).toBool();
+
+    QJsonArray guns;
     for (int i=0; i<childCount(); ++i) {
-        crew["gun"] = static_cast<GunItem*>(childAt(i))->toJSON();
+        guns << static_cast<GunItem*>(childAt(i))->toJSON();
     }
+    crew["guns"] = guns;
     return crew;
 }
 

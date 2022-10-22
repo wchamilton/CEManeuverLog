@@ -1,8 +1,6 @@
 #include "GunControls.h"
 #include "ui_GunControls.h"
 
-#include <QDebug>
-
 #include "models/PlaneItems.h"
 
 GunControls::GunControls(QWidget *parent) :

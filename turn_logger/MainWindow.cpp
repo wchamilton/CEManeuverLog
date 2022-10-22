@@ -48,11 +48,9 @@ MainWindow::MainWindow(QWidget *parent) :
     maneuver_scene->applyScheduleBG();
     maneuver_scene->positionManeuvers();
     ui->graphicsView->setScene(maneuver_scene);
-    ui->graphicsView->setRenderHints(QPainter::Antialiasing);
 
     maneuver_preview_scene = new ManeuverScene(ui->selected_maneuver_graphic);
     ui->selected_maneuver_graphic->setScene(maneuver_preview_scene);
-    ui->selected_maneuver_graphic->setRenderHints(QPainter::Antialiasing);
 
     // Load the planes if a location has been already set
     autoLoadPlanes();
@@ -99,13 +97,16 @@ MainWindow::MainWindow(QWidget *parent) :
         settings.endGroup();
     });
 
-    connect(maneuver_scene, &ManeuverScene::maneuverSelectionChanged, this, &MainWindow::setManeuver);
+    connect(maneuver_scene, &ManeuverScene::selectionChanged, this, [=] {
+        setManeuver(maneuver_scene->getSelectedManeuver());
+    });
     connect(ui->maneuver_cmb, &QComboBox::currentTextChanged, this, &MainWindow::setManeuver);
     connect(ui->log_turn_btn, &QPushButton::released, this, &MainWindow::logMovement);
 }
 
 MainWindow::~MainWindow()
 {
+    maneuver_scene->clearSelection();
     delete ui;
 }
 
@@ -141,14 +142,7 @@ void MainWindow::setSelectedPlane()
     // Iterate over the crew members
     for (int i=0; i<crew_proxy_model->rowCount(crew_proxy_model->mapFromSource(plane_idx)); ++i) {
         QPersistentModelIndex crew_idx = crew_proxy_model->index(i, CrewItem::Crew_Role, crew_proxy_model->mapFromSource(plane_idx));
-        ui->crew_tab->addTab(new CrewControls(ui->crew_tab), crew_idx.data().toString());
-
-        // Iterate over the crew weapons
-        for (int j=0; j<crew_proxy_model->rowCount(crew_idx); ++j) {
-            QPersistentModelIndex gun_idx = crew_proxy_model->index(j, GunItem::Gun_Name, crew_idx);
-            int gun_count = gun_idx.sibling(gun_idx.row(), GunItem::Gun_Count).data().toInt();
-            QString gun_prefix = gun_count == 1 ? "" : gun_count == 2 ? "Twin " : "Triple ";
-        }
+        ui->crew_tab->addTab(new CrewControls(crew_proxy_model, crew_idx, ui->crew_tab), crew_idx.data().toString());
     }
 
     // Set the module HP indexes
@@ -206,7 +200,7 @@ void MainWindow::logCrewAction()
 void MainWindow::setManeuver(QString maneuver_name)
 {
     // If selection was done from scene, update combobox
-    if (sender() == ui->maneuver_cmb){
+    if (sender() == ui->maneuver_cmb && maneuver_scene != nullptr){
         maneuver_scene->blockSignals(true);
         if (!maneuver_scene->selectedItems().isEmpty()) {
             maneuver_scene->clearSelection();
@@ -215,42 +209,31 @@ void MainWindow::setManeuver(QString maneuver_name)
         maneuver_scene->blockSignals(false);
     }
     // If selection was done from combobox, update scene
-    else if (sender() == maneuver_scene) {
-        ui->maneuver_cmb->blockSignals(true);
-        if (maneuver_name == "") {
-            ui->alt_cmb->setDisabled(true);
-            ui->log_turn_btn->setDisabled(true);
-        }
+    else if (sender() == maneuver_scene && ui->maneuver_cmb != nullptr) {
+        ui->alt_cmb->setDisabled(maneuver_name == "");
+        ui->log_turn_btn->setDisabled(maneuver_name == "");
+
         if (ui->maneuver_cmb->currentText() != maneuver_name) {
+            ui->maneuver_cmb->blockSignals(true);
             ui->maneuver_cmb->setCurrentIndex(ui->maneuver_cmb->findText(maneuver_name));
+            ui->maneuver_cmb->blockSignals(false);
         }
-        ui->maneuver_cmb->blockSignals(false);
     }
 
     // If the name is blank then assume selection cleared, otherwise update the preview with the maneuver
-    if (maneuver_name == "") {
-        maneuver_preview_scene->setManeuver(QPersistentModelIndex());
-        maneuver_preview_scene->update();
-    }
-    else {
-        QPersistentModelIndex idx(maneuver_proxy_model->index(ui->maneuver_cmb->currentIndex(), ManeuverItem::Maneuver_Name, ui->maneuver_cmb->rootModelIndex()));
-        maneuver_preview_scene->setManeuver(idx);
-        ui->selected_maneuver_graphic->fitInView(maneuver_preview_scene->getManeuver(idx.data().toString()), Qt::KeepAspectRatio);
+    if (maneuver_preview_scene != nullptr) {
+        if (maneuver_name == "") {
+            maneuver_preview_scene->setManeuver(QPersistentModelIndex());
+            maneuver_preview_scene->update();
+        }
+        else {
+            QPersistentModelIndex idx(maneuver_proxy_model->index(ui->maneuver_cmb->currentIndex(), ManeuverItem::Maneuver_Name, ui->maneuver_cmb->rootModelIndex()));
+            maneuver_preview_scene->setManeuver(idx);
+            ui->selected_maneuver_graphic->fitInView(maneuver_preview_scene->getManeuver(idx.data().toString()), Qt::KeepAspectRatio);
+        }
     }
 
     setAvailableAltitudes();
-}
-
-void MainWindow::setSceneManeuver(QString maneuver_name)
-{
-//    maneuver_scene->clearSelection();
-//    if (maneuver_name != "") {
-//        maneuver_scene->getManeuver(maneuver_name)->setSelected(true);
-//        QPersistentModelIndex idx(maneuver_proxy_model->index(ui->maneuver_cmb->currentIndex(), ManeuverItem::Maneuver_Name, ui->maneuver_cmb->rootModelIndex()));
-//        maneuver_preview_scene->setManeuver(idx);
-//        ui->selected_maneuver_graphic->fitInView(maneuver_preview_scene->getManeuver(idx.data().toString()), Qt::KeepAspectRatio);
-//        setAvailableAltitudes();
-//    }
 }
 
 void MainWindow::autoLoadPlanes()

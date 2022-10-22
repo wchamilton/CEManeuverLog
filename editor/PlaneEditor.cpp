@@ -271,9 +271,9 @@ void PlaneEditor::initWidgets()
         }
     });
 
-    connect(maneuver_schedule_scene, &ManeuverScene::maneuverSelectionChanged, [&](QString name){
-        if (name != "") {
-            ui->maneuver_selection->setCurrentIndex(ui->maneuver_selection->findText(name));
+    connect(maneuver_schedule_scene, &ManeuverScene::selectionChanged, this, [=] {
+        if (!maneuver_schedule_scene->selectedItems().isEmpty()) {
+            ui->maneuver_selection->setCurrentIndex(ui->maneuver_selection->findText(maneuver_schedule_scene->getSelectedManeuver()));
         }
     });
 }

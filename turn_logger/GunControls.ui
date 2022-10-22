@@ -7,70 +7,21 @@
     <x>0</x>
     <y>0</y>
     <width>255</width>
-    <height>186</height>
+    <height>166</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Weapon Controls</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="4" column="0" colspan="4">
-    <widget class="QSlider" name="burst_len">
-     <property name="maximum">
-      <number>2</number>
-     </property>
-     <property name="pageStep">
-      <number>1</number>
-     </property>
-     <property name="value">
-      <number>2</number>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_16">
+   <item row="0" column="2" colspan="2">
+    <widget class="QLabel" name="ammo_box_current">
      <property name="text">
-      <string>Spare Boxes:</string>
+      <string>20/20 shots remain</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="1" colspan="2">
-    <widget class="QPushButton" name="med_burst_btn">
-     <property name="text">
-      <string>Medium</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-     <property name="autoExclusive">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0">
-    <widget class="QPushButton" name="short_burst_btn">
-     <property name="text">
-      <string>Short</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-     <property name="autoExclusive">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_15">
-     <property name="text">
-      <string>Current Box:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="3">
+   <item row="4" column="3">
     <widget class="QPushButton" name="long_burst_btn">
      <property name="text">
       <string>Long</string>
@@ -86,28 +37,40 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QLabel" name="label_14">
+   <item row="4" column="1" colspan="2">
+    <widget class="QPushButton" name="med_burst_btn">
      <property name="text">
-      <string>&lt;Weapon_Name&gt;</string>
+      <string>Medium</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="autoExclusive">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="1" column="2" colspan="2">
-    <widget class="QLabel" name="ammo_box_current">
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_16">
      <property name="text">
-      <string>20/20 shots remain</string>
+      <string>Spare Boxes:</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="2">
-    <widget class="QLabel" name="ammo_total">
+   <item row="4" column="0">
+    <widget class="QPushButton" name="short_burst_btn">
      <property name="text">
-      <string>0</string>
+      <string>Short</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="autoExclusive">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="3" column="0" colspan="4">
+   <item row="2" column="0" colspan="4">
     <widget class="QFrame" name="frame">
      <property name="autoFillBackground">
       <bool>true</bool>
@@ -328,6 +291,36 @@
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="4">
+    <widget class="QSlider" name="burst_len">
+     <property name="maximum">
+      <number>2</number>
+     </property>
+     <property name="pageStep">
+      <number>1</number>
+     </property>
+     <property name="value">
+      <number>2</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_15">
+     <property name="text">
+      <string>Current Box:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QLabel" name="ammo_total">
+     <property name="text">
+      <string>0</string>
+     </property>
     </widget>
    </item>
   </layout>

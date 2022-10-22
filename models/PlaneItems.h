@@ -4,7 +4,8 @@
 #include <QJsonObject>
 #include <QVariant>
 
-class Maneuver;
+#include "CEManeuvers.h"
+
 class BaseItem
 {
 public:

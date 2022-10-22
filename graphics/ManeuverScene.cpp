@@ -28,19 +28,16 @@ ManeuverScene::ManeuverScene(QObject *parent) : QGraphicsScene(parent)
                                   maneuver.final_rotation);
         addItem(maneuver_map[maneuver.name]);
     }
-
-    connect(this, &ManeuverScene::selectionChanged, this, [&](){
-        if (selectedItems().isEmpty()) {
-            emit maneuverSelectionChanged(QString());
-            return;
-        }
-        emit maneuverSelectionChanged(maneuver_map.key(static_cast<ManeuverGraphic*>(selectedItems().first())));
-    });
 }
 
 ManeuverGraphic *ManeuverScene::getManeuver(QString maneuver_name)
 {
     return maneuver_map[maneuver_name];
+}
+
+QString ManeuverScene::getSelectedManeuver()
+{
+    return selectedItems().isEmpty() ? QString() : maneuver_map.key(static_cast<ManeuverGraphic*>(selectedItems().first()));
 }
 
 void ManeuverScene::addManeuver(QPersistentModelIndex maneuver_idx)
