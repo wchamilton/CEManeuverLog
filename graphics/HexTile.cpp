@@ -43,11 +43,12 @@ void HexTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
     path.addPolygon(hex_poly);
     painter->fillPath(path, is_weight_restricted ? Qt::lightGray : Qt::white);
     if (is_selected) {
-        pen.setColor(Qt::darkGreen);
-        pen.setWidth(8);
+        pen.setColor(Qt::blue);
+        pen.setWidth(12);
+        painter->setBrush(QColor(Qt::yellow));
     }
     if (hovered) {
-        pen.setWidth(10);
+        pen.setWidth(15);
     }
     painter->setPen(pen);
     painter->drawPolygon(hex_poly);

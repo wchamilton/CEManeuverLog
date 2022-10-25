@@ -22,6 +22,7 @@ public:
     QPainterPath shape() const override;
     void setModelIndex(QPersistentModelIndex idx);
     void updateManeuverState();
+    QPersistentModelIndex getIdx() { return maneuver_idx; }
 
 protected:
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;

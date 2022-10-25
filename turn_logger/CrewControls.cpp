@@ -4,7 +4,9 @@
 
 CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_idx, QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::CrewControls)
+    ui(new Ui::CrewControls),
+    model(model),
+    crew_idx(crew_idx)
 {
     ui->setupUi(this);
 
@@ -18,10 +20,21 @@ CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_i
     ui->gun_selection_reload->setRootModelIndex(crew_idx);
     ui->gun_selection_unjam->setRootModelIndex(crew_idx);
 
+    connect(ui->gun_selection_shoot, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CrewControls::refreshGunWidgets);
+
     // Necessary to set the combobox to the correct leaf index
     ui->gun_selection_shoot->setCurrentIndex(0);
     ui->gun_selection_reload->setCurrentIndex(0);
     ui->gun_selection_unjam->setCurrentIndex(0);
+
+    // Set action as a property so we know what data to fetch
+    ui->no_action_radio->setProperty("action_taken", No_Action);
+    ui->shoot_radio->setProperty("action_taken", Shoot_Action);
+    ui->reload_radio->setProperty("action_taken", Reload_Action);
+    ui->unjam_radio->setProperty("action_taken", Unjam_Action);
+    ui->observe_radio->setProperty("action_taken", Observe_Action);
+    ui->drop_bomb_radio->setProperty("action_taken", Drop_Payload_Action);
+    ui->custom_radio->setProperty("action_taken", Custom_Action);
 
     // Disable gun controls if no guns equipped for the crew member
     if (model->rowCount(crew_idx) == 0) {
@@ -55,11 +68,53 @@ CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_i
         }
         setSliderStylesheet(colour);
     });
+    connect(ui->actionGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &CrewControls::updateSelectedAction);
+
+    connect(ui->long_burst_btn, &QPushButton::released, this, [&]() { ui->burst_len->setValue(2); });
+    connect(ui->med_burst_btn, &QPushButton::released, this, [&]() { ui->burst_len->setValue(1); });
+    connect(ui->short_burst_btn, &QPushButton::released, this, [&]() { ui->burst_len->setValue(0); });
+    connect(ui->burst_len, &QSlider::valueChanged, this, [&](int value) {
+        switch (value) {
+            case 0: ui->short_burst_btn->setChecked(true); break;
+            case 1: ui->med_burst_btn->setChecked(true); break;
+            case 2: ui->long_burst_btn->setChecked(true); break;
+        }
+        emit updateSelectedAction();
+    });
 }
 
 CrewControls::~CrewControls()
 {
     delete ui;
+}
+
+QString CrewControls::getChosenAction()
+{
+    switch (ui->actionGroup->checkedButton()->property("action_taken").toInt()) {
+        case No_Action: return "No action";
+        case Shoot_Action: {
+            switch (ui->burst_len->value()) {
+                case 0: return "Shot a short burst";
+                case 1: return "Shot a medium burst";
+                case 2: return "Shot a long burst";
+            }
+            break;
+        }
+        case Reload_Action: return "Reloaded gun";
+        case Unjam_Action: return "Unjammed gun";
+        case Observe_Action: return "Observed tile";
+        case Drop_Payload_Action: return "Dropped payload";
+        case Custom_Action: return ui->custom_action_line_edit->text();
+    }
+}
+
+void CrewControls::handleTurnEnd()
+{
+    if (ui->shoot_radio->isChecked()) {
+        model->setData(model->index(ui->gun_selection_shoot->currentIndex(), GunItem::Ammo_In_Current_Box, crew_idx), ui->ammo_box_current->text().toInt() - (ui->burst_len->value()+1));
+        refreshGunWidgets(ui->gun_selection_shoot->currentIndex());
+    }
+    ui->no_action_radio->setChecked(true);
 }
 
 void CrewControls::setSliderStylesheet(QString colour)
@@ -114,7 +169,19 @@ void CrewControls::setSliderStylesheet(QString colour)
     ui->wounds->setStyleSheet(stylesheet);
 }
 
-void CrewControls::populateGunControls(QPersistentModelIndex gun_idx)
+void CrewControls::refreshGunWidgets(int row)
 {
+    QModelIndex gun_idx = model->index(row, GunItem::Gun_Name, crew_idx);
 
+    ui->fire_base_3->setText(gun_idx.sibling(gun_idx.row(), GunItem::Fire_Base_3).data().toString());
+    ui->fire_base_2->setText(gun_idx.sibling(gun_idx.row(), GunItem::Fire_Base_2).data().toString());
+    ui->fire_base_1->setText(gun_idx.sibling(gun_idx.row(), GunItem::Fire_Base_1).data().toString());
+    ui->fire_base_0->setText(gun_idx.sibling(gun_idx.row(), GunItem::Fire_Base_0).data().toString());
+
+    ui->ammo_box_current->setText(gun_idx.sibling(gun_idx.row(), GunItem::Ammo_In_Current_Box).data().toString());
+    ui->ammo_total->setText(QVariant(gun_idx.sibling(gun_idx.row(), GunItem::Ammo_Box_Capacity).data().toInt() *
+                                     gun_idx.sibling(gun_idx.row(), GunItem::Ammo_Box_Count).data().toInt()).toString());
+
+    // Only allow reloading if there's more than the current ammo box remaining
+    ui->reload_radio->setEnabled(gun_idx.sibling(gun_idx.row(), GunItem::Ammo_Box_Count).data().toInt() > 1);
 }

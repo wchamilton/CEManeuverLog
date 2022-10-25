@@ -176,16 +176,17 @@ QJsonObject CrewItem::toJSON() const
 
 GunItem::GunItem(QJsonObject gun, BaseItem *parent) : BaseItem(Gun_Item_Type, parent)
 {
-    setData(Gun_Name,          gun["name"].toVariant());
-    setData(Gun_Count,         gun["gun_links"].toVariant());
-    setData(Fire_Template,     gun["fire_template"].toVariant());
-    setData(Fire_Base_3,       gun["fire_base_3"].toVariant());
-    setData(Fire_Base_2,       gun["fire_base_2"].toVariant());
-    setData(Fire_Base_1,       gun["fire_base_1"].toVariant());
-    setData(Fire_Base_0,       gun["fire_base_0"].toVariant());
-    setData(Ammo_Box_Capacity, gun["ammo_box_capacity"].toVariant());
-    setData(Ammo_Box_Count,    gun["ammo_box_count"].toVariant());
-    setData(Gun_Destroyed,     false);
+    setData(Gun_Name,            gun["name"].toVariant());
+    setData(Gun_Count,           gun["gun_links"].toVariant());
+    setData(Fire_Template,       gun["fire_template"].toVariant());
+    setData(Fire_Base_3,         gun["fire_base_3"].toVariant());
+    setData(Fire_Base_2,         gun["fire_base_2"].toVariant());
+    setData(Fire_Base_1,         gun["fire_base_1"].toVariant());
+    setData(Fire_Base_0,         gun["fire_base_0"].toVariant());
+    setData(Ammo_Box_Capacity,   gun["ammo_box_capacity"].toVariant());
+    setData(Ammo_Box_Count,      gun["ammo_box_count"].toVariant());
+    setData(Ammo_In_Current_Box, gun["ammo_box_capacity"].toVariant());
+    setData(Gun_Destroyed,       false);
 }
 
 GunItem::GunItem(BaseItem *parent) : BaseItem(BaseItem::Gun_Item_Type, parent) {}

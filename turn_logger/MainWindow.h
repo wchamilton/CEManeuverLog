@@ -6,7 +6,6 @@
 
 #include "PlanePartDamageTracker.h"
 #include "CrewControls.h"
-#include "GunControls.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -16,9 +15,23 @@ class PlaneModel;
 class PlaneFilterProxy;
 class ManeuverScene;
 class QActionGroup;
+class QComboBox;
+class QTreeWidgetItem;
+class QPushButton;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
+    enum TurnCols {
+        Maneuver_Name = 0,
+        Altitude,
+        Fuel_Used
+    };
+
+    enum CrewTurnCols {
+        Crew_Name = 0,
+        Crew_Action
+    };
 
     struct CrewAction {
         QString name;
@@ -30,7 +43,7 @@ class MainWindow : public QMainWindow
         QString maneuver;
         int alt = 0;
         int fuel_used = 0;
-        QList<CrewAction> crew_actions;
+        QMap<QString, CrewAction> crew_actions;
     };
 
 public:
@@ -40,9 +53,8 @@ public:
 private slots:
     void loadJSON(QString file_path);
     void setSelectedPlane();
-    void logMovement();
-    void logCrewAction();
-    void setManeuver(QString maneuver_name);
+    void updateCurrentTurn();
+
     void addTurn();
 
 private:
@@ -57,10 +69,15 @@ private:
     PlaneFilterProxy* maneuver_proxy_model = nullptr;
     PlaneFilterProxy* crew_proxy_model = nullptr;
     ManeuverScene* maneuver_scene = nullptr;
-    ManeuverScene* maneuver_preview_scene = nullptr;
     QMenu* early_war_menu = nullptr;
     QMenu* late_war_menu = nullptr;
     QActionGroup* plane_action_group = nullptr;
+    QPushButton* next_turn_btn = nullptr;
+    QComboBox* alt_cmb = nullptr;
+    QTreeWidgetItem* current_turn_item = nullptr;
+    QMap<QString, QTreeWidgetItem*> current_crew_turn_items;
+    QMap<QString, CrewControls*> crew_control_widgets;
+    QTreeWidgetItem* next_turn_btn_item = nullptr;
     QList<TurnData> turn_history;
 };
 #endif // MAINWINDOW_H

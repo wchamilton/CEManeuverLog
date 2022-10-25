@@ -35,6 +35,11 @@ ManeuverGraphic *ManeuverScene::getManeuver(QString maneuver_name)
     return maneuver_map[maneuver_name];
 }
 
+QPersistentModelIndex ManeuverScene::getSelectedManeuverIdx()
+{
+    return selectedItems().isEmpty() ? QPersistentModelIndex() : static_cast<ManeuverGraphic*>(selectedItems().first())->getIdx();
+}
+
 QString ManeuverScene::getSelectedManeuver()
 {
     return selectedItems().isEmpty() ? QString() : maneuver_map.key(static_cast<ManeuverGraphic*>(selectedItems().first()));

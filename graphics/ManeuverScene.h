@@ -13,6 +13,7 @@ class ManeuverScene : public QGraphicsScene
 public:
     ManeuverScene(QObject *parent = nullptr);
     ManeuverGraphic* getManeuver(QString maneuver_name);
+    QPersistentModelIndex getSelectedManeuverIdx();
     QString getSelectedManeuver();
     void addManeuver(QPersistentModelIndex maneuver_idx);
     void removeManeuver(QPersistentModelIndex maneuver_idx);

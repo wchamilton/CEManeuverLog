@@ -18,9 +18,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     main.cpp \
     CEManeuvers.cpp \
+    turn_logger/CrewNamesPrompt.cpp \
     turn_logger/MainWindow.cpp \
     turn_logger/CrewControls.cpp \
-    turn_logger/GunControls.cpp \
     turn_logger/PlanePartDamageTracker.cpp \
     graphics/HexTile.cpp \
     graphics/ManeuverGraphic.cpp \
@@ -33,9 +33,9 @@ SOURCES += \
 
 HEADERS += \
     CEManeuvers.h \
+    turn_logger/CrewNamesPrompt.h \
     turn_logger/MainWindow.h \
     turn_logger/CrewControls.h \
-    turn_logger/GunControls.h \
     turn_logger/PlanePartDamageTracker.h \
     graphics/HexTile.h \
     graphics/ManeuverGraphic.h \
@@ -47,9 +47,9 @@ HEADERS += \
     editor/GunEditorTab.h
 
 FORMS += \
+    turn_logger/CrewNamesPrompt.ui \
     turn_logger/MainWindow.ui \
     turn_logger/CrewControls.ui \
-    turn_logger/GunControls.ui \
     turn_logger/PlanePartDamageTracker.ui \
     editor/PlaneEditor.ui \
     editor/CrewEditorTab.ui \

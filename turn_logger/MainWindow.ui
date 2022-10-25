@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1425</width>
+    <width>1074</width>
     <height>1000</height>
    </rect>
   </property>
@@ -17,170 +17,99 @@
    <bool>true</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_2">
+   <layout class="QGridLayout" name="gridLayout_2" columnstretch="1,0">
     <item row="0" column="0">
-     <widget class="QSplitter" name="splitter">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+     <widget class="QGraphicsView" name="graphicsView">
+      <property name="renderHints">
+       <set>QPainter::Antialiasing|QPainter::TextAntialiasing</set>
       </property>
-      <property name="childrenCollapsible">
-       <bool>false</bool>
-      </property>
-      <widget class="QGraphicsView" name="graphicsView">
-       <property name="renderHints">
-        <set>QPainter::Antialiasing|QPainter::TextAntialiasing</set>
-       </property>
-      </widget>
-      <widget class="QWidget" name="layoutWidget">
-       <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0,0">
-        <item>
-         <widget class="QGroupBox" name="turn_controls_grp">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="title">
-           <string>Movement</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_3" columnstretch="0,0,0,0">
-           <item row="0" column="3">
-            <widget class="QComboBox" name="alt_cmb">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QComboBox" name="maneuver_cmb"/>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string>Maneuver:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0" colspan="4">
-            <widget class="QPushButton" name="log_turn_btn">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>Log Movement</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QLabel" name="label_4">
-             <property name="text">
-              <string>Altitude:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" colspan="4">
-            <widget class="QGraphicsView" name="selected_maneuver_graphic">
-             <property name="verticalScrollBarPolicy">
-              <enum>Qt::ScrollBarAlwaysOff</enum>
-             </property>
-             <property name="horizontalScrollBarPolicy">
-              <enum>Qt::ScrollBarAlwaysOff</enum>
-             </property>
-             <property name="interactive">
-              <bool>false</bool>
-             </property>
-             <property name="renderHints">
-              <set>QPainter::Antialiasing|QPainter::TextAntialiasing</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QTabWidget" name="crew_tab">
-          <property name="currentIndex">
-           <number>-1</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="1" column="1">
-           <widget class="PlanePartDamageTracker" name="wing_grp" native="true"/>
-          </item>
-          <item row="1" column="0">
-           <widget class="PlanePartDamageTracker" name="engine_grp" native="true"/>
-          </item>
-          <item row="2" column="0">
-           <widget class="PlanePartDamageTracker" name="fuselage_grp" native="true"/>
-          </item>
-          <item row="2" column="1">
-           <widget class="PlanePartDamageTracker" name="tail_grp" native="true"/>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="layoutWidget">
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QLineEdit" name="date">
-          <property name="placeholderText">
-           <string>Date</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QTreeWidget" name="turn_log">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>400</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="alternatingRowColors">
-           <bool>true</bool>
-          </property>
-          <property name="selectionMode">
-           <enum>QAbstractItemView::NoSelection</enum>
-          </property>
-          <property name="rootIsDecorated">
-           <bool>false</bool>
-          </property>
-          <column>
-           <property name="text">
-            <string>Maneuver / Crew Role</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Altitude / Action Taken</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Fuel Remaining</string>
-           </property>
-          </column>
-         </widget>
-        </item>
-       </layout>
-      </widget>
      </widget>
+    </item>
+    <item row="0" column="1">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1,0">
+      <item>
+       <widget class="QLineEdit" name="date">
+        <property name="placeholderText">
+         <string>Date</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTabWidget" name="crew_tab">
+        <property name="currentIndex">
+         <number>-1</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTreeWidget" name="turn_log">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>400</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::SingleSelection</enum>
+        </property>
+        <property name="rootIsDecorated">
+         <bool>false</bool>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+        <property name="expandsOnDoubleClick">
+         <bool>false</bool>
+        </property>
+        <column>
+         <property name="text">
+          <string>Maneuver / Crew Name</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Altitude / Action Taken</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Fuel Remaining</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="1" column="1">
+         <widget class="PlanePartDamageTracker" name="wing_grp" native="true"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="PlanePartDamageTracker" name="engine_grp" native="true"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="PlanePartDamageTracker" name="fuselage_grp" native="true"/>
+        </item>
+        <item row="2" column="1">
+         <widget class="PlanePartDamageTracker" name="tail_grp" native="true"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -189,7 +118,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1425</width>
+     <width>1074</width>
      <height>22</height>
     </rect>
    </property>

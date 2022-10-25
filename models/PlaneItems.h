@@ -123,6 +123,7 @@ public:
         Fire_Base_0,
         Ammo_Box_Capacity,
         Ammo_Box_Count,
+        Ammo_In_Current_Box,
         Gun_Destroyed,
         COL_COUNT
     };
