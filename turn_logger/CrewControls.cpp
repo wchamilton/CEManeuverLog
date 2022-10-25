@@ -106,6 +106,7 @@ QString CrewControls::getChosenAction()
         case Drop_Payload_Action: return "Dropped payload";
         case Custom_Action: return ui->custom_action_line_edit->text();
     }
+    return QString();
 }
 
 void CrewControls::handleTurnEnd()
