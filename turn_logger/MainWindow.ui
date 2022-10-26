@@ -216,6 +216,14 @@
     <string>Set Auto-Load Location</string>
    </property>
   </action>
+  <action name="actionSet_up_Crew">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Set-up Crew</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

@@ -81,6 +81,10 @@ CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_i
         }
         emit updateSelectedAction();
     });
+    connect(ui->custom_action_line_edit, &QLineEdit::textEdited, this, [&](){
+        ui->custom_radio->setChecked(true);
+        emit updateSelectedAction();
+    });
 }
 
 CrewControls::~CrewControls()
@@ -181,7 +185,11 @@ void CrewControls::refreshGunWidgets(int row)
 
     ui->ammo_box_current->setText(gun_idx.sibling(gun_idx.row(), GunItem::Ammo_In_Current_Box).data().toString());
     ui->ammo_total->setText(QVariant(gun_idx.sibling(gun_idx.row(), GunItem::Ammo_Box_Capacity).data().toInt() *
-                                     gun_idx.sibling(gun_idx.row(), GunItem::Ammo_Box_Count).data().toInt()).toString());
+                                     (gun_idx.sibling(gun_idx.row(), GunItem::Ammo_Box_Count).data().toInt()-1) +
+                                     gun_idx.sibling(gun_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt()).toString());
+
+    // Only allow shooting if there's ammo in the current box
+    ui->shoot_radio->setEnabled(gun_idx.sibling(gun_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt() > 0);
 
     // Only allow reloading if there's more than the current ammo box remaining
     ui->reload_radio->setEnabled(gun_idx.sibling(gun_idx.row(), GunItem::Ammo_Box_Count).data().toInt() > 1);

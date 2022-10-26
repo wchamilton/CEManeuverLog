@@ -98,9 +98,14 @@ public:
 class CrewItem : public BaseItem
 {
 public:
+    enum Abilities {
+        No_Ability = 0,
+        Unrestricted_Maneuvers
+    };
     enum CrewCols {
         Crew_Name = 0,
         Crew_Role,
+        Crew_Ability,
         Can_Drop_Bombs,
         Wounds,
         COL_COUNT

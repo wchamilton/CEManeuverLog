@@ -139,7 +139,7 @@ void ManeuverGraphic::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
 QVariant ManeuverGraphic::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
-    if (change == QGraphicsItem::ItemSelectedChange) {
+    if (change == QGraphicsItem::ItemSelectedChange && maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Can_Be_Used).data().toBool()) {
         for (auto child : childItems()) {
             static_cast<HexTile*>(child)->setSelected(value.toBool());
         }

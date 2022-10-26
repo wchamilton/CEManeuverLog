@@ -148,9 +148,11 @@ QJsonObject ManeuverItem::toJSON() const
 
 CrewItem::CrewItem(QJsonObject crew, BaseItem *parent) : BaseItem(Crew_Item_Type, parent)
 {
+    /// TODO: Store this as an enumeration and display the correct role via a switch statement
     setData(Crew_Role, crew["role"].toString());
     setData(Can_Drop_Bombs, crew["can_drop_bombs"].toBool());
     setData(Wounds, 0);
+    setData(Crew_Ability, No_Ability);
     QJsonArray guns = crew.value("guns").toArray();
 
     for (int i=0; i<guns.size(); ++i) {

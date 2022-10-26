@@ -124,6 +124,7 @@ void MainWindow::setSelectedPlane()
 
     CrewNamesPrompt crew_names_dlg(crew_proxy_model, crew_proxy_model->mapFromSource(plane_idx), this);
     crew_names_dlg.exec();
+    ui->actionSet_up_Crew->setEnabled(true);
 
     if (alt_cmb == nullptr) {
         alt_cmb = new QComboBox(this);
@@ -183,6 +184,7 @@ void MainWindow::setSelectedPlane()
         connect(next_turn_btn, &QPushButton::clicked, this, &MainWindow::addTurn);
     }
 
+    setAvailableManeuvers();
     updateCurrentTurn();
 }
 
@@ -238,6 +240,7 @@ void MainWindow::addTurn()
 
     next_turn_btn->setText(tr("Start Turn %1").arg(ui->turn_log->topLevelItemCount()));
 
+    setAvailableManeuvers();
     updateCurrentTurn();
 }
 
@@ -337,7 +340,6 @@ void MainWindow::setAvailableAltitudes()
         return;
     }
 
-    /// TODO: get the starting altitude for the match
     // If it's the start of the game, don't restrict altitudes
     if (turn_history.isEmpty()) {
         return;
@@ -379,4 +381,63 @@ void MainWindow::setAvailableAltitudes()
         }
         item->setEnabled(item->text().toInt() >= min && item->text().toInt() <= max_alt);
     }
+}
+
+void MainWindow::setAvailableManeuvers()
+{
+    auto plane_idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();
+    auto pilot_ability_idx = crew_proxy_model->index(0, CrewItem::Crew_Ability,  crew_proxy_model->mapFromSource(plane_idx));
+    for (int i=0; i<maneuver_proxy_model->rowCount(maneuver_proxy_model->mapFromSource(plane_idx)); ++i) {
+        // Get the iterated index that we'll be checking against
+        QModelIndex maneuver_idx = maneuver_proxy_model->index(i, ManeuverItem::Can_Be_Used, maneuver_proxy_model->mapFromSource(plane_idx));
+        QString maneuver_direction = maneuver_idx.sibling(i, ManeuverItem::Direction).data().toString();
+        // First turn should be a straight maneuver
+        if (ui->turn_log->topLevelItemCount() < 3) {
+            if (maneuver_idx.sibling(i, ManeuverItem::Is_Restricted).data().toBool() &&
+                    pilot_ability_idx.data().toInt() != CrewItem::Unrestricted_Maneuvers) {
+                maneuver_proxy_model->setData(maneuver_idx, false);
+            }
+            else {
+                maneuver_proxy_model->setData(maneuver_idx, true);
+            }
+        }
+        else {
+            // On other turns, start by filtering out any maneuver that would be out of reach of the plane due to stability
+            QPersistentModelIndex selected_maneuver = maneuver_scene->getSelectedManeuverIdx();
+            QString last_direction = selected_maneuver.sibling(selected_maneuver.row(), ManeuverItem::Direction).data().toString();
+            // Add L, S, and R depending on what directions are allowed. Can be combined
+            QString available_directions;
+            if (maneuver_proxy_model->index(0, PlaneItem::Stability).data().toString() == "C") {
+                available_directions = "LSR";
+            }
+            else if (last_direction == "L") {
+                available_directions = "LS";
+            }
+            else if (last_direction == "S") {
+                available_directions = "LSR";
+            }
+            else if (last_direction == "R") {
+                available_directions = "SR";
+            }
+            // Additional possible constraints for restricted maneuvers
+            if (maneuver_idx.sibling(i, ManeuverItem::Is_Restricted).data().toBool() &&
+                    selected_maneuver.data().toString() != "2S1" && selected_maneuver.data().toString() != "3S2" &&
+                    selected_maneuver.data().toString() != "4S3" && selected_maneuver.data().toString() != "5S4" &&
+                    pilot_ability_idx.data().toInt() != CrewItem::Unrestricted_Maneuvers) {
+                maneuver_proxy_model->setData(maneuver_idx, false);
+            }
+            // If the maneuver isn't allowed to be selected based on turn direction, exclude it here and move on
+            else if (!available_directions.contains(maneuver_direction)){
+                maneuver_proxy_model->setData(maneuver_idx, false);
+            }
+            else {
+                // Next check speed
+                int last_speed = selected_maneuver.sibling(selected_maneuver.row(), ManeuverItem::Speed).data().toInt();
+                int maneuver_speed = maneuver_idx.sibling(i, ManeuverItem::Speed).data().toInt();
+                maneuver_proxy_model->setData(maneuver_idx, last_speed - 1 <= maneuver_speed && maneuver_speed <= last_speed + 1);
+            }
+        }
+        maneuver_scene->updateManeuver(maneuver_idx.sibling(i, ManeuverItem::Maneuver_Name).data().toString());
+    }
+    maneuver_scene->update();
 }

@@ -41,7 +41,7 @@ void HexTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
     pen.setWidth(3);
     QPainterPath path;
     path.addPolygon(hex_poly);
-    painter->fillPath(path, is_weight_restricted ? Qt::lightGray : Qt::white);
+    painter->fillPath(path, is_weight_restricted || !is_available ? Qt::lightGray : Qt::white);
     if (is_selected) {
         pen.setColor(Qt::blue);
         pen.setWidth(12);

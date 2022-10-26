@@ -54,7 +54,6 @@ private slots:
     void loadJSON(QString file_path);
     void setSelectedPlane();
     void updateCurrentTurn();
-
     void addTurn();
 
 private:
@@ -63,6 +62,7 @@ private:
     void generatePlaneMenu(QPersistentModelIndex idx);
     int calculateFuelUsed();
     void setAvailableAltitudes();
+    void setAvailableManeuvers();
 
     Ui::MainWindow *ui;
     PlaneModel* plane_model = nullptr;
