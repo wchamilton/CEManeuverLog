@@ -118,6 +118,9 @@ void MainWindow::loadJSON(QString file_path)
 
 void MainWindow::setSelectedPlane()
 {
+    // Start by ensuring we've got a clean slate
+    clearUI();
+
     QPersistentModelIndex plane_idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();
     maneuver_scene->setManeuvers(maneuver_proxy_model->mapFromSource(plane_idx));
     maneuver_scene->update();
@@ -128,13 +131,8 @@ void MainWindow::setSelectedPlane()
 
     if (alt_cmb == nullptr) {
         alt_cmb = new QComboBox(this);
+        connect(alt_cmb, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::updateCurrentTurn);
     }
-    else {
-        alt_cmb->clear();
-    }
-
-    ui->turn_log->clear();
-    ui->crew_tab->clear();
 
     // Iterate over the crew members
     for (int i=0; i<crew_proxy_model->rowCount(crew_proxy_model->mapFromSource(plane_idx)); ++i) {
@@ -152,23 +150,25 @@ void MainWindow::setSelectedPlane()
     ui->tail_grp->setModelIndexes(plane_idx.sibling(plane_idx.row(), PlaneItem::Tail_HP), plane_idx.sibling(plane_idx.row(), PlaneItem::Tail_Critical));
 
     // Countdown rather than count up
+    alt_cmb->blockSignals(true);
     for (int i=plane_idx.sibling(plane_idx.row(), PlaneItem::Max_Altitude).data().toInt(); i>0; --i) {
         alt_cmb->addItem(QString::number(i));
     }
+    alt_cmb->blockSignals(false);
     ui->turn_log->setEnabled(true);
 
     if (current_turn_item == nullptr) {
         current_turn_item = new QTreeWidgetItem(ui->turn_log);
         ui->turn_log->setItemWidget(current_turn_item, Altitude, alt_cmb);
         current_turn_item->setExpanded(true);
+    }
 
-        // Iterate over the crew members
-        for (int i=0; i<crew_proxy_model->rowCount(crew_proxy_model->mapFromSource(plane_idx)); ++i) {
-            QPersistentModelIndex crew_idx = crew_proxy_model->index(i, CrewItem::Crew_Name, crew_proxy_model->mapFromSource(plane_idx));
-            QTreeWidgetItem* child = new QTreeWidgetItem({crew_idx.data().toString()});
-            current_turn_item->addChild(child);
-            current_crew_turn_items.insert(crew_idx.data().toString(), child);
-        }
+    // Iterate over the crew members
+    for (int i=0; i<crew_proxy_model->rowCount(crew_proxy_model->mapFromSource(plane_idx)); ++i) {
+        QPersistentModelIndex crew_idx = crew_proxy_model->index(i, CrewItem::Crew_Name, crew_proxy_model->mapFromSource(plane_idx));
+        QTreeWidgetItem* child = new QTreeWidgetItem({crew_idx.data().toString()});
+        current_turn_item->addChild(child);
+        current_crew_turn_items.insert(crew_idx.data().toString(), child);
     }
 
     if (next_turn_btn == nullptr) {
@@ -261,18 +261,30 @@ void MainWindow::autoLoadPlanes()
 
 void MainWindow::clearUI()
 {
-    plane_model->clearModel();
-
-    early_war_menu->clear();
-    late_war_menu->clear();
+    maneuver_scene->setManeuvers(QPersistentModelIndex());
 
     ui->engine_grp->clear();
     ui->wing_grp->clear();
     ui->fuselage_grp->clear();
     ui->tail_grp->clear();
     ui->crew_tab->clear();
+    if (alt_cmb != nullptr) {
+        alt_cmb->clear();
+    }
 
-    maneuver_scene->setManeuvers(QPersistentModelIndex());
+    // Clear all the items within the crew action widget map
+    qDeleteAll(crew_control_widgets);
+    crew_control_widgets.clear();
+
+    // Clear all the items handling the current crew turn
+    qDeleteAll(current_crew_turn_items);
+    current_crew_turn_items.clear();
+
+    // Ensure the entire turn log is clean
+    while (ui->turn_log->topLevelItemCount() > 2) {
+        delete ui->turn_log->takeTopLevelItem(0);
+    }
+    ui->turn_log->setEnabled(false);
 }
 
 void MainWindow::generatePlaneMenu(QPersistentModelIndex idx)
@@ -301,8 +313,11 @@ int MainWindow::calculateFuelUsed()
     }
 
     int alt = alt_cmb->currentText().toInt();
-    int last_alt = ui->turn_log->itemAbove(current_turn_item)->text(Altitude).toInt();
-    int last_last_alt = ui->turn_log->itemAbove(ui->turn_log->itemAbove(current_turn_item))->text(Altitude).toInt();
+    int last_alt = ui->turn_log->topLevelItem(ui->turn_log->topLevelItemCount()-3)->text(Altitude).toInt();
+    int last_last_alt = last_alt;
+    if (ui->turn_log->topLevelItemCount() > 3) {
+        ui->turn_log->topLevelItem(ui->turn_log->topLevelItemCount()-4)->text(Altitude).toInt();
+    }
 
     // Check if the current altitude is higher/lower than the previous turn's altitude
     bool climbing = alt > last_alt;
@@ -341,7 +356,7 @@ void MainWindow::setAvailableAltitudes()
     }
 
     // If it's the start of the game, don't restrict altitudes
-    if (turn_history.isEmpty()) {
+    if (ui->turn_log->topLevelItemCount() < 3) {
         return;
     }
 
@@ -350,25 +365,27 @@ void MainWindow::setAvailableAltitudes()
         return;
     }
 
+    // Cache common values
     QString maneuver_dive_val = current_maneuver.sibling(current_maneuver.row(), ManeuverItem::Dive_Value).data().toString();
     QString maneuver_climb_val = current_maneuver.sibling(current_maneuver.row(), ManeuverItem::Climb_Value).data().toString();
     auto plane_idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();
+    int current_alt = ui->turn_log->topLevelItem(ui->turn_log->topLevelItemCount()-3)->text(Altitude).toInt();
 
     // Determine the minimum altitude the player can dive to
-    int min = maneuver_dive_val == "D1" ? turn_history.last().alt - 1 : maneuver_dive_val == "-" ? turn_history.last().alt : 1;
+    int min = maneuver_dive_val == "D1" ? current_alt - 1 : maneuver_dive_val == "-" ? current_alt : 1;
 
     // Determine if the player can climb
-    int can_climb_to = plane_idx.sibling(plane_idx.row(), PlaneItem::Rated_Climb).data().toInt() + turn_history.last().alt;
+    int can_climb_to = plane_idx.sibling(plane_idx.row(), PlaneItem::Rated_Climb).data().toInt() + current_alt;
     int max_alt = plane_idx.sibling(plane_idx.row(), PlaneItem::Max_Altitude).data().toInt();
 
-    if (!(plane_idx.sibling(plane_idx.row(), PlaneItem::Can_Return_To_Max_Alt).data().toBool() || turn_history.isEmpty())) {
+    if (!plane_idx.sibling(plane_idx.row(), PlaneItem::Can_Return_To_Max_Alt).data().toBool()) {
         max_alt--;
     }
     if (maneuver_climb_val == "C1") {
-        max_alt = std::min(turn_history.last().alt + 1, max_alt);
+        max_alt = std::min(current_alt + 1, max_alt);
     }
     else if (maneuver_climb_val == "-") {
-        max_alt = turn_history.last().alt;
+        max_alt = current_alt;
     }
     else if (maneuver_climb_val == "C") {
         max_alt = std::min(max_alt, can_climb_to);

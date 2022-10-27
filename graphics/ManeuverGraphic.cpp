@@ -113,6 +113,7 @@ void ManeuverGraphic::updateManeuverState()
         hex->setIsAvailable(maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Can_Be_Used).data().toBool());
         hex->setWeightRestricted(maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Is_Weight_Restricted).data().toBool());
     }
+    setEnabled(maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Can_Be_Used).data().toBool());
 }
 
 void ManeuverGraphic::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
@@ -139,7 +140,7 @@ void ManeuverGraphic::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
 QVariant ManeuverGraphic::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
-    if (change == QGraphicsItem::ItemSelectedChange && maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Can_Be_Used).data().toBool()) {
+    if (change == QGraphicsItem::ItemSelectedChange) {
         for (auto child : childItems()) {
             static_cast<HexTile*>(child)->setSelected(value.toBool());
         }

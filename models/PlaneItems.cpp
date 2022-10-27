@@ -119,6 +119,7 @@ ManeuverItem::ManeuverItem(Maneuver maneuver, BaseItem *parent) : BaseItem(Maneu
     setData(Speed,               maneuver.name.right(1).toInt());
     setData(Direction,           maneuver.name.right(2).left(1));
     setData(IsEnabled,           true);
+    setData(Can_Be_Used,         true);
     setData(Can_Be_Repeated,     true);
     setData(Added_To_Schedule,   false); // Maneuvers need to be added to the schedule to be saved
     setData(Climb_Value,         maneuver.climb_value);

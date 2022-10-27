@@ -33,19 +33,6 @@ class MainWindow : public QMainWindow
         Crew_Action
     };
 
-    struct CrewAction {
-        QString name;
-        QString action_taken;
-        int shots_fired = 0;
-    };
-
-    struct TurnData {
-        QString maneuver;
-        int alt = 0;
-        int fuel_used = 0;
-        QMap<QString, CrewAction> crew_actions;
-    };
-
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -78,6 +65,5 @@ private:
     QMap<QString, QTreeWidgetItem*> current_crew_turn_items;
     QMap<QString, CrewControls*> crew_control_widgets;
     QTreeWidgetItem* next_turn_btn_item = nullptr;
-    QList<TurnData> turn_history;
 };
 #endif // MAINWINDOW_H

@@ -52,12 +52,9 @@ CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_i
         ui->remaining_bombs_lbl->setText(tr("%1 available").arg(model->index(crew_idx.parent().row(), PlaneItem::Bombs_Carried).data().toInt()));
     }
 
-    connect(ui->score_red_btn, &QPushButton::pressed, this, [&]() {
-        ui->reds_spin->setValue(ui->reds_spin->value()+1);
-    });
-    connect(ui->add_wound_btn, &QPushButton::pressed, this, [&]() {
-        ui->wounds->setValue(ui->wounds->value()+1);
-    });
+    connect(ui->score_kill_btn, &QPushButton::pressed, this, [&]() { ui->kills_spin->setValue(ui->kills_spin->value()+1); });
+    connect(ui->score_red_btn, &QPushButton::pressed, this, [&]() { ui->reds_spin->setValue(ui->reds_spin->value()+1); });
+    connect(ui->add_wound_btn, &QPushButton::pressed, this, [&]() { ui->wounds->setValue(ui->wounds->value()+1); });
     connect(ui->wounds, &QSlider::valueChanged, this, [&](int value){
         QString colour;
         switch (value) {
