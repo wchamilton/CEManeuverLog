@@ -55,7 +55,7 @@ MainWindow::MainWindow(QWidget *parent) :
     autoLoadPlanes();
 
     connect(ui->actionLoad_Planes, &QAction::triggered, this, [&]{
-        QString file_path = QFileDialog::getOpenFileName(this, tr("Open File"), "/home", tr("JSON files (*.json)"));
+        QString file_path = QFileDialog::getOpenFileName(this, tr("Open File"), ".", tr("JSON files (*.json)"));
         loadJSON(file_path);
         plane_action_group->actions().last()->trigger();
     });
@@ -65,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
     });
 
     connect(ui->actionEdit_plane, &QAction::triggered, this, [&] {
-        QString file_path = QFileDialog::getOpenFileName(this, tr("Open File"), "/home", tr("JSON files (*.json)"));
+        QString file_path = QFileDialog::getOpenFileName(this, tr("Open File"), ".", tr("JSON files (*.json)"));
         if (file_path != "") {
             QFile file(file_path);
             if (!file.open(QIODevice::ReadOnly|QIODevice::Text)) {
@@ -81,7 +81,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionSet_Plane_Auto_Load_Location, &QAction::triggered, this, [&] {
         QSettings settings;
         settings.beginGroup("CanvasEagles");
-        QString load_location = "/home";
+        QString load_location = "./Planes";
         if (settings.contains("auto-load_location")) {
             load_location = settings.value("auto-load_location").toString();
         }
@@ -210,6 +210,14 @@ void MainWindow::updateCurrentTurn()
     else {
         fuel_remaining = ui->turn_log->topLevelItem(ui->turn_log->topLevelItemCount()-3)->text(Fuel_Used).split('/').first().toInt() - fuel_used;
         fuel_remaining = fuel_remaining >= 0 ? fuel_remaining : 0; // Ensure we don't display less than 0 fuel
+
+        // Calculate if below 25% fuel remaining
+        if (fuel_remaining <= max_fuel * 0.25) {
+            current_turn_item->setForeground(2, Qt::red);
+        }
+        else if (fuel_remaining <= max_fuel * 0.5) {
+            current_turn_item->setForeground(2, QColor(255,80,50));
+        }
     }
     current_turn_item->setText(Fuel_Used, QString("%1/%2").arg(fuel_remaining).arg(max_fuel));
 
@@ -224,6 +232,7 @@ void MainWindow::addTurn()
     QTreeWidgetItem* top_level_item = new QTreeWidgetItem({current_turn_item->text(Maneuver_Name),
                                                            alt_cmb->currentText(),
                                                            current_turn_item->text(Fuel_Used)});
+    top_level_item->setForeground(2, current_turn_item->foreground(2));
 
     QPersistentModelIndex plane_idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();
     // Iterate over the crew members
@@ -248,10 +257,11 @@ void MainWindow::autoLoadPlanes()
 {
     QSettings settings;
     settings.beginGroup("CanvasEagles");
-    QString load_location = settings.contains("auto-load_location") ? settings.value("auto-load_location").toString() : "";
+    QString load_location = settings.contains("auto-load_location") ? settings.value("auto-load_location").toString() : "./Planes";
     settings.endGroup();
     if (load_location != "") {
-        clearUI();
+        early_war_menu->clear();
+        late_war_menu->clear();
         QDir planes_dir(load_location);
         for (QFileInfo file_info : planes_dir.entryInfoList({"*.json"})) {
             loadJSON(file_info.absoluteFilePath());

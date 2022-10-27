@@ -107,7 +107,7 @@ void ManeuverScene::applyScheduleBG()
 //    addItem(background_item);
 
     // for now use shitty png while debugging SVG
-    background_item = addPixmap(QPixmap("../CEManeuverLog/graphics/background.png"));
+    background_item = addPixmap(QPixmap("./graphics/background.png"));
     background_item->setZValue(-1);
     plane_name = addText("");
     plane_tolerances = addText("");

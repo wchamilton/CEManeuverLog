@@ -149,7 +149,8 @@ void PlaneEditor::exportJSON()
     }
 
     QSettings settings;
-    QString planes_dir = "/home";
+    settings.beginGroup("CanvasEagles");
+    QString planes_dir = "./Planes";
     if (settings.contains("planes_dir")) {
         planes_dir = settings.value("planes_dir").toString();
     }
@@ -179,6 +180,7 @@ void PlaneEditor::exportJSON()
     out.flush();
     file.close();
     settings.setValue("planes_dir", file_info.dir().absolutePath());
+    settings.endGroup();
 }
 
 void PlaneEditor::initWidgets()

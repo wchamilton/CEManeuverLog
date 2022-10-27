@@ -136,14 +136,6 @@
      <string>Select a Plane</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuSelect_Scenario">
-    <property name="title">
-     <string>Select Scenario</string>
-    </property>
-    <addaction name="actionDogfight"/>
-    <addaction name="actionBombing_Run"/>
-    <addaction name="actionScouting_Mission"/>
-   </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
      <string>Settings</string>
@@ -152,7 +144,6 @@
    </widget>
    <addaction name="game_menu"/>
    <addaction name="select_plane_menu"/>
-   <addaction name="menuSelect_Scenario"/>
    <addaction name="menuSettings"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>

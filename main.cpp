@@ -9,7 +9,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    QFile file("../CEManeuverLog/stylesheet.qss");
+    QFile file("stylesheet.qss");
     file.open(QFile::ReadOnly);
     QString style_sheet = QLatin1String(file.readAll());
     a.setStyleSheet(style_sheet);
