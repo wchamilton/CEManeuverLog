@@ -229,9 +229,8 @@ void MainWindow::updateCurrentTurn()
 
 void MainWindow::addTurn()
 {
-    QTreeWidgetItem* top_level_item = new QTreeWidgetItem({current_turn_item->text(Maneuver_Name),
-                                                           alt_cmb->currentText(),
-                                                           current_turn_item->text(Fuel_Used)});
+    QStringList top_level_values = {current_turn_item->text(Maneuver_Name), alt_cmb->currentText(), current_turn_item->text(Fuel_Used)};
+    QTreeWidgetItem* top_level_item = new QTreeWidgetItem(top_level_values);
     top_level_item->setForeground(2, current_turn_item->foreground(2));
 
     QPersistentModelIndex plane_idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();
@@ -239,7 +238,8 @@ void MainWindow::addTurn()
     for (int i=0; i<crew_proxy_model->rowCount(crew_proxy_model->mapFromSource(plane_idx)); ++i) {
         QPersistentModelIndex crew_idx = crew_proxy_model->index(i, CrewItem::Crew_Name, crew_proxy_model->mapFromSource(plane_idx));
         QString crew_name = crew_idx.data().toString();
-        top_level_item->addChild(new QTreeWidgetItem({crew_name, current_crew_turn_items[crew_name]->text(Crew_Action)}));
+        QStringList child_data = {crew_name, current_crew_turn_items[crew_name]->text(Crew_Action)};
+        top_level_item->addChild(new QTreeWidgetItem(child_data));
         crew_control_widgets[crew_name]->handleTurnEnd();
     }
 
@@ -377,6 +377,7 @@ void MainWindow::setAvailableAltitudes()
 
     // Cache common values
     QString maneuver_dive_val = current_maneuver.sibling(current_maneuver.row(), ManeuverItem::Dive_Value).data().toString();
+    QString maneuver_level_val = current_maneuver.sibling(current_maneuver.row(), ManeuverItem::Level_Value).data().toString();
     QString maneuver_climb_val = current_maneuver.sibling(current_maneuver.row(), ManeuverItem::Climb_Value).data().toString();
     auto plane_idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();
     int current_alt = ui->turn_log->topLevelItem(ui->turn_log->topLevelItemCount()-3)->text(Altitude).toInt();
@@ -387,6 +388,9 @@ void MainWindow::setAvailableAltitudes()
     // Determine if the player can climb
     int can_climb_to = plane_idx.sibling(plane_idx.row(), PlaneItem::Rated_Climb).data().toInt() + current_alt;
     int max_alt = plane_idx.sibling(plane_idx.row(), PlaneItem::Max_Altitude).data().toInt();
+
+    // Determine if the player can stay level
+    bool can_stay_level = maneuver_level_val == "L";
 
     if (!plane_idx.sibling(plane_idx.row(), PlaneItem::Can_Return_To_Max_Alt).data().toBool()) {
         max_alt--;
@@ -406,7 +410,22 @@ void MainWindow::setAvailableAltitudes()
         if(!item) {
             continue;
         }
-        item->setEnabled(item->text().toInt() >= min && item->text().toInt() <= max_alt);
+        if (item->text().toInt() == current_alt) {
+            item->setEnabled(can_stay_level);
+        }
+        else {
+            item->setEnabled(item->text().toInt() >= min && item->text().toInt() <= max_alt);
+        }
+    }
+
+    if (alt_cmb->currentText().toInt() > max_alt) {
+        alt_cmb->setCurrentText(QString::number(max_alt));
+    }
+    else if (alt_cmb->currentText().toInt() < min) {
+        alt_cmb->setCurrentText(QString::number(min));
+    }
+    else if (alt_cmb->currentText().toInt() == current_alt && !can_stay_level) {
+        alt_cmb->setCurrentText(QString::number(current_alt-1));
     }
 }
 
