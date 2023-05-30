@@ -15,9 +15,7 @@ ManeuverGraphic::ManeuverGraphic(ShiftText shift_val, QGraphicsItem *parent) :
 {
     setScale(0.27);
     setAcceptHoverEvents(true);
-    GraphicsItemFlags f = flags();
-    f = f|ItemIsSelectable;
-    setFlags(f);
+    setFlag(ItemIsFocusable, true);
     // Always start with a starting hex
     addHex(Maneuver::Stationary, HexTile::Starting_Tile);
     setVisible(false);
@@ -46,9 +44,9 @@ void ManeuverGraphic::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     font.setLetterSpacing(QFont::PercentageSpacing, 110);
     painter->setFont(font);
 
-    painter->drawText(hex_center - painter->fontMetrics().width(getID())/2, hex_height + painter->fontMetrics().height(), getID());
-    painter->drawText(hex_center - painter->fontMetrics().width(getTolerances())/2, hex_height + 2*painter->fontMetrics().height(), getTolerances());
-    painter->drawText(hex_center - painter->fontMetrics().width(getAdditionalInfo())/2, hex_height + 3*painter->fontMetrics().height(), getAdditionalInfo());
+    painter->drawText(hex_center - painter->fontMetrics().tightBoundingRect(getID()).width()/2, hex_height + painter->fontMetrics().height(), getID());
+    painter->drawText(hex_center - painter->fontMetrics().tightBoundingRect(getTolerances()).width()/2, hex_height + 2*painter->fontMetrics().height(), getTolerances());
+    painter->drawText(hex_center - painter->fontMetrics().tightBoundingRect(getAdditionalInfo()).width()/2, hex_height + 3*painter->fontMetrics().height(), getAdditionalInfo());
 }
 
 void ManeuverGraphic::addHex(Maneuver::Directions position, HexTile::TileType tile_type, qreal rotation)
@@ -84,8 +82,8 @@ QPainterPath ManeuverGraphic::shape() const
     QFontMetrics font_metrics(font);
     QRectF rect;
     rect.setTop(path.boundingRect().bottom());
-    int text_width = font_metrics.width(getTolerances());
-    if (font_metrics.width(getAdditionalInfo()) > text_width) text_width = font_metrics.width(getAdditionalInfo());
+    int text_width = font_metrics.tightBoundingRect(getTolerances()).width();
+    if (font_metrics.tightBoundingRect(getAdditionalInfo()).width() > text_width) text_width = font_metrics.tightBoundingRect(getAdditionalInfo()).width();
 
     rect.setLeft(hex_center - text_width/2);
     rect.setWidth(text_width);
@@ -114,6 +112,13 @@ void ManeuverGraphic::updateManeuverState()
         hex->setWeightRestricted(maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Is_Weight_Restricted).data().toBool());
     }
     setEnabled(maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Can_Be_Used).data().toBool());
+}
+
+void ManeuverGraphic::setSelected(bool selected)
+{
+    for (auto child : childItems()) {
+        static_cast<HexTile*>(child)->setSelected(selected);
+    }
 }
 
 void ManeuverGraphic::hoverEnterEvent(QGraphicsSceneHoverEvent *event)

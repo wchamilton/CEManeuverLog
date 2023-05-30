@@ -10,6 +10,7 @@ class CrewControls;
 
 class PlaneFilterProxy;
 class QAbstractButton;
+class TurnModel;
 class CrewControls : public QWidget
 {
     Q_OBJECT
@@ -31,23 +32,26 @@ class CrewControls : public QWidget
     };
 
 public:
-    explicit CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_idx, QWidget *parent = nullptr);
+    explicit CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_idx, TurnModel* turn_model, QWidget *parent = nullptr);
     ~CrewControls();
-    QString getChosenAction();
+    QPair<QPersistentModelIndex, QString> getChosenCrewAction();
     void handleTurnEnd();
 
 signals:
-    void updateSelectedAction();
+    void cv_component_changed();
 
 private slots:
     void setSliderStylesheet(QString colour);
     void refreshGunWidgets(int row);
+    void applyCVCalcs();
 
 private:
+    int calculateCV();
     Ui::CrewControls *ui;
 
     PlaneFilterProxy *model = nullptr;
     QPersistentModelIndex crew_idx;
+    TurnModel* turn_model = nullptr;
 };
 
 #endif // CREWCONTROLS_H

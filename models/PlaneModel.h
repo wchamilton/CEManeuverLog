@@ -3,7 +3,6 @@
 
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
-#include <QDebug>
 #include "PlaneItems.h"
 
 class PlaneModel : public QAbstractItemModel

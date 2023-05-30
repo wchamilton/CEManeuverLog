@@ -6,37 +6,6 @@
 
 #include "CEManeuvers.h"
 
-class BaseItem
-{
-public:
-    enum ItemType {
-        Base_Item_Type = 0,
-        Plane_Item_Type,
-        Maneuver_Item_Type,
-        Crew_Item_Type,
-        Gun_Item_Type
-    };
-
-    BaseItem(ItemType type, BaseItem* item = nullptr) : type(type), parent(item) {}
-    virtual ~BaseItem();
-
-    QVariant data(int column) const;
-    void setData(int column, QVariant data);
-    void addChild(BaseItem* item) { children << item; }
-    BaseItem* childAt(int row) const { return children.size() > row ? children.at(row) : nullptr; }
-    int childRow(BaseItem* item) { return children.indexOf(item); }
-    int row() { return parent->childRow(this); }
-    BaseItem* getParent() { return parent; }
-    int childCount() const { return children.size(); }
-    ItemType getType() { return type; }
-
-private:
-    QMap<int, QVariant> column_data;
-    ItemType type;
-    BaseItem* parent = nullptr;
-    QList<BaseItem*> children;
-};
-
 class PlaneItem : public BaseItem
 {
 public:
@@ -98,14 +67,11 @@ public:
 class CrewItem : public BaseItem
 {
 public:
-    enum Abilities {
-        No_Ability = 0,
-        Unrestricted_Maneuvers
-    };
     enum CrewCols {
         Crew_Name = 0,
         Crew_Role,
-        Crew_Ability,
+        Has_Unrestricted_Maneuvers,
+        Has_Ignore_Deflection,
         Can_Drop_Bombs,
         Wounds,
         COL_COUNT
@@ -119,21 +85,27 @@ class GunItem : public BaseItem
 {
 public:
     enum GunCols {
-        Gun_Name,
+        Gun_Name = 0,
         Gun_Count,
         Fire_Template,
-        Fire_Base_3,
-        Fire_Base_2,
-        Fire_Base_1,
         Fire_Base_0,
+        Fire_Base_1,
+        Fire_Base_2,
+        Fire_Base_3,
         Ammo_Box_Capacity,
         Ammo_Box_Count,
         Ammo_In_Current_Box,
+        Total_Ammo_Remaining,
+        Total_Ammo,
         Gun_Destroyed,
+        Gun_Position,
+        Gun_Last_Position,
+        Gun_Position_Range,
         COL_COUNT
     };
     GunItem(QJsonObject gun, BaseItem* parent = nullptr);
     GunItem(BaseItem* parent = nullptr);
+    QVariant data(int column) const;
     QJsonObject toJSON() const;
 };
 

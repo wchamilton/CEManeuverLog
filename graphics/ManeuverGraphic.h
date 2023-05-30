@@ -23,6 +23,7 @@ public:
     void setModelIndex(QPersistentModelIndex idx);
     void updateManeuverState();
     QPersistentModelIndex getIdx() { return maneuver_idx; }
+    void setSelected(bool selected);
 
 protected:
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;

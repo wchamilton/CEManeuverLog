@@ -1,12 +1,16 @@
 #include "CrewControls.h"
 #include "ui_CrewControls.h"
 #include "models/PlaneModel.h"
+#include "models/TurnModel.h"
 
-CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_idx, QWidget *parent) :
+#include <QDebug>
+
+CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_idx, TurnModel *turn_model, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CrewControls),
     model(model),
-    crew_idx(crew_idx)
+    crew_idx(crew_idx),
+    turn_model(turn_model)
 {
     ui->setupUi(this);
 
@@ -52,10 +56,10 @@ CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_i
         ui->remaining_bombs_lbl->setText(tr("%1 available").arg(model->index(crew_idx.parent().row(), PlaneItem::Bombs_Carried).data().toInt()));
     }
 
-    connect(ui->score_kill_btn, &QPushButton::pressed, this, [&]() { ui->kills_spin->setValue(ui->kills_spin->value()+1); });
-    connect(ui->score_red_btn, &QPushButton::pressed, this, [&]() { ui->reds_spin->setValue(ui->reds_spin->value()+1); });
-    connect(ui->add_wound_btn, &QPushButton::pressed, this, [&]() { ui->wounds->setValue(ui->wounds->value()+1); });
-    connect(ui->wounds, &QSlider::valueChanged, this, [&](int value){
+    connect(ui->score_kill_btn, &QPushButton::pressed, this, [=]() { ui->kills_spin->setValue(ui->kills_spin->value()+1); });
+    connect(ui->score_red_btn, &QPushButton::pressed, this, [=]() { ui->reds_spin->setValue(ui->reds_spin->value()+1); });
+    connect(ui->add_wound_btn, &QPushButton::pressed, this, [=]() { ui->wounds->setValue(ui->wounds->value()+1); });
+    connect(ui->wounds, &QSlider::valueChanged, this, [=](int value){
         QString colour;
         switch (value) {
             case WoundValues::None: colour = "blue"; break;
@@ -64,24 +68,38 @@ CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_i
             case WoundValues::Dead: colour = "gray"; break;
         }
         setSliderStylesheet(colour);
+        applyCVCalcs();
     });
-    connect(ui->actionGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &CrewControls::updateSelectedAction);
 
-    connect(ui->long_burst_btn, &QPushButton::released, this, [&]() { ui->burst_len->setValue(2); });
-    connect(ui->med_burst_btn, &QPushButton::released, this, [&]() { ui->burst_len->setValue(1); });
-    connect(ui->short_burst_btn, &QPushButton::released, this, [&]() { ui->burst_len->setValue(0); });
-    connect(ui->burst_len, &QSlider::valueChanged, this, [&](int value) {
+    connect(ui->long_burst_btn, &QPushButton::released, this, [=]() { ui->burst_len->setValue(2); });
+    connect(ui->med_burst_btn, &QPushButton::released, this, [=]() { ui->burst_len->setValue(1); });
+    connect(ui->short_burst_btn, &QPushButton::released, this, [=]() { ui->burst_len->setValue(0); });
+    connect(ui->burst_len, &QSlider::valueChanged, this, [=](int value) {
         switch (value) {
             case 0: ui->short_burst_btn->setChecked(true); break;
             case 1: ui->med_burst_btn->setChecked(true); break;
             case 2: ui->long_burst_btn->setChecked(true); break;
         }
-        emit updateSelectedAction();
+        applyCVCalcs();
     });
-    connect(ui->custom_action_line_edit, &QLineEdit::textEdited, this, [&](){
-        ui->custom_radio->setChecked(true);
-        emit updateSelectedAction();
+    connect(ui->target_above, &QPushButton::released, this, [=]() { ui->target_alt->setValue(2); });
+    connect(ui->target_level, &QPushButton::released, this, [=]() { ui->target_alt->setValue(1); });
+    connect(ui->target_below, &QPushButton::released, this, [=]() { ui->target_alt->setValue(0); });
+    connect(ui->target_alt, &QSlider::valueChanged, this, [=](int value) {
+        switch (value) {
+            case 0: ui->target_below->setChecked(true); break;
+            case 1: ui->target_level->setChecked(true); break;
+            case 2: ui->target_above->setChecked(true); break;
+        }
+        applyCVCalcs();
     });
+    connect(ui->custom_action_line_edit, &QLineEdit::textEdited, this, [=](){ ui->custom_radio->setChecked(true); });
+    connect(ui->hexRangeGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &CrewControls::applyCVCalcs);
+    connect(ui->tailed_target, &QCheckBox::clicked, this, &CrewControls::applyCVCalcs);
+    connect(ui->shot_at_target, &QCheckBox::clicked, this, &CrewControls::applyCVCalcs);
+    connect(ui->deflection, &QCheckBox::clicked, this, &CrewControls::applyCVCalcs);
+    connect(ui->target_spinning, &QCheckBox::clicked, this, &CrewControls::applyCVCalcs);
+    connect(ui->target_stalled, &QCheckBox::clicked, this, &CrewControls::applyCVCalcs);
 }
 
 CrewControls::~CrewControls()
@@ -89,31 +107,32 @@ CrewControls::~CrewControls()
     delete ui;
 }
 
-QString CrewControls::getChosenAction()
+QPair<QPersistentModelIndex, QString> CrewControls::getChosenCrewAction()
 {
+    QString action = "";
     switch (ui->actionGroup->checkedButton()->property("action_taken").toInt()) {
-        case No_Action: return "No action";
+        case No_Action: action = "No action"; break;
         case Shoot_Action: {
             switch (ui->burst_len->value()) {
-                case 0: return "Shot a short burst";
-                case 1: return "Shot a medium burst";
-                case 2: return "Shot a long burst";
+                case 0: action = "Shot a short burst"; break;
+                case 1: action = "Shot a medium burst"; break;
+                case 2: action = "Shot a long burst"; break;
             }
             break;
         }
-        case Reload_Action: return "Reloaded gun";
-        case Unjam_Action: return "Unjammed gun";
-        case Observe_Action: return "Observed tile";
-        case Drop_Payload_Action: return "Dropped payload";
-        case Custom_Action: return ui->custom_action_line_edit->text();
+        case Reload_Action: action = "Reloaded gun"; break;
+        case Unjam_Action: action = "Unjammed gun"; break;
+        case Observe_Action: action = "Observed tile"; break;
+        case Drop_Payload_Action: action = "Dropped payload"; break;
+        case Custom_Action: action = ui->custom_action_line_edit->text(); break;
     }
-    return QString();
+    return QPair<QPersistentModelIndex,QString>(crew_idx, action);
 }
 
 void CrewControls::handleTurnEnd()
 {
     if (ui->shoot_radio->isChecked()) {
-        model->setData(model->index(ui->gun_selection_shoot->currentIndex(), GunItem::Ammo_In_Current_Box, crew_idx), ui->ammo_box_current->text().toInt() - (ui->burst_len->value()+1));
+        model->setData(model->index(ui->gun_selection_shoot->currentIndex(), GunItem::Ammo_In_Current_Box, crew_idx), ui->ammo_box->text().toInt() - (ui->burst_len->value()+1));
         refreshGunWidgets(ui->gun_selection_shoot->currentIndex());
     }
     ui->no_action_radio->setChecked(true);
@@ -180,14 +199,128 @@ void CrewControls::refreshGunWidgets(int row)
     ui->fire_base_1->setText(gun_idx.sibling(gun_idx.row(), GunItem::Fire_Base_1).data().toString());
     ui->fire_base_0->setText(gun_idx.sibling(gun_idx.row(), GunItem::Fire_Base_0).data().toString());
 
-    ui->ammo_box_current->setText(gun_idx.sibling(gun_idx.row(), GunItem::Ammo_In_Current_Box).data().toString());
-    ui->ammo_total->setText(QVariant(gun_idx.sibling(gun_idx.row(), GunItem::Ammo_Box_Capacity).data().toInt() *
-                                     (gun_idx.sibling(gun_idx.row(), GunItem::Ammo_Box_Count).data().toInt()-1) +
-                                     gun_idx.sibling(gun_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt()).toString());
+    ui->ammo_box->setValue(gun_idx.sibling(gun_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt());
+    ui->ammo_box->setSuffix("/" + gun_idx.sibling(gun_idx.row(), GunItem::Ammo_Box_Capacity).data().toString());
+    ui->ammo_total->setValue(gun_idx.sibling(gun_idx.row(), GunItem::Total_Ammo_Remaining).data().toInt());
+    ui->ammo_total->setSuffix("/" + gun_idx.sibling(gun_idx.row(), GunItem::Total_Ammo).data().toString());
 
     // Only allow shooting if there's ammo in the current box
     ui->shoot_radio->setEnabled(gun_idx.sibling(gun_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt() > 0);
 
     // Only allow reloading if there's more than the current ammo box remaining
     ui->reload_radio->setEnabled(gun_idx.sibling(gun_idx.row(), GunItem::Ammo_Box_Count).data().toInt() > 1);
+}
+
+void CrewControls::applyCVCalcs()
+{
+    ui->combat_value->setValue(calculateCV());
+}
+
+int CrewControls::calculateCV()
+{
+    if (!ui->shoot_radio->isChecked()) {
+        return 0;
+    }
+
+    // Cache range
+    int hex_range = ui->range_0_btn->isChecked() ? 0 : ui->range_1_btn->isChecked() ? 1 : ui->range_2_btn->isChecked() ? 2 : 3;
+
+    // First part of the combat value is the fire base
+    int combat_value = model->index(ui->gun_selection_shoot->currentIndex(), GunItem::Fire_Base_0 + hex_range, crew_idx).data().toInt();
+
+    QPersistentModelIndex maneuver = turn_model->lastIndex(TurnItem::Turn_Maneuver_Col).data().toPersistentModelIndex();
+
+    // Check if the crew has Ignore Deflection
+    bool ignores_deflection = crew_idx.sibling(crew_idx.row(), CrewItem::Has_Ignore_Deflection).data().toBool();
+
+    // DOUBLE CHECK THAT SPINNING TARGETS CANNOT ALSO BE STALLED
+    switch (hex_range) {
+    case 0: {
+        if ((!ignores_deflection && ui->deflection->isChecked()) || ui->target_spinning->isChecked() || ui->target_stalled->isChecked()) {
+            return 0;
+        }
+
+        combat_value += ui->short_burst_btn->isChecked() ? 0 : ui->med_burst_btn->isChecked() ? 2 : 4;
+        combat_value += ui->target_below->isChecked() ? 1 : ui->target_above->isChecked() ? -1 : 0;
+        if (ui->tailed_target->isChecked() &&
+                crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Observer" &&
+                crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Gunner") {
+            combat_value += 2;
+        }
+        combat_value += ui->shot_at_target->isChecked() ? 1 : 0;
+        combat_value += ui->wounds->value() == 0 ? 0 : ui->wounds->value() == 1 ? -1 : -3;
+        break;
+    }
+    case 1: {
+        combat_value += ui->short_burst_btn->isChecked() ? 0 : ui->med_burst_btn->isChecked() ? 2 : 3;
+        combat_value += ui->target_spinning->isChecked() ? -6 : !ignores_deflection && ui->deflection->isChecked() ? -1 : 0;
+        combat_value += ui->target_below->isChecked() ? 1 : ui->target_above->isChecked() ? -1 : 0;
+        combat_value += ui->target_stalled->isChecked() ? 3 : 0;
+        if (maneuver.isValid()) {
+            if (maneuver.sibling(maneuver.row(), ManeuverItem::Is_Restricted).data().toBool()) {
+                combat_value += -1;
+            }
+            if (maneuver.sibling(maneuver.row(), ManeuverItem::Speed).data().toInt() > 2) {
+                combat_value += -1;
+            }
+        }
+        if (ui->tailed_target->isChecked() &&
+                crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Observer" &&
+                crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Gunner") {
+            combat_value += 2;
+        }
+        combat_value += ui->shot_at_target->isChecked() ? 1 : 0;
+        combat_value += ui->wounds->value() == 0 ? 0 : ui->wounds->value() == 1 ? -1 : -3;
+        break;
+    }
+    case 2: {
+        combat_value += ui->short_burst_btn->isChecked() ? 0 : ui->med_burst_btn->isChecked() ? 1 : 2;
+        combat_value += ui->target_spinning->isChecked() ? -7 : !ignores_deflection && ui->deflection->isChecked() ? -2 : 0;
+        combat_value += ui->target_below->isChecked() ? 1 : ui->target_above->isChecked() ? -1 : 0;
+        combat_value += ui->target_stalled->isChecked() ? 2 : 0;
+        if (maneuver.isValid()) {
+            if (maneuver.sibling(maneuver.row(), ManeuverItem::Is_Restricted).data().toBool()) {
+                combat_value += -2;
+            }
+            if (maneuver.sibling(maneuver.row(), ManeuverItem::Speed).data().toInt() > 2) {
+                combat_value += -2;
+            }
+        }
+        if (ui->tailed_target->isChecked() &&
+                crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Observer" &&
+                crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Gunner") {
+            combat_value += 1;
+        }
+        combat_value += ui->shot_at_target->isChecked() ? 1 : 0;
+        combat_value += ui->wounds->value() == 0 ? 0 : ui->wounds->value() == 1 ? -1 : -3;
+        break;
+    }
+    case 3: {
+        if (ui->target_spinning->isChecked() || ui->wounds->value() >= 1) {
+            return 0;
+        }
+
+        combat_value += ui->short_burst_btn->isChecked() ? 0 : ui->med_burst_btn->isChecked() ? 1 : 2;
+        combat_value += !ignores_deflection && ui->deflection->isChecked() ? -3 : 0;
+        combat_value += ui->target_below->isChecked() ? 0 : ui->target_above->isChecked() ? -2 : 0;
+        combat_value += ui->target_stalled->isChecked() ? 2 : 0;
+        if (maneuver.isValid()) {
+            if (maneuver.sibling(maneuver.row(), ManeuverItem::Is_Restricted).data().toBool()) {
+                combat_value += -3;
+            }
+            if (maneuver.sibling(maneuver.row(), ManeuverItem::Speed).data().toInt() > 2) {
+                combat_value += -3;
+            }
+        }
+        if (ui->tailed_target->isChecked() &&
+                crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Observer" &&
+                crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Gunner") {
+            combat_value += 1;
+        }
+        combat_value += ui->wounds->value() == 0 ? 0 : -1;
+        break;
+    }
+    }
+
+    return combat_value;
 }

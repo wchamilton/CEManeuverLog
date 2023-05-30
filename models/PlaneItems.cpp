@@ -2,21 +2,6 @@
 #include <QJsonArray>
 #include <QDebug>
 
-BaseItem::~BaseItem()
-{
-    qDeleteAll(children);
-}
-
-QVariant BaseItem::data(int column) const
-{
-    return column_data.value(column);
-}
-
-void BaseItem::setData(int column, QVariant data)
-{
-    column_data[column] = data;
-}
-
 PlaneItem::PlaneItem(QJsonObject plane, BaseItem *parent) : BaseItem(Plane_Item_Type, parent)
 {
     setData(Plane_Name,            plane["name"].toVariant());
@@ -153,7 +138,8 @@ CrewItem::CrewItem(QJsonObject crew, BaseItem *parent) : BaseItem(Crew_Item_Type
     setData(Crew_Role, crew["role"].toString());
     setData(Can_Drop_Bombs, crew["can_drop_bombs"].toBool());
     setData(Wounds, 0);
-    setData(Crew_Ability, No_Ability);
+    setData(Has_Unrestricted_Maneuvers, false);
+    setData(Has_Ignore_Deflection, false);
     QJsonArray guns = crew.value("guns").toArray();
 
     for (int i=0; i<guns.size(); ++i) {
@@ -190,9 +176,57 @@ GunItem::GunItem(QJsonObject gun, BaseItem *parent) : BaseItem(Gun_Item_Type, pa
     setData(Ammo_Box_Count,      gun["ammo_box_count"].toVariant());
     setData(Ammo_In_Current_Box, gun["ammo_box_capacity"].toVariant());
     setData(Gun_Destroyed,       false);
+
+    int fire_template = data(Fire_Template).toInt();
+    if (QList<int>{2,8,9,13}.contains(fire_template)) {
+        setData(Gun_Position, 4);
+    }
+    else if (fire_template == 14) {
+        setData(Gun_Position, 2);
+    }
+    else if (fire_template == 15 || fire_template == 16) {
+        setData(Gun_Position, 3);
+    }
+    else {
+        setData(Gun_Position, 1);
+    }
+    setData(Gun_Last_Position, data(Gun_Position));
+
+    QList<int> range;
+    switch (data(Fire_Template).toInt()) {
+    case 1: range = {1}; break;
+    case 2: range = {3,4,5}; break;
+    case 3:
+    case 4: range = {1,2,3,4,5,6}; break;
+    case 5:
+    case 6: range = {1}; break;
+    case 7: range = {1,2,6}; break;
+    case 8: range = {3,4,5}; break;
+    case 9: range = {4}; break;
+    case 10:
+    case 11: range = {1,2,3,4,5,6}; break;
+    case 12: range = {1}; break;
+    case 13: range = {4}; break;
+    case 14: range = {2,6}; break;
+    case 15: range = {5}; break;
+    case 16: range = {3}; break;
+    }
+
+    setData(Gun_Position_Range, QVariant::fromValue(range));
 }
 
 GunItem::GunItem(BaseItem *parent) : BaseItem(BaseItem::Gun_Item_Type, parent) {}
+
+QVariant GunItem::data(int column) const
+{
+    if (column == Total_Ammo_Remaining) {
+        return data(Ammo_Box_Capacity).toInt() * std::max(data(Ammo_Box_Count).toInt() - 1, 0) + data(Ammo_In_Current_Box).toInt();
+    }
+    else if (column == Total_Ammo) {
+        return data(Ammo_Box_Capacity).toInt() * data(Ammo_Box_Count).toInt();
+    }
+    return BaseItem::data(column);
+}
 
 QJsonObject GunItem::toJSON() const
 {

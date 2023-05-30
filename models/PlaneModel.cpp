@@ -128,7 +128,9 @@ PlaneFilterProxy::PlaneFilterProxy(PlaneModel *src_model, QObject *parent) : QSo
 
 void PlaneFilterProxy::setTypeFilter(QList<BaseItem::ItemType> types)
 {
-    type_filters = types;
+    type_filters.clear();
+    type_filters << BaseItem::Plane_Item_Type; // Need to do this as this version of Qt's filter doesn't properly handle root nodes not explicitly included in the filter
+    type_filters << types;
     invalidate();
 }
 

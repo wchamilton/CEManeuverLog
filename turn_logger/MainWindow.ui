@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1074</width>
-    <height>1000</height>
+    <width>1500</width>
+    <height>957</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,99 +17,173 @@
    <bool>true</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_2" columnstretch="1,0">
-    <item row="0" column="0">
+   <layout class="QGridLayout" name="gridLayout_4" columnstretch="0,0,1">
+    <item row="0" column="2">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="1" column="1">
+       <widget class="PlanePartDamageTracker" name="wing_grp" native="true"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="PlanePartDamageTracker" name="engine_grp" native="true"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="PlanePartDamageTracker" name="fuselage_grp" native="true"/>
+      </item>
+      <item row="2" column="1">
+       <widget class="PlanePartDamageTracker" name="tail_grp" native="true"/>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="2">
+     <widget class="QLineEdit" name="date">
+      <property name="placeholderText">
+       <string>Date</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="2">
+     <widget class="QPushButton" name="next_turn_btn">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>End Turn</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1" rowspan="4">
+     <layout class="QGridLayout" name="gridLayout_3" rowstretch="1,0,0" columnstretch="0,1">
+      <property name="spacing">
+       <number>2</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QGraphicsView" name="alt_control">
+        <property name="minimumSize">
+         <size>
+          <width>192</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="renderHints">
+         <set>QPainter::Antialiasing|QPainter::TextAntialiasing</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <layout class="QGridLayout" name="gridLayout_2">
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <item row="0" column="0" colspan="3">
+         <widget class="QComboBox" name="firing_arc_selection"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QPushButton" name="rotate_gun_left">
+          <property name="text">
+           <string>Rotate Left</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QSpinBox" name="gun_pos_spin">
+          <property name="frame">
+           <bool>true</bool>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+          <property name="buttonSymbols">
+           <enum>QAbstractSpinBox::NoButtons</enum>
+          </property>
+          <property name="prefix">
+           <string>Gun Pos </string>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>6</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QPushButton" name="rotate_gun_right">
+          <property name="text">
+           <string>Rotate Right</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" rowspan="2" colspan="3">
+         <widget class="QGraphicsView" name="firing_arc_control">
+          <property name="renderHints">
+           <set>QPainter::Antialiasing|QPainter::TextAntialiasing</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QPushButton" name="log_movement_btn">
+        <property name="text">
+         <string>Lock Movement</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="2">
+       <widget class="QTabWidget" name="crew_tab">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="currentIndex">
+         <number>-1</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="0" column="0" rowspan="4">
      <widget class="QGraphicsView" name="graphicsView">
       <property name="renderHints">
        <set>QPainter::Antialiasing|QPainter::TextAntialiasing</set>
       </property>
      </widget>
     </item>
-    <item row="0" column="1">
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1,0">
-      <item>
-       <widget class="QLineEdit" name="date">
-        <property name="placeholderText">
-         <string>Date</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QTabWidget" name="crew_tab">
-        <property name="currentIndex">
-         <number>-1</number>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QTreeWidget" name="turn_log">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>400</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="editTriggers">
-         <set>QAbstractItemView::NoEditTriggers</set>
-        </property>
-        <property name="alternatingRowColors">
-         <bool>true</bool>
-        </property>
-        <property name="selectionMode">
-         <enum>QAbstractItemView::SingleSelection</enum>
-        </property>
-        <property name="rootIsDecorated">
-         <bool>false</bool>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-        <property name="expandsOnDoubleClick">
-         <bool>false</bool>
-        </property>
-        <column>
-         <property name="text">
-          <string>Maneuver / Crew Name</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Altitude / Action Taken</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Fuel Remaining</string>
-         </property>
-        </column>
-       </widget>
-      </item>
-      <item>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="1" column="1">
-         <widget class="PlanePartDamageTracker" name="wing_grp" native="true"/>
-        </item>
-        <item row="1" column="0">
-         <widget class="PlanePartDamageTracker" name="engine_grp" native="true"/>
-        </item>
-        <item row="2" column="0">
-         <widget class="PlanePartDamageTracker" name="fuselage_grp" native="true"/>
-        </item>
-        <item row="2" column="1">
-         <widget class="PlanePartDamageTracker" name="tail_grp" native="true"/>
-        </item>
-       </layout>
-      </item>
-     </layout>
+    <item row="2" column="2">
+     <widget class="QTreeView" name="turn_log">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>400</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::SingleSelection</enum>
+      </property>
+      <property name="rootIsDecorated">
+       <bool>false</bool>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+      <property name="expandsOnDoubleClick">
+       <bool>false</bool>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -118,7 +192,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1074</width>
+     <width>1500</width>
      <height>22</height>
     </rect>
    </property>

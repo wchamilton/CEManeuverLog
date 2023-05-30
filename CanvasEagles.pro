@@ -16,9 +16,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    graphics/AltCtrlScene.cpp \
+    graphics/FiringArc.cpp \
+    graphics/FiringArcScene.cpp \
+    graphics/ManeuverModifiers.cpp \
+    graphics/SelectionBox.cpp \
     main.cpp \
     CEManeuvers.cpp \
-    turn_logger/CrewNamesPrompt.cpp \
+    models/TurnItems.cpp \
+    models/TurnModel.cpp \
     turn_logger/MainWindow.cpp \
     turn_logger/CrewControls.cpp \
     turn_logger/PlanePartDamageTracker.cpp \
@@ -29,11 +35,18 @@ SOURCES += \
     models/PlaneModel.cpp \
     editor/PlaneEditor.cpp \
     editor/CrewEditorTab.cpp \
-    editor/GunEditorTab.cpp
+    editor/GunEditorTab.cpp \
+    turn_logger/PreGamePrompt.cpp
 
 HEADERS += \
     CEManeuvers.h \
-    turn_logger/CrewNamesPrompt.h \
+    graphics/AltCtrlScene.h \
+    graphics/FiringArc.h \
+    graphics/FiringArcScene.h \
+    graphics/ManeuverModifiers.h \
+    graphics/SelectionBox.h \
+    models/TurnItems.h \
+    models/TurnModel.h \
     turn_logger/MainWindow.h \
     turn_logger/CrewControls.h \
     turn_logger/PlanePartDamageTracker.h \
@@ -44,16 +57,17 @@ HEADERS += \
     models/PlaneModel.h \
     editor/PlaneEditor.h \
     editor/CrewEditorTab.h \
-    editor/GunEditorTab.h
+    editor/GunEditorTab.h \
+    turn_logger/PreGamePrompt.h
 
 FORMS += \
-    turn_logger/CrewNamesPrompt.ui \
     turn_logger/MainWindow.ui \
     turn_logger/CrewControls.ui \
     turn_logger/PlanePartDamageTracker.ui \
     editor/PlaneEditor.ui \
     editor/CrewEditorTab.ui \
-    editor/GunEditorTab.ui
+    editor/GunEditorTab.ui \
+    turn_logger/PreGamePrompt.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -74,3 +74,18 @@ extern const QList<Maneuver> master_maneuver_list = {
     Maneuver("35S3", Maneuver::Rot_North,      { Maneuver::North,      Maneuver::North_East }, true),
     Maneuver("36R3", Maneuver::Rot_North_West, { Maneuver::North_East, Maneuver::North      }, true),
 };
+
+BaseItem::~BaseItem()
+{
+    qDeleteAll(children);
+}
+
+QVariant BaseItem::data(int column) const
+{
+    return column_data.value(column);
+}
+
+void BaseItem::setData(int column, QVariant data)
+{
+    column_data[column] = data;
+}

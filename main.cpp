@@ -3,13 +3,14 @@
 #include <QApplication>
 #include <QFile>
 #include <QStyle>
-#include <QDesktopWidget>
+//#include <QDesktopWidget>
 #include <QSettings>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    QFile file("stylesheet.qss");
+//    QFile file("stylesheet.qss");
+    QFile file("../CEManeuverLog/stylesheet.qss");
     file.open(QFile::ReadOnly);
     QString style_sheet = QLatin1String(file.readAll());
     a.setStyleSheet(style_sheet);
@@ -19,7 +20,7 @@ int main(int argc, char *argv[])
     qApp->setApplicationName("CEManeuverLog");
 
     MainWindow w;
-    w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w.size(), qApp->desktop()->availableGeometry()));
+//    w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w.size(), qApp.));
     w.show();
     return a.exec();
 }

@@ -11,7 +11,7 @@
 #include <QSettings>
 #include <QJsonDocument>
 #include <QJsonArray>
-#include <QTextCodec>
+#include <QTextStream>
 
 #include "CrewEditorTab.h"
 #include "models/PlaneModel.h"
@@ -125,7 +125,7 @@ void PlaneEditor::exportJSON()
 {
     PlaneItem* plane = static_cast<PlaneItem*>(plane_model->index(0,0).internalPointer());
 
-    plane->setData(PlaneItem::Plane_Name, ui->plane_name->text());
+    plane->setData(PlaneItem::Plane_Name, ui->plane_name->text().simplified());
     plane->setData(PlaneItem::Plane_Era, ui->early_war_btn->isChecked() ? "Early War" : "Late War");
     plane->setData(PlaneItem::Fuel, ui->fuel_amt->value());
     plane->setData(PlaneItem::Engine_HP, ui->engine_hp->value());
@@ -138,8 +138,11 @@ void PlaneEditor::exportJSON()
     plane->setData(PlaneItem::Tail_Critical, ui->tail_critical_hp->value());
     plane->setData(PlaneItem::Rated_Climb, ui->rated_climb->value());
     plane->setData(PlaneItem::Rated_Dive, ui->rated_dive->value());
-    plane->setData(PlaneItem::Max_Altitude, ui->max_alt->text());
-    plane->setData(PlaneItem::Stability, ui->stab_rating->text());
+    plane->setData(PlaneItem::Max_Altitude, ui->max_alt->text().simplified());
+    plane->setData(PlaneItem::Stability, ui->stab_rating->text().simplified());
+
+    // In case there are stragglers, remove any existing crew items before adding more
+    plane->removeChildren();
 
     // Start at 1 since index 0 is used by the [+] tab
     for (int i=1; i<ui->crew_editor_tab->count(); ++i) {
@@ -172,9 +175,7 @@ void PlaneEditor::exportJSON()
 
     // Ensure that if there are any unicode characters, they're preserved properly
     QTextStream out(&file);
-    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
-    out.setCodec(codec);
-    QString configDoc = codec->fromUnicode(QString(QJsonDocument(plane_model->dumpPlaneToJSON(plane_model->index(0,0))).toJson()));
+    QString configDoc = QJsonDocument(plane_model->dumpPlaneToJSON(plane_model->index(0,0))).toJson();
 
     out << configDoc;
     out.flush();
@@ -209,8 +210,8 @@ void PlaneEditor::initWidgets()
     maneuver_proxy_model->sort(ManeuverItem::Speed);
 
     // Initialize the scenes and apply them to the graphics views
-    maneuver_preview_scene = new ManeuverScene(ui->maneuver_preview_gv);
-    maneuver_schedule_scene = new ManeuverScene(ui->maneuver_schedule_gv);
+    maneuver_preview_scene = new ManeuverScene(maneuver_proxy_model, ui->maneuver_preview_gv);
+    maneuver_schedule_scene = new ManeuverScene(maneuver_proxy_model, ui->maneuver_schedule_gv);
     maneuver_schedule_scene->applyScheduleBG();
     maneuver_schedule_scene->positionManeuvers();
     ui->maneuver_preview_gv->setScene(maneuver_preview_scene);
@@ -224,7 +225,7 @@ void PlaneEditor::initWidgets()
     maneuver_proxy_model->setData(idx_0S1.sibling(cmb_row, ManeuverItem::IsEnabled), false);
     addManeuverToSchedule(idx_0S1);
 
-    // Setup connections
+    // Setup maneuver selection connections
     connect(ui->set_climb, &QComboBox::currentTextChanged, this, [&](QString text) { setManeuverData(ManeuverItem::Climb_Value, text); });
     connect(ui->set_level, &QComboBox::currentTextChanged, this, [&](QString text) { setManeuverData(ManeuverItem::Level_Value, text); });
     connect(ui->set_dive, &QComboBox::currentTextChanged, this, [&](QString text) { setManeuverData(ManeuverItem::Dive_Value, text); });

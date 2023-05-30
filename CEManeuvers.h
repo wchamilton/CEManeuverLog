@@ -2,6 +2,11 @@
 #define CEMANEUVERS_H
 
 #include <QList>
+#include <QMap>
+#include <QVariant>
+
+Q_DECLARE_METATYPE(QList<int>)
+
 struct Maneuver
 {
     enum Directions {
@@ -55,5 +60,40 @@ struct Maneuver
 };
 
 extern const QList<Maneuver> master_maneuver_list;
+
+class BaseItem
+{
+public:
+    enum ItemType {
+        Base_Item_Type = 0,
+        Plane_Item_Type,
+        Maneuver_Item_Type,
+        Crew_Item_Type,
+        Gun_Item_Type,
+        Turn_Item_Type,
+        Crew_Turn_Item_Type
+    };
+
+    BaseItem(ItemType type, BaseItem* item = nullptr) : type(type), parent(item) {}
+    virtual ~BaseItem();
+
+    virtual QVariant data(int column) const;
+    void setData(int column, QVariant data);
+    void addChild(BaseItem* item) { children << item; }
+    BaseItem* childAt(int row) const { return children.size() > row && row >= 0 ? children.at(row) : nullptr; }
+    int childRow(BaseItem* item) { return children.indexOf(item); }
+    int row() { return parent->childRow(this); }
+    BaseItem* getParent() { return parent; }
+    int childCount() const { return children.size(); }
+    ItemType getType() { return type; }
+    void removeChild(int row) { if (row >= 0 && row < children.size()) delete children.takeAt(row); }
+    void removeChildren() { qDeleteAll(children); children.clear(); }
+
+private:
+    QMap<int, QVariant> column_data;
+    ItemType type;
+    BaseItem* parent = nullptr;
+    QList<BaseItem*> children;
+};
 
 #endif // CEMANEUVERS_H

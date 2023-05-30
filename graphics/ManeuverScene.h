@@ -7,27 +7,41 @@
 #include <QPersistentModelIndex>
 
 class ManeuverGraphic;
+class PlaneFilterProxy;
+class TurnModel;
 class ManeuverScene : public QGraphicsScene
 {
     Q_OBJECT
 public:
-    ManeuverScene(QObject *parent = nullptr);
+    ManeuverScene(PlaneFilterProxy* maneuver_proxy, QObject *parent = nullptr);
     ManeuverGraphic* getManeuver(QString maneuver_name);
     QPersistentModelIndex getSelectedManeuverIdx();
     QString getSelectedManeuver();
     void addManeuver(QPersistentModelIndex maneuver_idx);
     void removeManeuver(QPersistentModelIndex maneuver_idx);
     void setManeuver(QPersistentModelIndex maneuver_idx);
-    void setManeuvers(QPersistentModelIndex plane_idx);
+    void setPlane(QPersistentModelIndex plane_idx);
+    void setTurnModel(TurnModel* model);
     void updateManeuver(QString id);
+    void clearSelection();
     void applyScheduleBG();
     void positionManeuvers();
+    void setManeuversAvailable(bool has_unrestricted_maneuvers);
+
+signals:
+    void maneuverClicked(QPersistentModelIndex maneuver_idx);
+
+private slots:
+    void handleFocusChanges(QGraphicsItem* newFocusItem, QGraphicsItem* oldFocusItem, Qt::FocusReason reason);
 
 private:
     QMap<QString, ManeuverGraphic*> maneuver_map;
+    ManeuverGraphic* selected_maneuver = nullptr;
     QGraphicsPixmapItem* background_item;
-    QGraphicsTextItem* plane_name;
-    QGraphicsTextItem* plane_tolerances;
+    QPersistentModelIndex plane_idx;
+    PlaneFilterProxy* maneuver_proxy_model = nullptr;
+    TurnModel* turn_model = nullptr;
+    int selected_altitude = 0;
 };
 
 #endif // MANEUVERSCENE_H
