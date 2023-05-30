@@ -1,0 +1,199 @@
+{
+    "crew": [
+        {
+            "can_drop_bombs": false,
+            "guns": [
+            ],
+            "role": "Pilot"
+        },
+        {
+            "can_drop_bombs": false,
+            "guns": [
+            ],
+            "role": "Co-Pilot"
+        },
+        {
+            "can_drop_bombs": false,
+            "guns": [
+                {
+                    "ammo_box_capacity": 5,
+                    "ammo_box_count": 4,
+                    "fire_base_0": 9,
+                    "fire_base_1": 6,
+                    "fire_base_2": 3,
+                    "fire_base_3": 1,
+                    "fire_template": 10,
+                    "gun_links": 1,
+                    "name": "Lewis Gun"
+                }
+            ],
+            "role": "Gunner"
+        },
+        {
+            "can_drop_bombs": false,
+            "guns": [
+                {
+                    "ammo_box_capacity": 5,
+                    "ammo_box_count": 4,
+                    "fire_base_0": 9,
+                    "fire_base_1": 6,
+                    "fire_base_2": 3,
+                    "fire_base_3": 1,
+                    "fire_template": 11,
+                    "gun_links": 1,
+                    "name": "Lewis Gun"
+                }
+            ],
+            "role": "Gunner"
+        }
+    ],
+    "engine_critical": 0,
+    "engine_hp": 11,
+    "fuel": 50,
+    "fuselage_critical": 0,
+    "fuselage_hp": 36,
+    "maneuvers": [
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "0S1",
+            "observer_can_reload": false,
+            "tolerances": "-/-/D1"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "10L1",
+            "observer_can_reload": false,
+            "tolerances": "-/L/D1"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": true,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "8L1",
+            "observer_can_reload": true,
+            "tolerances": "-/L/D1"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "6S1",
+            "observer_can_reload": true,
+            "tolerances": "C1/L/D1"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": true,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "2S1",
+            "observer_can_reload": true,
+            "tolerances": "C1/L/D1"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "7S1",
+            "observer_can_reload": true,
+            "tolerances": "C1/L/D1"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": true,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "8R1",
+            "observer_can_reload": true,
+            "tolerances": "-/L/D1"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "10R1",
+            "observer_can_reload": false,
+            "tolerances": "-/L/D1"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "14L2",
+            "observer_can_reload": true,
+            "tolerances": "-/L/D"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": true,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "3S2",
+            "observer_can_reload": true,
+            "tolerances": "-/L/D"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "14R2",
+            "observer_can_reload": true,
+            "tolerances": "-/L/D"
+        }
+    ],
+    "max_alt": "7",
+    "name": "Caproni CA33",
+    "plane_era": "Late War",
+    "rated_climb": 1,
+    "rated_dive": 2,
+    "stability": "A+",
+    "tail_critical": 0,
+    "tail_hp": 8,
+    "wing_critical": 0,
+    "wing_hp": 40
+}

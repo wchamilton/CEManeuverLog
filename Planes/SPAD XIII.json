@@ -11,8 +11,8 @@
                     "fire_base_2": 5,
                     "fire_base_3": 4,
                     "fire_template": 1,
-                    "gun_links": 2,
-                    "name": "Twin Spandau"
+                    "gun_links": 1,
+                    "name": "Single Vickers"
                 }
             ],
             "role": "Pilot"
@@ -20,9 +20,9 @@
     ],
     "engine_critical": 3,
     "engine_hp": 8,
-    "fuel": 45,
+    "fuel": 52,
     "fuselage_critical": 5,
-    "fuselage_hp": 24,
+    "fuselage_hp": 20,
     "maneuvers": [
         {
             "can_be_repeated": true,
@@ -37,7 +37,7 @@
             "tolerances": "-/-/D1"
         },
         {
-            "can_be_repeated": false,
+            "can_be_repeated": true,
             "can_put_out_fires": false,
             "can_reload": false,
             "causes_spin_check": true,
@@ -49,7 +49,7 @@
             "tolerances": "-/X/-"
         },
         {
-            "can_be_repeated": false,
+            "can_be_repeated": true,
             "can_put_out_fires": false,
             "can_reload": false,
             "causes_spin_check": true,
@@ -61,7 +61,7 @@
             "tolerances": "-/X/-"
         },
         {
-            "can_be_repeated": false,
+            "can_be_repeated": true,
             "can_put_out_fires": false,
             "can_reload": false,
             "causes_spin_check": true,
@@ -155,18 +155,6 @@
             "name": "10R1",
             "observer_can_reload": false,
             "tolerances": "-/L/D1"
-        },
-        {
-            "can_be_repeated": true,
-            "can_put_out_fires": false,
-            "can_reload": false,
-            "causes_spin_check": false,
-            "is_climb_restricted": false,
-            "is_restricted": false,
-            "is_weight_restricted": false,
-            "name": "9L2",
-            "observer_can_reload": false,
-            "tolerances": "-/X/D1"
         },
         {
             "can_be_repeated": true,
@@ -284,9 +272,45 @@
             "is_climb_restricted": false,
             "is_restricted": false,
             "is_weight_restricted": false,
-            "name": "9R2",
+            "name": "22L3",
             "observer_can_reload": false,
-            "tolerances": "-/X/D1"
+            "tolerances": "-/L/D"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "21L3",
+            "observer_can_reload": false,
+            "tolerances": "-/L/D"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "20L3",
+            "observer_can_reload": false,
+            "tolerances": "C1/L/D"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "18S3",
+            "observer_can_reload": false,
+            "tolerances": "C1/L/D"
         },
         {
             "can_be_repeated": true,
@@ -298,6 +322,90 @@
             "is_weight_restricted": false,
             "name": "4S3",
             "observer_can_reload": false,
+            "tolerances": "C/L/D"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "19S3",
+            "observer_can_reload": false,
+            "tolerances": "C1/L/D"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "20R3",
+            "observer_can_reload": false,
+            "tolerances": "C1/L/D"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "21R3",
+            "observer_can_reload": false,
+            "tolerances": "-/L/D"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "22R3",
+            "observer_can_reload": false,
+            "tolerances": "-/L/D"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "25S4",
+            "observer_can_reload": false,
+            "tolerances": "-/L/D"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "5S4",
+            "observer_can_reload": false,
+            "tolerances": "-/L/D"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": false,
+            "is_weight_restricted": false,
+            "name": "26S4",
+            "observer_can_reload": false,
             "tolerances": "-/L/D"
         },
         {
@@ -308,31 +416,7 @@
             "is_climb_restricted": false,
             "is_restricted": true,
             "is_weight_restricted": false,
-            "name": "28L1",
-            "observer_can_reload": false,
-            "tolerances": "-/X/-"
-        },
-        {
-            "can_be_repeated": true,
-            "can_put_out_fires": false,
-            "can_reload": false,
-            "causes_spin_check": false,
-            "is_climb_restricted": false,
-            "is_restricted": true,
-            "is_weight_restricted": false,
-            "name": "28R1",
-            "observer_can_reload": false,
-            "tolerances": "-/X/-"
-        },
-        {
-            "can_be_repeated": true,
-            "can_put_out_fires": false,
-            "can_reload": false,
-            "causes_spin_check": false,
-            "is_climb_restricted": false,
-            "is_restricted": true,
-            "is_weight_restricted": false,
-            "name": "31L2",
+            "name": "30L2",
             "observer_can_reload": false,
             "tolerances": "-/X/D1"
         },
@@ -356,9 +440,21 @@
             "is_climb_restricted": false,
             "is_restricted": true,
             "is_weight_restricted": false,
-            "name": "31R2",
+            "name": "30R2",
             "observer_can_reload": false,
             "tolerances": "-/X/D1"
+        },
+        {
+            "can_be_repeated": false,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": true,
+            "is_weight_restricted": false,
+            "name": "36L3",
+            "observer_can_reload": false,
+            "tolerances": "-/L/D1"
         },
         {
             "can_be_repeated": true,
@@ -380,19 +476,55 @@
             "is_climb_restricted": false,
             "is_restricted": true,
             "is_weight_restricted": false,
+            "name": "32S3",
+            "observer_can_reload": false,
+            "tolerances": "-/X/D1"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": true,
+            "is_weight_restricted": false,
+            "name": "33S3",
+            "observer_can_reload": false,
+            "tolerances": "-/X/D1"
+        },
+        {
+            "can_be_repeated": true,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": true,
+            "is_weight_restricted": false,
             "name": "35S3",
             "observer_can_reload": false,
             "tolerances": "-/L/-"
+        },
+        {
+            "can_be_repeated": false,
+            "can_put_out_fires": false,
+            "can_reload": false,
+            "causes_spin_check": false,
+            "is_climb_restricted": false,
+            "is_restricted": true,
+            "is_weight_restricted": false,
+            "name": "36R3",
+            "observer_can_reload": false,
+            "tolerances": "-/L/D1"
         }
     ],
-    "max_alt": "8",
-    "name": "Albatros DIII",
+    "max_alt": "9",
+    "name": "SPAD XIII",
     "plane_era": "Late War",
-    "rated_climb": 1,
-    "rated_dive": 2,
+    "rated_climb": 2,
+    "rated_dive": 4,
     "stability": "B",
     "tail_critical": 3,
     "tail_hp": 6,
-    "wing_critical": 5,
-    "wing_hp": 22
+    "wing_critical": 6,
+    "wing_hp": 24
 }
