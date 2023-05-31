@@ -27,6 +27,7 @@ class MainWindow : public QMainWindow
 
     enum TurnState {
         Start_Of_Turn = 0,
+        Movement_Selected,
         Movement_Locked
     };
 

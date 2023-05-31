@@ -136,7 +136,10 @@ MainWindow::MainWindow(QWidget *parent) :
         alt_ctrl_scene->setManeuver(QModelIndex());
         setTurnState(Start_Of_Turn);
     });
-    connect(maneuver_scene, &ManeuverScene::maneuverClicked, alt_ctrl_scene, &AltCtrlScene::setManeuver);
+    connect(maneuver_scene, &ManeuverScene::maneuverClicked, this, [=](QPersistentModelIndex idx) {
+        alt_ctrl_scene->setManeuver(idx);
+        setTurnState(Movement_Selected);
+    });
 }
 
 MainWindow::~MainWindow()
@@ -208,6 +211,8 @@ void MainWindow::setSelectedPlane()
         QPersistentModelIndex crew_idx = crew_proxy_model->index(i, CrewItem::Crew_Name, crew_proxy_model->mapFromSource(plane_idx));
 //        QTreeWidgetItem* child = new QTreeWidgetItem({crew_idx.data().toString()});
     }
+
+    setTurnState(Start_Of_Turn);
 }
 
 void MainWindow::rotateSelectedFlexibleGun(int delta)
@@ -245,12 +250,12 @@ void MainWindow::rotateSelectedFlexibleGun(int delta)
 
 void MainWindow::setTurnState(MainWindow::TurnState state)
 {
-//    ui->log_movement_btn->setEnabled(state == Start_Of_Turn); // Not sure why but setting this button as disabled resets the plane rotation
-    ui->graphicsView->setEnabled(state == Start_Of_Turn);
-    ui->firing_arc_control->setEnabled(state == Start_Of_Turn);
-    ui->alt_control->setEnabled(state == Start_Of_Turn);
-    ui->rotate_gun_left->setEnabled(state == Start_Of_Turn);
-    ui->rotate_gun_right->setEnabled(state == Start_Of_Turn);
+    ui->graphicsView->setEnabled(state != Movement_Locked);
+    ui->firing_arc_control->setEnabled(state == Movement_Selected);
+    ui->alt_control->setEnabled(state == Movement_Selected);
+    ui->rotate_gun_left->setEnabled(state == Movement_Selected);
+    ui->rotate_gun_right->setEnabled(state == Movement_Selected);
+    ui->log_movement_btn->setEnabled(state == Movement_Selected);
     ui->crew_tab->setEnabled(state == Movement_Locked);
     ui->next_turn_btn->setEnabled(state == Movement_Locked);
 }
