@@ -123,6 +123,7 @@ MainWindow::MainWindow(QWidget *parent) :
                     crew.sibling(crew.row(), CrewItem::Crew_Role).data().toString() == "Pilot") {
                 pilot = crew.sibling(crew.row(), CrewItem::Has_Unrestricted_Maneuvers);
             }
+            control->handleTurnEnd();
         }
 
         turn_model->addTurn(maneuver_scene->getSelectedManeuverIdx(), alt_ctrl_scene->getCurrentAlt(), crew_actions);

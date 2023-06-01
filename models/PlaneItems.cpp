@@ -175,6 +175,7 @@ GunItem::GunItem(QJsonObject gun, BaseItem *parent) : BaseItem(Gun_Item_Type, pa
     setData(Ammo_Box_Capacity,   gun["ammo_box_capacity"].toVariant());
     setData(Ammo_Box_Count,      gun["ammo_box_count"].toVariant());
     setData(Ammo_In_Current_Box, gun["ammo_box_capacity"].toVariant());
+    setData(Total_Ammo,          gun["ammo_box_capacity"].toInt() * gun["ammo_box_count"].toInt());
     setData(Gun_Destroyed,       false);
 
     int fire_template = data(Fire_Template).toInt();
@@ -192,27 +193,27 @@ GunItem::GunItem(QJsonObject gun, BaseItem *parent) : BaseItem(Gun_Item_Type, pa
     }
     setData(Gun_Last_Position, data(Gun_Position));
 
-    QList<int> range;
+    QList<int> rotation_range;
     switch (data(Fire_Template).toInt()) {
-    case 1: range = {1}; break;
-    case 2: range = {3,4,5}; break;
-    case 3:
-    case 4: range = {1,2,3,4,5,6}; break;
-    case 5:
-    case 6: range = {1}; break;
-    case 7: range = {1,2,6}; break;
-    case 8: range = {3,4,5}; break;
-    case 9: range = {4}; break;
-    case 10:
-    case 11: range = {1,2,3,4,5,6}; break;
-    case 12: range = {1}; break;
-    case 13: range = {4}; break;
-    case 14: range = {2,6}; break;
-    case 15: range = {5}; break;
-    case 16: range = {3}; break;
+        case 1: rotation_range = {1}; break;
+        case 2: rotation_range = {3,4,5}; break;
+        case 3:
+        case 4: rotation_range = {1,2,3,4,5,6}; break;
+        case 5:
+        case 6: rotation_range = {1}; break;
+        case 7: rotation_range = {1,2,6}; break;
+        case 8: rotation_range = {3,4,5}; break;
+        case 9: rotation_range = {4}; break;
+        case 10:
+        case 11: rotation_range = {1,2,3,4,5,6}; break;
+        case 12: rotation_range = {1}; break;
+        case 13: rotation_range = {4}; break;
+        case 14: rotation_range = {2,6}; break;
+        case 15: rotation_range = {5}; break;
+        case 16: rotation_range = {3}; break;
     }
 
-    setData(Gun_Position_Range, QVariant::fromValue(range));
+    setData(Gun_Position_Range, QVariant::fromValue(rotation_range));
 }
 
 GunItem::GunItem(BaseItem *parent) : BaseItem(BaseItem::Gun_Item_Type, parent) {}
@@ -221,9 +222,6 @@ QVariant GunItem::data(int column) const
 {
     if (column == Total_Ammo_Remaining) {
         return data(Ammo_Box_Capacity).toInt() * std::max(data(Ammo_Box_Count).toInt() - 1, 0) + data(Ammo_In_Current_Box).toInt();
-    }
-    else if (column == Total_Ammo) {
-        return data(Ammo_Box_Capacity).toInt() * data(Ammo_Box_Count).toInt();
     }
     return BaseItem::data(column);
 }

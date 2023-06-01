@@ -75,6 +75,10 @@ CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_i
     connect(ui->med_burst_btn, &QPushButton::released, this, [=]() { ui->burst_len->setValue(1); });
     connect(ui->short_burst_btn, &QPushButton::released, this, [=]() { ui->burst_len->setValue(0); });
     connect(ui->burst_len, &QSlider::valueChanged, this, [=](int value) {
+        if (value >= ui->ammo_box->value()) {
+            ui->burst_len->setValue(ui->ammo_box->value()-1);
+            return;
+        }
         switch (value) {
             case 0: ui->short_burst_btn->setChecked(true); break;
             case 1: ui->med_burst_btn->setChecked(true); break;
@@ -132,9 +136,17 @@ QPair<QPersistentModelIndex, QString> CrewControls::getChosenCrewAction()
 void CrewControls::handleTurnEnd()
 {
     if (ui->shoot_radio->isChecked()) {
-        model->setData(model->index(ui->gun_selection_shoot->currentIndex(), GunItem::Ammo_In_Current_Box, crew_idx), ui->ammo_box->text().toInt() - (ui->burst_len->value()+1));
-        refreshGunWidgets(ui->gun_selection_shoot->currentIndex());
+        model->setData(model->index(ui->gun_selection_shoot->currentIndex(), GunItem::Ammo_In_Current_Box, crew_idx),
+                       std::max(ui->ammo_box->value() - (ui->burst_len->value()+1), 0));
     }
+    else if (ui->reload_radio->isChecked()) {
+        model->setData(model->index(ui->gun_selection_shoot->currentIndex(), GunItem::Ammo_In_Current_Box, crew_idx),
+                       model->index(ui->gun_selection_shoot->currentIndex(), GunItem::Ammo_Box_Capacity, crew_idx).data().toInt());
+
+        QModelIndex ammo_box_count_idx = model->index(ui->gun_selection_shoot->currentIndex(), GunItem::Ammo_Box_Count, crew_idx);
+        model->setData(ammo_box_count_idx, ammo_box_count_idx.data().toInt()-1);
+    }
+    refreshGunWidgets(ui->gun_selection_shoot->currentIndex());
     ui->no_action_radio->setChecked(true);
 }
 
@@ -203,6 +215,23 @@ void CrewControls::refreshGunWidgets(int row)
     ui->ammo_box->setSuffix("/" + gun_idx.sibling(gun_idx.row(), GunItem::Ammo_Box_Capacity).data().toString());
     ui->ammo_total->setValue(gun_idx.sibling(gun_idx.row(), GunItem::Total_Ammo_Remaining).data().toInt());
     ui->ammo_total->setSuffix("/" + gun_idx.sibling(gun_idx.row(), GunItem::Total_Ammo).data().toString());
+
+    // Restrict burst length based on remaining ammo
+    if (ui->ammo_box->value() < 3) {
+        ui->long_burst_btn->setEnabled(false);
+        ui->med_burst_btn->setChecked(true);
+        if (ui->ammo_box->value() < 2) {
+            ui->med_burst_btn->setEnabled(false);
+            ui->short_burst_btn->setChecked(true);
+        }
+        ui->burst_len->setValue(ui->ammo_box->value()-1);
+    }
+    else {
+        ui->long_burst_btn->setEnabled(true);
+        ui->long_burst_btn->setChecked(true);
+        ui->med_burst_btn->setEnabled(true);
+        ui->burst_len->setValue(2);
+    }
 
     // Only allow shooting if there's ammo in the current box
     ui->shoot_radio->setEnabled(gun_idx.sibling(gun_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt() > 0);

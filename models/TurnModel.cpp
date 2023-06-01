@@ -208,7 +208,7 @@ void TurnModel::addTurn(QPersistentModelIndex maneuver_idx, int alt, QList<QPair
         turn->setData(TurnItem::Turn_Tolerance_Tag, maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Level_Value).data());
     }
 
-    beginInsertRows(lastIndex(), crew_actions.size(), crew_actions.size());
+    beginInsertRows(lastIndex(), 0, crew_actions.size());
     for (auto pair : crew_actions) {
         turn->addChild(new TurnCrewItem(pair.first, pair.second, turn));
     }

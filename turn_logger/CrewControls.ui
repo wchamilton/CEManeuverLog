@@ -133,6 +133,9 @@
               <property name="buttonSymbols">
                <enum>QAbstractSpinBox::NoButtons</enum>
               </property>
+              <property name="correctionMode">
+               <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
+              </property>
               <property name="maximum">
                <number>20</number>
               </property>
@@ -155,6 +158,9 @@
               </property>
               <property name="buttonSymbols">
                <enum>QAbstractSpinBox::NoButtons</enum>
+              </property>
+              <property name="correctionMode">
+               <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
               </property>
               <property name="maximum">
                <number>20</number>
@@ -928,7 +934,7 @@ border-radius: 4px;
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="actionGroup"/>
   <buttongroup name="hexRangeGroup"/>
+  <buttongroup name="actionGroup"/>
  </buttongroups>
 </ui>

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>465</width>
-    <height>111</height>
+    <width>330</width>
+    <height>270</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,73 +15,67 @@
   </property>
   <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,1,0">
    <item row="0" column="0">
-    <spacer name="horizontalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Plane Settings</string>
      </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>55</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Starting Altitude:</string>
-     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="2" column="1">
+       <widget class="QSpinBox" name="starting_speed">
+        <property name="maximum">
+         <number>4</number>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QCheckBox" name="has_bombs">
+        <property name="text">
+         <string>Is carrying a bomb load?</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Starting Altitude:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" rowspan="2">
+       <widget class="QSpinBox" name="starting_alt"/>
+      </item>
+      <item row="3" column="1">
+       <widget class="QSpinBox" name="bomb_count">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="suffix">
+         <string> bombs</string>
+        </property>
+        <property name="value">
+         <number>3</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Starting Speed:</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="0" column="2">
-    <widget class="QSpinBox" name="starting_alt"/>
-   </item>
-   <item row="0" column="3">
-    <spacer name="horizontalSpacer_3">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>55</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="0" column="4">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Starting Speed:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="5">
-    <widget class="QSpinBox" name="starting_speed"/>
-   </item>
-   <item row="0" column="6">
-    <spacer name="horizontalSpacer_4">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>55</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="1" column="0" colspan="7">
+   <item row="1" column="0">
     <widget class="QGroupBox" name="crew_names_grid">
      <property name="title">
-      <string>Crew</string>
+      <string>Crew Settings</string>
      </property>
      <layout class="QGridLayout" name="gridLayout"/>
     </widget>
    </item>
-   <item row="2" column="0" colspan="7">
+   <item row="2" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <spacer name="horizontalSpacer">
@@ -122,6 +116,22 @@
     <hint type="destinationlabel">
      <x>137</x>
      <y>39</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>has_bombs</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>bomb_count</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>90</x>
+     <y>93</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>239</x>
+     <y>93</y>
     </hint>
    </hints>
   </connection>
