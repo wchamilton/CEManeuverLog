@@ -19,6 +19,7 @@ class QComboBox;
 class QTreeWidgetItem;
 class QPushButton;
 class TurnModel;
+class TurnFilterProxy;
 class FiringArcScene;
 class AltCtrlScene;
 class QLabel;
@@ -50,6 +51,7 @@ private:
     Ui::MainWindow *ui;
     PlaneModel* plane_model = nullptr;
     TurnModel* turn_model = nullptr;
+    TurnFilterProxy* turn_proxy = nullptr;
     PlaneFilterProxy* maneuver_proxy_model = nullptr;
     PlaneFilterProxy* crew_proxy_model = nullptr;
     ManeuverScene* maneuver_scene = nullptr;

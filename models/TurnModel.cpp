@@ -59,13 +59,23 @@ QVariant TurnModel::data(const QModelIndex &idx, int role) const
     BaseItem* item = static_cast<BaseItem*>(idx.internalPointer());
     if (item->getType() == BaseItem::Turn_Item_Type) {
         switch (idx.column()) {
+        case TurnItem::Turn_Number: {
+            if (role == Qt::UserRole) {
+                return idx.row()+1;
+            }
+            else if (role == Qt::DisplayRole) {
+                return QString("Turn %1").arg(idx.row()+1);
+            }
+            break;
+        }
         case TurnItem::Turn_Maneuver_Col: {
             if (role == Qt::UserRole) {
                 return item->data(idx.column());
             }
             else if (role == Qt::DisplayRole) {
                 QPersistentModelIndex maneuver_idx = item->data(idx.column()).toPersistentModelIndex();
-                return QString("Turn %1: %2").arg(idx.row()+1).arg(maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Maneuver_Name).data().toString());
+                return QString("%1 - %2").arg(maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Maneuver_Name).data().toString())
+                                         .arg(item->data(TurnItem::Turn_Tolerance_Tag).toString());
             }
             break;
         }
@@ -175,14 +185,15 @@ bool TurnModel::setData(const QModelIndex &index, const QVariant &value, int rol
 
 QVariant TurnModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (orientation == Qt::Vertical || role != Qt::DisplayRole || section < 0 || section >= TurnItem::Turn_Item_Col_Count) {
+    if (role != Qt::DisplayRole || section < 0 || section >= TurnItem::Turn_Item_Col_Count) {
         return QAbstractItemModel::headerData(section, orientation, role);
     }
 
     switch (section) {
+        case TurnItem::Turn_Number: return "";
         case TurnItem::Turn_Maneuver_Col: return "Maneuver/Crew";
-        case TurnItem::Turn_Tolerance_Tag: return "Tolerance/Action";
-        case TurnItem::Turn_Altitude_Col: return "Altitude";
+        case TurnItem::Turn_Tolerance_Tag: return "Tolerance";
+        case TurnItem::Turn_Altitude_Col: return "Altitude/Action";
         case TurnItem::Turn_Fuel_Consumed: return "Fuel Consumed";
         case TurnItem::Turn_Fuel_Remaining_Col: return "Fuel Remaining";
         default: return section;
@@ -191,13 +202,14 @@ QVariant TurnModel::headerData(int section, Qt::Orientation orientation, int rol
 
 void TurnModel::addTurn(QPersistentModelIndex maneuver_idx, int alt, QList<QPair<QPersistentModelIndex, QString> > crew_actions)
 {
+    QModelIndex last_idx = lastIndex(TurnItem::Turn_Altitude_Col);
+    int last_alt = last_idx.isValid() ? last_idx.data(Qt::UserRole).toInt() : starting_alt;
+
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     TurnItem* turn = new TurnItem(maneuver_idx, alt, root);
     root->addChild(turn);
     endInsertRows();
 
-    QModelIndex last_idx = lastIndex(TurnItem::Turn_Altitude_Col);
-    int last_alt = last_idx.isValid() ? last_idx.data(Qt::UserRole).toInt() : starting_alt;
     if (alt > last_alt) {
         turn->setData(TurnItem::Turn_Tolerance_Tag, maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Climb_Value).data());
     }
@@ -229,4 +241,17 @@ QModelIndex TurnModel::lastIndex(int column, QModelIndex parent) const
         return QModelIndex();
     }
     return index(rowCount(parent)-1, column);
+}
+
+TurnFilterProxy::TurnFilterProxy(TurnModel *src_model, QObject *parent) : QSortFilterProxyModel(parent)
+{
+    setSourceModel(src_model);
+}
+
+bool TurnFilterProxy::filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const
+{
+    if (!source_parent.isValid() && (source_column == TurnItem::Turn_Tolerance_Tag || source_column == TurnItem::Turn_Fuel_Consumed)) {
+        return false;
+    }
+    return QSortFilterProxyModel::filterAcceptsColumn(source_column, source_parent);
 }

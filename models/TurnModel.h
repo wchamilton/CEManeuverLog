@@ -2,6 +2,7 @@
 #define TURNMODEL_H
 
 #include <QAbstractItemModel>
+#include <QSortFilterProxyModel>
 #include "TurnItems.h"
 
 class TurnModel : public QAbstractItemModel
@@ -38,6 +39,16 @@ private:
     BaseItem* root = nullptr;
     int starting_speed = 0;
     int starting_alt = 0;
+};
+
+class TurnFilterProxy : public QSortFilterProxyModel
+{
+    Q_OBJECT
+public:
+    TurnFilterProxy(TurnModel* src_model, QObject* parent = nullptr);
+
+protected:
+    bool filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const override;
 };
 
 #endif // TURNMODEL_H

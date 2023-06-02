@@ -7,7 +7,8 @@ class TurnItem : public BaseItem
 {
 public:
     enum TurnItemCols {
-        Turn_Maneuver_Col = 0,      // Qt::UserRole will return the maneuver index for the turn
+        Turn_Number = 0,
+        Turn_Maneuver_Col,      // Qt::UserRole will return the maneuver index for the turn
         Turn_Tolerance_Tag,         // C1, C, L, X, D, D1
         Turn_Altitude_Col,
         Turn_Fuel_Consumed,
@@ -21,7 +22,7 @@ class TurnCrewItem : public BaseItem
 {
 public:
     enum TurnCrewItemCols {
-        Turn_Crew_Col = 0,          // Qt::UserRole will return the crew idx
+        Turn_Crew_Col = 1,          // Qt::UserRole will return the crew idx
         Turn_Action_Col,
         Turn_Crew_Item_Col_Count
     };

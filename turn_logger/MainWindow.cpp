@@ -43,7 +43,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Init turn model which keeps a history of all events that happened during the game for tracking game logic
     turn_model = new TurnModel(this);
-    ui->turn_log->setModel(turn_model);
+    turn_proxy = new TurnFilterProxy(turn_model, this);
+    ui->turn_log->setModel(turn_proxy);
 
     // Set up the damage trackers
     ui->engine_grp->setTitle("Engine");

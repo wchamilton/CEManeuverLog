@@ -75,8 +75,7 @@ void SelectionBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
 void SelectionBox::setDigits(QList<int> arg)
 {
-    digits.clear();
-    digits << arg;
+    digits = arg;
     up_arrow.force_filled = false;
     down_arrow.force_filled = false;
 }
@@ -84,7 +83,7 @@ void SelectionBox::setDigits(QList<int> arg)
 void SelectionBox::setSelectedDigit(int selected_digit)
 {
     selected_digit_idx = digits.indexOf(selected_digit);
-    starting_digit_idx = selected_digit;
+    starting_digit_idx = digits.indexOf(selected_digit);
 }
 
 void SelectionBox::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
@@ -99,12 +98,19 @@ void SelectionBox::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 
 void SelectionBox::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+    if (!up_arrow.poly.containsPoint(event->pos().toPoint(), Qt::OddEvenFill) &&
+        !down_arrow.poly.containsPoint(event->pos().toPoint(), Qt::OddEvenFill)) {
+        QGraphicsItem::mousePressEvent(event);
+        return;
+    }
+
     if (selected_digit_idx < digits.size()-1 && up_arrow.poly.containsPoint(event->pos().toPoint(), Qt::OddEvenFill)) {
         ++selected_digit_idx;
     }
     else if (selected_digit_idx > 0 && down_arrow.poly.containsPoint(event->pos().toPoint(), Qt::OddEvenFill)) {
         --selected_digit_idx;
     }
+
     up_arrow.force_filled = selected_digit_idx > starting_digit_idx;
     down_arrow.force_filled = selected_digit_idx < starting_digit_idx;
 
