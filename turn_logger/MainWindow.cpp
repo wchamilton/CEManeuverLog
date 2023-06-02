@@ -84,7 +84,14 @@ MainWindow::MainWindow(QWidget *parent) :
     });
 
     connect(ui->actionEdit_plane, &QAction::triggered, this, [&] {
-        QString file_path = QFileDialog::getOpenFileName(this, tr("Open File"), ".", tr("JSON files (*.json)"));
+        QSettings settings;
+        settings.beginGroup("CanvasEagles");
+        QString planes_dir = "./Planes";
+        if (settings.contains("planes_dir")) {
+            planes_dir = settings.value("planes_dir").toString();
+        }
+
+        QString file_path = QFileDialog::getOpenFileName(this, tr("Open File"), planes_dir, tr("JSON files (*.json)"));
         if (file_path != "") {
             QFile file(file_path);
             if (!file.open(QIODevice::ReadOnly|QIODevice::Text)) {
@@ -100,13 +107,14 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionSet_Plane_Auto_Load_Location, &QAction::triggered, this, [&] {
         QSettings settings;
         settings.beginGroup("CanvasEagles");
-        QString load_location = "./Planes";
-        if (settings.contains("auto-load_location")) {
-            load_location = settings.value("auto-load_location").toString();
+        QString planes_dir = "./Planes";
+        if (settings.contains("planes_dir")) {
+            planes_dir = settings.value("planes_dir").toString();
         }
-        load_location = QFileDialog::getExistingDirectory(this, tr("Select Folder"), load_location);
-        if (load_location != "") {
-            settings.setValue("auto-load_location", load_location);
+        planes_dir = QFileDialog::getExistingDirectory(this, tr("Select Folder"), planes_dir);
+        settings.remove("planes_dir");
+        if (planes_dir != "") {
+            settings.setValue("planes_dir", planes_dir);
             autoLoadPlanes();
         }
         settings.endGroup();

@@ -141,9 +141,6 @@ void PlaneEditor::exportJSON()
     plane->setData(PlaneItem::Max_Altitude, ui->max_alt->text().simplified());
     plane->setData(PlaneItem::Stability, ui->stab_rating->text().simplified());
 
-    // In case there are stragglers, remove any existing crew items before adding more
-    plane->removeChildren();
-
     // Start at 1 since index 0 is used by the [+] tab
     for (int i=1; i<ui->crew_editor_tab->count(); ++i) {
         CrewItem* item = new CrewItem(plane);
@@ -164,7 +161,7 @@ void PlaneEditor::exportJSON()
     }
 
     QFileInfo file_info(file_path);
-    if (file_info.completeSuffix() != "json") {
+    if (file_info.suffix() != "json") {
         file_info.setFile(file_path + ".json");
     }
 
@@ -180,6 +177,7 @@ void PlaneEditor::exportJSON()
     out << configDoc;
     out.flush();
     file.close();
+    settings.remove("planes_dir");
     settings.setValue("planes_dir", file_info.dir().absolutePath());
     settings.endGroup();
 }
