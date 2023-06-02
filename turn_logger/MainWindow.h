@@ -21,6 +21,7 @@ class QPushButton;
 class TurnModel;
 class FiringArcScene;
 class AltCtrlScene;
+class QLabel;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -58,5 +59,6 @@ private:
     QMenu* late_war_menu = nullptr;
     QActionGroup* plane_action_group = nullptr;
     QMap<QString, CrewControls*> crew_control_widgets;
+    QLabel* status_bar_label = nullptr;
 };
 #endif // MAINWINDOW_H

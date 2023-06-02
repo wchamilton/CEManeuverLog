@@ -12,6 +12,7 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QActionGroup>
+#include <QLabel>
 
 #include "models/PlaneModel.h"
 #include "models/TurnModel.h"
@@ -69,6 +70,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->rotate_gun_left, &QPushButton::clicked, this, [=](){ rotateSelectedFlexibleGun(-1); });
     connect(ui->rotate_gun_right, &QPushButton::clicked, this, [=](){ rotateSelectedFlexibleGun(1); });
+
+    status_bar_label = new QLabel(ui->statusbar);
+    ui->statusbar->addPermanentWidget(status_bar_label);
 
     // Load the planes if a location has been already set
     autoLoadPlanes();
@@ -168,7 +172,7 @@ void MainWindow::loadJSON(QString file_path)
     file.close();
 
     generatePlaneMenu(plane_model->loadPlaneJSON(planes_doc.object()));
-    ui->statusbar->showMessage(tr("%1 planes loaded").arg(plane_model->rowCount()));
+    status_bar_label->setText(tr("%1 planes loaded").arg(plane_model->rowCount()));
 }
 
 void MainWindow::setSelectedPlane()
@@ -194,7 +198,10 @@ void MainWindow::setSelectedPlane()
         CrewControls* cc = new CrewControls(crew_proxy_model, crew_idx, turn_model, ui->crew_tab);
         ui->crew_tab->addTab(cc, crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() + " (" + crew_idx.data().toString() + ")");
         crew_control_widgets.insert(crew_idx.data().toString(), cc);
-//        connect(cc, &CrewControls::updateSelectedAction, this, &MainWindow::updateCurrentTurn);
+
+        if (crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() == "Pilot") {
+            maneuver_scene->setManeuversAvailable(crew_idx.sibling(crew_idx.row(), CrewItem::Has_Unrestricted_Maneuvers).data().toBool());
+        }
 
         // Add each of the guns to the firing arc combobox
         for (int i=0; i<crew_proxy_model->rowCount(crew_idx); ++i) {
@@ -214,12 +221,6 @@ void MainWindow::setSelectedPlane()
     ui->wing_grp->setModelIndexes(plane_idx.sibling(plane_idx.row(), PlaneItem::Wing_HP), plane_idx.sibling(plane_idx.row(), PlaneItem::Wing_Critical));
     ui->fuselage_grp->setModelIndexes(plane_idx.sibling(plane_idx.row(), PlaneItem::Fuselage_HP), plane_idx.sibling(plane_idx.row(), PlaneItem::Fuselage_Critical));
     ui->tail_grp->setModelIndexes(plane_idx.sibling(plane_idx.row(), PlaneItem::Tail_HP), plane_idx.sibling(plane_idx.row(), PlaneItem::Tail_Critical));
-
-    // Iterate over the crew members
-    for (int i=0; i<crew_proxy_model->rowCount(crew_proxy_model->mapFromSource(plane_idx)); ++i) {
-        QPersistentModelIndex crew_idx = crew_proxy_model->index(i, CrewItem::Crew_Name, crew_proxy_model->mapFromSource(plane_idx));
-//        QTreeWidgetItem* child = new QTreeWidgetItem({crew_idx.data().toString()});
-    }
 
     setTurnState(Start_Of_Turn);
 }
