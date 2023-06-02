@@ -62,6 +62,7 @@ extern const QList<Maneuver> master_maneuver_list = {
     // Restricted speed 2 maneuvers
     Maneuver("30L2", Maneuver::Rot_South_West, { Maneuver::North      }, true),
     Maneuver("31L2", Maneuver::Rot_North_East, { Maneuver::North_West }, true),
+    Maneuver("27S2", Maneuver::Rot_South,      { Maneuver::Right      }, true, true),
     Maneuver("29S2", Maneuver::Rot_South,      { Maneuver::North      }, true, true),
     Maneuver("31R2", Maneuver::Rot_North_West, { Maneuver::North_East }, true),
     Maneuver("30R2", Maneuver::Rot_South_East, { Maneuver::North      }, true),

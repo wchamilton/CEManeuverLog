@@ -21,7 +21,7 @@ ManeuverScene::ManeuverScene(PlaneFilterProxy *maneuver_proxy, QObject *parent) 
             shift_val = ManeuverGraphic::Shift_Left;
         }
         else if (maneuver.name == "1S0" || maneuver.name == "1R0"  || maneuver.name == "0S1" ||
-                 maneuver.name == "9R2" || maneuver.name == "11R2" || maneuver.name == "28L1") {
+                 maneuver.name == "9R2" || maneuver.name == "11R2" || maneuver.name == "28L1" || maneuver.name == "27S2") {
             shift_val = ManeuverGraphic::Shift_Right;
         }
         maneuver_map[maneuver.name] = new ManeuverGraphic(shift_val);
@@ -177,6 +177,7 @@ void ManeuverScene::positionManeuvers()
     // Restricted speed 2
     maneuver_map["30L2"]->moveBy(125, 650);
     maneuver_map["31L2"]->moveBy(185, 670);
+    maneuver_map["27S2"]->moveBy(291, 650);
     maneuver_map["29S2"]->moveBy(291, 650);
     maneuver_map["31R2"]->moveBy(385, 670);
     maneuver_map["30R2"]->moveBy(445, 650);
