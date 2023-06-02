@@ -13,7 +13,7 @@
             "role": "Co-Pilot"
         },
         {
-            "can_drop_bombs": false,
+            "can_drop_bombs": true,
             "guns": [
                 {
                     "ammo_box_capacity": 5,
@@ -30,7 +30,7 @@
             "role": "Gunner"
         },
         {
-            "can_drop_bombs": false,
+            "can_drop_bombs": true,
             "guns": [
                 {
                     "ammo_box_capacity": 5,

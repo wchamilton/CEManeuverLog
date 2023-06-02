@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>CrewEditorTab</class>
  <widget class="QWidget" name="CrewEditorTab">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>318</width>
+    <height>53</height>
+   </rect>
+  </property>
   <property name="sizePolicy">
    <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
     <horstretch>0</horstretch>
@@ -61,7 +69,7 @@
     </widget>
    </item>
    <item row="0" column="3">
-    <widget class="QCheckBox" name="checkBox">
+    <widget class="QCheckBox" name="can_drop_bombs_chk">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
        <horstretch>0</horstretch>

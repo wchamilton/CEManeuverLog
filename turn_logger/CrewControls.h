@@ -37,8 +37,11 @@ public:
     QPair<QPersistentModelIndex, QString> getChosenCrewAction();
     void handleTurnEnd();
 
+public slots:
+    void updateBombState();
+
 signals:
-    void cv_component_changed();
+    void bombDropped();
 
 private slots:
     void setSliderStylesheet(QString colour);

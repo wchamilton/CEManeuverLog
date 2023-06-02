@@ -25,6 +25,7 @@ CrewEditorTab::~CrewEditorTab()
 void CrewEditorTab::populateCrewItem(CrewItem *crew)
 {
     crew->setData(CrewItem::Crew_Role, ui->role_cmb->currentText());
+    crew->setData(CrewItem::Can_Drop_Bombs, ui->can_drop_bombs_chk->isChecked());
     // Add gun controls
     for (int i=0; i<ui->gun_tab_widget->count(); ++i) {
         GunItem* gun_item = new GunItem(crew);

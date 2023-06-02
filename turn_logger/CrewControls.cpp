@@ -51,10 +51,7 @@ CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_i
         ui->unjam_radio->setDisabled(true);
     }
 
-    if (!crew_idx.sibling(crew_idx.row(), CrewItem::Can_Drop_Bombs).data().toBool()) {
-        ui->drop_bomb_radio->setDisabled(true);
-        ui->remaining_bombs_lbl->setText(tr("%1 available").arg(model->index(crew_idx.parent().row(), PlaneItem::Bombs_Carried).data().toInt()));
-    }
+    updateBombState();
 
     connect(ui->score_kill_btn, &QPushButton::pressed, this, [=]() { ui->kills_spin->setValue(ui->kills_spin->value()+1); });
     connect(ui->score_red_btn, &QPushButton::pressed, this, [=]() { ui->reds_spin->setValue(ui->reds_spin->value()+1); });
@@ -127,7 +124,7 @@ QPair<QPersistentModelIndex, QString> CrewControls::getChosenCrewAction()
         case Reload_Action: action = "Reloaded gun"; break;
         case Unjam_Action: action = "Unjammed gun"; break;
         case Observe_Action: action = "Observed tile"; break;
-        case Drop_Payload_Action: action = "Dropped payload"; break;
+        case Drop_Payload_Action: action = "Dropped a bomb"; break;
         case Custom_Action: action = ui->custom_action_line_edit->text(); break;
     }
     return QPair<QPersistentModelIndex,QString>(crew_idx, action);
@@ -146,8 +143,24 @@ void CrewControls::handleTurnEnd()
         QModelIndex ammo_box_count_idx = model->index(ui->gun_selection_shoot->currentIndex(), GunItem::Ammo_Box_Count, crew_idx);
         model->setData(ammo_box_count_idx, ammo_box_count_idx.data().toInt()-1);
     }
+    else if (ui->drop_bomb_radio->isChecked()) {
+        QModelIndex plane_bombs_idx = crew_idx.parent().sibling(crew_idx.parent().row(), PlaneItem::Bombs_Carried);
+        if (plane_bombs_idx.data().toInt() > 0) {
+            model->setData(plane_bombs_idx, plane_bombs_idx.data().toInt() -1);
+            // Need to update the rest of the crew that a bomb was dropped
+            emit bombDropped();
+        }
+    }
     refreshGunWidgets(ui->gun_selection_shoot->currentIndex());
     ui->no_action_radio->setChecked(true);
+}
+
+void CrewControls::updateBombState()
+{
+    // Bombs can only be dropped if the plane has any (left) on board
+    ui->drop_bomb_radio->setEnabled(crew_idx.parent().sibling(crew_idx.parent().row(), PlaneItem::Bombs_Carried).data().toInt() > 0 &&
+                                    crew_idx.sibling(crew_idx.row(), CrewItem::Can_Drop_Bombs).data().toBool());
+    ui->remaining_bombs_lbl->setText(tr("%1 available").arg(model->index(crew_idx.parent().row(), PlaneItem::Bombs_Carried).data().toInt()));
 }
 
 void CrewControls::setSliderStylesheet(QString colour)

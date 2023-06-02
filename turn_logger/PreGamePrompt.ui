@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Enter Crew Names</string>
+   <string>Plane Setup</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,1,0">
    <item row="0" column="0">
