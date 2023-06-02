@@ -1,0 +1,38 @@
+{
+    "crew": [
+        {
+            "can_drop_bombs": false,
+            "guns": [
+                {
+                    "ammo_box_capacity": 20,
+                    "ammo_box_count": 1,
+                    "fire_base_0": 9,
+                    "fire_base_1": 6,
+                    "fire_base_2": 3,
+                    "fire_base_3": 2,
+                    "fire_template": 1,
+                    "gun_links": 1,
+                    "name": "Single Vickers Machine Gun (R)"
+                }
+            ],
+            "role": "Pilot"
+        }
+    ],
+    "engine_critical": 2,
+    "engine_hp": 6,
+    "fuel": 45,
+    "fuselage_critical": 5,
+    "fuselage_hp": 22,
+    "maneuvers": [
+    ],
+    "max_alt": "7",
+    "name": "Airco DH-5",
+    "plane_era": "Late War",
+    "rated_climb": 1,
+    "rated_dive": 3,
+    "stability": "B",
+    "tail_critical": 3,
+    "tail_hp": 6,
+    "wing_critical": 6,
+    "wing_hp": 23
+}

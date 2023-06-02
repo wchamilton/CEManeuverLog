@@ -1,0 +1,38 @@
+{
+    "crew": [
+        {
+            "can_drop_bombs": false,
+            "guns": [
+                {
+                    "ammo_box_capacity": 20,
+                    "ammo_box_count": 1,
+                    "fire_base_0": 11,
+                    "fire_base_1": 8,
+                    "fire_base_2": 5,
+                    "fire_base_3": 4,
+                    "fire_template": 1,
+                    "gun_links": 2,
+                    "name": "Twin Spandau Machine Guns (RR)"
+                }
+            ],
+            "role": "Pilot"
+        }
+    ],
+    "engine_critical": 3,
+    "engine_hp": 8,
+    "fuel": 45,
+    "fuselage_critical": 4,
+    "fuselage_hp": 22,
+    "maneuvers": [
+    ],
+    "max_alt": "7+",
+    "name": "L.F.G. Roland DII",
+    "plane_era": "Late War",
+    "rated_climb": 3,
+    "rated_dive": 1,
+    "stability": "B",
+    "tail_critical": 3,
+    "tail_hp": 6,
+    "wing_critical": 5,
+    "wing_hp": 25
+}

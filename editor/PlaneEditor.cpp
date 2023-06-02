@@ -158,7 +158,7 @@ void PlaneEditor::exportJSON()
         planes_dir = settings.value("planes_dir").toString();
     }
 
-    QString file_path = QFileDialog::getSaveFileName(this, tr("Save Plane"), planes_dir, tr("JSON files (*.json)"));
+    QString file_path = QFileDialog::getSaveFileName(this, tr("Save Plane"), planes_dir + QDir::separator() + ui->plane_name->text(), tr("JSON files (*.json)"));
     if (file_path == "") {
         return;
     }
