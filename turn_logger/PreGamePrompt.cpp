@@ -64,7 +64,7 @@ void PreGamePrompt::accept()
         plane_model->setData(crew_name_idx, input.second.crew_name_input->text());
         plane_model->setData(crew_name_idx.sibling(crew_name_idx.row(), CrewItem::Has_Ignore_Deflection), input.second.ignores_deflection->isChecked());
         plane_model->setData(crew_name_idx.sibling(crew_name_idx.row(), CrewItem::Has_Unrestricted_Maneuvers),
-                             input.second.ignores_deflection ? input.second.ignores_deflection->isChecked() : false);
+                             input.second.unrestricted_maneuvers ? input.second.unrestricted_maneuvers->isChecked() : false);
     }
     plane_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Bombs_Carried), ui->has_bombs->isChecked() ? ui->bomb_count->value() : 0);
     turn_model->setStartingValues(ui->starting_alt->value(), ui->starting_speed->value());
