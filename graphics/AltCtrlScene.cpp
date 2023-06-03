@@ -25,7 +25,7 @@ void AltCtrlScene::setPlane(QPersistentModelIndex plane_idx)
                                .arg(plane_idx.sibling(plane_idx.row(), PlaneItem::Can_Return_To_Max_Alt).data().toBool() ? "+" : "")
                                .arg(plane_idx.sibling(plane_idx.row(), PlaneItem::Stability).data().toString()));
 
-    plane_name->setY(panel->boundingRect().bottom() + 10);
+    plane_name->setY(panel->boundingRect().bottom() + 50);
     plane_tolerances->setY(plane_name->y() + 30);
 
     QFont font = plane_name->font();
@@ -43,9 +43,21 @@ void AltCtrlScene::setTurnModel(TurnModel *model)
     if (panel) {
         delete panel;
     }
+    if (turn_display == nullptr) {
+        turn_display = addText("Turn 1");
+        QFont font = turn_display->font();
+        font.setPixelSize(18);
+        font.setBold(true);
+        turn_display->setFont(font);
+        connect(turn_model, &TurnModel::rowsInserted, this, [=] { turn_display->setPlainText(QString("Turn %1").arg(turn_model->rowCount()+1)); });
+    }
+    else {
+        turn_display->setPlainText("Turn 1");
+    }
     panel = new ManeuverModifiers();
     panel->setTurnModel(turn_model);
     addItem(panel);
+    panel->setY(40);
     setManeuver(QModelIndex());
 }
 

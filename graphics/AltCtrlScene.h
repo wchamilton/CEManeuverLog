@@ -24,6 +24,7 @@ private:
     QPersistentModelIndex plane_idx;
     QGraphicsTextItem* plane_name = nullptr;
     QGraphicsTextItem* plane_tolerances = nullptr;
+    QGraphicsTextItem* turn_display = nullptr;
     ManeuverModifiers* panel = nullptr;
     TurnModel* turn_model = nullptr;
 //    int selected_altitude = 0;
