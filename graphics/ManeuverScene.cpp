@@ -222,6 +222,7 @@ void ManeuverScene::setManeuversAvailable(bool has_unrestricted_maneuvers)
 
     for (int i=0; i<maneuver_proxy_model->rowCount(plane_idx); ++i) {
         QModelIndex can_use_maneuver_idx = maneuver_proxy_model->index(i, ManeuverItem::Can_Be_Used, plane_idx);
+        QModelIndex maneuver_name_idx = maneuver_proxy_model->index(i, ManeuverItem::Maneuver_Name, plane_idx);
         int maneuver_speed = can_use_maneuver_idx.sibling(i, ManeuverItem::Speed).data().toInt();
         QString maneuver_direction = can_use_maneuver_idx.sibling(i, ManeuverItem::Direction).data().toString();
         QString climb_val = can_use_maneuver_idx.sibling(i, ManeuverItem::Climb_Value).data().toString();
@@ -230,8 +231,12 @@ void ManeuverScene::setManeuversAvailable(bool has_unrestricted_maneuvers)
         bool must_climb = level_val == "-" && dive_val == "-";
         bool must_dive = (climb_val == "-" && level_val == "-") || prev_tolerance == "X";
 
+        // If the maneuver is the spin maneuver, just always allow it
+        if (maneuver_name_idx.data().toString() == "0S1") {
+            maneuver_proxy_model->setData(can_use_maneuver_idx, true);
+        }
         // If this is the first turn, let the user use whatever maneuver is in range of the starting speed and altitude
-        if (last_turn == QModelIndex()) {
+        else if (last_turn == QModelIndex()) {
             maneuver_proxy_model->setData(can_use_maneuver_idx, prev_speed - 1 <= maneuver_speed && maneuver_speed <= prev_speed + 1);
             if ((prev_alt == 0 && must_dive) ||
                 (prev_alt == plane_idx.sibling(plane_idx.row(), PlaneItem::Max_Altitude).data().toInt() && must_climb) ||
@@ -245,18 +250,30 @@ void ManeuverScene::setManeuversAvailable(bool has_unrestricted_maneuvers)
             QString last_direction = last_maneuver.sibling(last_maneuver.row(), ManeuverItem::Direction).data().toString();
             // Add L, S, and R depending on what directions are allowed. Can be combined
             QString available_directions;
-            if (plane_idx.sibling(plane_idx.row(), PlaneItem::Stability).data().toString() == "C") {
-                available_directions = "LSR";
+
+            // In the account of a chit effect causing a rudder jam, account for that here
+            PlaneItem::RudderStates rudder_state = plane_idx.sibling(plane_idx.row(), PlaneItem::Rudder_State).data().value<PlaneItem::RudderStates>();
+            if (rudder_state == PlaneItem::RudderStates::Rudder_Normal) {
+                if (plane_idx.sibling(plane_idx.row(), PlaneItem::Stability).data().toString() == "C") {
+                    available_directions = "LSR";
+                }
+                else if (last_direction == "L") {
+                    available_directions = "LS";
+                }
+                else if (last_direction == "S") {
+                    available_directions = "LSR";
+                }
+                else if (last_direction == "R") {
+                    available_directions = "SR";
+                }
             }
-            else if (last_direction == "L") {
-                available_directions = "LS";
+            else if (rudder_state == PlaneItem::Rudder_Jammed_Left) {
+                available_directions = "L";
             }
-            else if (last_direction == "S") {
-                available_directions = "LSR";
+            else if (rudder_state == PlaneItem::Rudder_Jammed_Right) {
+                available_directions = "R";
             }
-            else if (last_direction == "R") {
-                available_directions = "SR";
-            }
+
             // Additional possible constraints for restricted maneuvers
             if (can_use_maneuver_idx.sibling(i, ManeuverItem::Is_Restricted).data().toBool() &&
                     last_maneuver.data().toString() != "2S1" && last_maneuver.data().toString() != "3S2" &&
@@ -278,6 +295,6 @@ void ManeuverScene::setManeuversAvailable(bool has_unrestricted_maneuvers)
                 maneuver_proxy_model->setData(can_use_maneuver_idx, prev_speed - 1 <= maneuver_speed && maneuver_speed <= prev_speed + 1);
             }
         }
-        updateManeuver(can_use_maneuver_idx.sibling(i, ManeuverItem::Maneuver_Name).data().toString());
+        updateManeuver(maneuver_name_idx.data().toString());
     }
 }

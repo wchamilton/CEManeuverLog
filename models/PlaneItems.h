@@ -9,6 +9,12 @@
 class PlaneItem : public BaseItem
 {
 public:
+    enum RudderStates {
+        Rudder_Normal = 0,
+        Rudder_Jammed_Left,
+        Rudder_Jammed_Right
+    };
+
     enum PlaneItemCols {
         Plane_Name = 0,
         Plane_Era,
@@ -28,6 +34,9 @@ public:
         Stability,
         Is_On_Fire,
         Is_Gliding,
+        Is_Spinning,
+        Rudder_State,
+        Rudder_Jam_Duration,
         Bombs_Carried,
         COL_COUNT
     };
@@ -35,6 +44,7 @@ public:
     PlaneItem(BaseItem* parent = nullptr);
     QJsonObject toJSON() const;
 };
+Q_DECLARE_METATYPE(PlaneItem::RudderStates)
 
 class ManeuverItem : public BaseItem
 {

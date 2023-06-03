@@ -21,6 +21,7 @@
 #include "graphics/FiringArcScene.h"
 #include "editor/PlaneEditor.h"
 #include "PreGamePrompt.h"
+#include "EffectsSelectionDialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -126,33 +127,13 @@ MainWindow::MainWindow(QWidget *parent) :
     });
 
     connect(ui->log_movement_btn, &QPushButton::clicked, this, [=](){ setTurnState(Movement_Locked); });
-    connect(ui->next_turn_btn, &QPushButton::clicked, this, [=](){
-        QList<QPair<QPersistentModelIndex, QString>> crew_actions;
-        QPersistentModelIndex pilot;
-        for (auto control : crew_control_widgets) {
-            crew_actions << control->getChosenCrewAction();
-            QPersistentModelIndex crew = control->getChosenCrewAction().first;
-            if (crew.sibling(crew.row(), CrewItem::Wounds).data().toInt() < 3 &&
-                    crew.sibling(crew.row(), CrewItem::Crew_Role).data().toString() == "Pilot") {
-                pilot = crew.sibling(crew.row(), CrewItem::Has_Unrestricted_Maneuvers);
-            }
-            control->handleTurnEnd();
-        }
-
-        turn_model->addTurn(maneuver_scene->getSelectedManeuverIdx(), alt_ctrl_scene->getCurrentAlt(), crew_actions);
-        ui->turn_log->expandAll();
-        for (int i=0; i<ui->turn_log->header()->count(); ++i) {
-            ui->turn_log->resizeColumnToContents(i);
-        }
-
-        maneuver_scene->clearSelection();
-        maneuver_scene->setManeuversAvailable(pilot.isValid() ? pilot.data().toBool() : false);
-        alt_ctrl_scene->setManeuver(QModelIndex());
-        setTurnState(Start_Of_Turn);
-    });
+    connect(ui->next_turn_btn, &QPushButton::clicked, this, &MainWindow::handleTurnEnd);
     connect(maneuver_scene, &ManeuverScene::maneuverClicked, this, [=](QPersistentModelIndex idx) {
         alt_ctrl_scene->setManeuver(idx);
         setTurnState(Movement_Selected);
+    });
+    connect(ui->actionRudder_Jam, &QAction::triggered, this, [=] {
+        EffectsSelectionDialog(plane_model, plane_action_group->checkedAction()->data().toPersistentModelIndex()).exec();
     });
 }
 
@@ -267,6 +248,44 @@ void MainWindow::rotateSelectedFlexibleGun(int delta)
     crew_proxy_model->setData(gun_idx.sibling(gun_idx.row(), GunItem::Gun_Position), ui->gun_pos_spin->value());
 }
 
+void MainWindow::handleTurnEnd()
+{
+    QList<QPair<QPersistentModelIndex, QString>> crew_actions;
+    QPersistentModelIndex pilot;
+    for (auto control : crew_control_widgets) {
+        crew_actions << control->getChosenCrewAction();
+        QPersistentModelIndex crew = control->getChosenCrewAction().first;
+        if (crew.sibling(crew.row(), CrewItem::Wounds).data().toInt() < 3 &&
+                crew.sibling(crew.row(), CrewItem::Crew_Role).data().toString() == "Pilot") {
+            pilot = crew.sibling(crew.row(), CrewItem::Has_Unrestricted_Maneuvers);
+        }
+        control->handleTurnEnd();
+    }
+
+    turn_model->addTurn(maneuver_scene->getSelectedManeuverIdx(), alt_ctrl_scene->getCurrentAlt(), crew_actions);
+    ui->turn_log->expandAll();
+    for (int i=0; i<ui->turn_log->header()->count(); ++i) {
+        ui->turn_log->resizeColumnToContents(i);
+    }
+
+    maneuver_scene->clearSelection();
+    maneuver_scene->setManeuversAvailable(pilot.isValid() ? pilot.data().toBool() : false);
+    alt_ctrl_scene->setManeuver(QModelIndex());
+
+    // Decrement the remaining turns for the jam AFTER setting the maneuvers so it's applied immediately after receiving the effect
+    QPersistentModelIndex plane_idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();
+    QModelIndex plane_rudder_state_idx = plane_idx.sibling(plane_idx.row(), PlaneItem::Rudder_State);
+    if (plane_rudder_state_idx.data().value<PlaneItem::RudderStates>() != PlaneItem::Rudder_Normal) {
+        QModelIndex jam_dur_idx = plane_idx.sibling(plane_idx.row(), PlaneItem::Rudder_Jam_Duration);
+        plane_model->setData(jam_dur_idx, jam_dur_idx.data().toInt() - 1);
+        if (jam_dur_idx.data().toInt() == 0) {
+            plane_model->setData(plane_rudder_state_idx, PlaneItem::Rudder_Normal);
+        }
+    }
+
+    setTurnState(Start_Of_Turn);
+}
+
 void MainWindow::setTurnState(MainWindow::TurnState state)
 {
     ui->graphicsView->setEnabled(state != Movement_Locked);
@@ -277,6 +296,7 @@ void MainWindow::setTurnState(MainWindow::TurnState state)
     ui->log_movement_btn->setEnabled(state == Movement_Selected);
     ui->crew_tab->setEnabled(state == Movement_Locked);
     ui->next_turn_btn->setEnabled(state == Movement_Locked);
+    ui->menuGame_Effects->setEnabled(state == Movement_Locked);
 }
 
 void MainWindow::autoLoadPlanes()

@@ -22,6 +22,9 @@ PlaneItem::PlaneItem(QJsonObject plane, BaseItem *parent) : BaseItem(Plane_Item_
     setData(Stability,             plane["stability"].toVariant());
     setData(Is_Gliding,            false);
     setData(Is_On_Fire,            false);
+    setData(Is_Spinning,           false);
+    setData(Rudder_State,          RudderStates::Rudder_Normal);
+    setData(Rudder_Jam_Duration,   0);
 
     QJsonArray maneuvers = plane.value("maneuvers").toArray();
     for (int i=0; i<maneuvers.size(); ++i) {

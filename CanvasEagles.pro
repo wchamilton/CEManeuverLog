@@ -25,6 +25,7 @@ SOURCES += \
     CEManeuvers.cpp \
     models/TurnItems.cpp \
     models/TurnModel.cpp \
+    turn_logger/EffectsSelectionDialog.cpp \
     turn_logger/MainWindow.cpp \
     turn_logger/CrewControls.cpp \
     turn_logger/PlanePartDamageTracker.cpp \
@@ -47,6 +48,7 @@ HEADERS += \
     graphics/SelectionBox.h \
     models/TurnItems.h \
     models/TurnModel.h \
+    turn_logger/EffectsSelectionDialog.h \
     turn_logger/MainWindow.h \
     turn_logger/CrewControls.h \
     turn_logger/PlanePartDamageTracker.h \
@@ -61,6 +63,7 @@ HEADERS += \
     turn_logger/PreGamePrompt.h
 
 FORMS += \
+    turn_logger/EffectsSelectionDialog.ui \
     turn_logger/MainWindow.ui \
     turn_logger/CrewControls.ui \
     turn_logger/PlanePartDamageTracker.ui \

@@ -41,6 +41,7 @@ private slots:
     void loadJSON(QString file_path);
     void setSelectedPlane();
     void rotateSelectedFlexibleGun(int delta);
+    void handleTurnEnd();
 
 private:
     void setTurnState(TurnState state);

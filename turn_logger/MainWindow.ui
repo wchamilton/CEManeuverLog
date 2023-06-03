@@ -231,8 +231,18 @@
     </property>
     <addaction name="actionSet_Plane_Auto_Load_Location"/>
    </widget>
+   <widget class="QMenu" name="menuGame_Effects">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="title">
+     <string>Game Effects</string>
+    </property>
+    <addaction name="actionRudder_Jam"/>
+   </widget>
    <addaction name="game_menu"/>
    <addaction name="select_plane_menu"/>
+   <addaction name="menuGame_Effects"/>
    <addaction name="menuSettings"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -302,6 +312,11 @@
    </property>
    <property name="text">
     <string>Set-up Crew</string>
+   </property>
+  </action>
+  <action name="actionRudder_Jam">
+   <property name="text">
+    <string>Rudder Jam</string>
    </property>
   </action>
  </widget>
