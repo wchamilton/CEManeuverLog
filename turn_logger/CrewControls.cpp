@@ -31,14 +31,12 @@ CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_i
     ui->gun_selection_reload->setCurrentIndex(0);
     ui->gun_selection_unjam->setCurrentIndex(0);
 
-    // Set action as a property so we know what data to fetch
-    ui->no_action_radio->setProperty("action_taken", No_Action);
-    ui->shoot_radio->setProperty("action_taken", Shoot_Action);
-    ui->reload_radio->setProperty("action_taken", Reload_Action);
-    ui->unjam_radio->setProperty("action_taken", Unjam_Action);
-    ui->observe_radio->setProperty("action_taken", Observe_Action);
-    ui->drop_bomb_radio->setProperty("action_taken", Drop_Payload_Action);
-    ui->custom_radio->setProperty("action_taken", Custom_Action);
+    // Set action as a property so we know what data to fetch, not setting one for shoot as that'll be handled specifically
+    ui->no_action_radio->setProperty("action_taken", TurnCrewItem::No_Action);
+    ui->reload_radio->setProperty("action_taken", TurnCrewItem::Reload_Action);
+    ui->unjam_radio->setProperty("action_taken", TurnCrewItem::Unjam_Action);
+    ui->observe_radio->setProperty("action_taken", TurnCrewItem::Observe_Action);
+    ui->drop_bomb_radio->setProperty("action_taken", TurnCrewItem::Drop_Bomb_Action);
 
     // Disable gun controls if no guns equipped for the crew member
     if (model->rowCount(crew_idx) == 0) {
@@ -94,7 +92,6 @@ CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_i
         }
         applyCVCalcs();
     });
-    connect(ui->custom_action_line_edit, &QLineEdit::textEdited, this, [=](){ ui->custom_radio->setChecked(true); });
     connect(ui->hexRangeGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &CrewControls::applyCVCalcs);
     connect(ui->tailed_target, &QCheckBox::clicked, this, &CrewControls::applyCVCalcs);
     connect(ui->shot_at_target, &QCheckBox::clicked, this, &CrewControls::applyCVCalcs);
@@ -108,26 +105,11 @@ CrewControls::~CrewControls()
     delete ui;
 }
 
-QPair<QPersistentModelIndex, QString> CrewControls::getChosenCrewAction()
+QPair<QPersistentModelIndex, int> CrewControls::getChosenCrewAction()
 {
-    QString action = "";
-    switch (ui->actionGroup->checkedButton()->property("action_taken").toInt()) {
-        case No_Action: action = "No action"; break;
-        case Shoot_Action: {
-            switch (ui->burst_len->value()) {
-                case 0: action = "Shot a short burst"; break;
-                case 1: action = "Shot a medium burst"; break;
-                case 2: action = "Shot a long burst"; break;
-            }
-            break;
-        }
-        case Reload_Action: action = "Reloaded gun"; break;
-        case Unjam_Action: action = "Unjammed gun"; break;
-        case Observe_Action: action = "Observed tile"; break;
-        case Drop_Payload_Action: action = "Dropped a bomb"; break;
-        case Custom_Action: action = ui->custom_action_line_edit->text(); break;
-    }
-    return QPair<QPersistentModelIndex,QString>(crew_idx, action);
+    int action = ui->shoot_radio->isChecked() ? ui->burst_len->value() :
+                                                ui->actionGroup->checkedButton()->property("action_taken").toInt();
+    return QPair<QPersistentModelIndex, int>(crew_idx, action);
 }
 
 void CrewControls::handleTurnEnd()

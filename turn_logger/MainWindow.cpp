@@ -250,11 +250,13 @@ void MainWindow::rotateSelectedFlexibleGun(int delta)
 
 void MainWindow::handleTurnEnd()
 {
-    QList<QPair<QPersistentModelIndex, QString>> crew_actions;
+    QList<QPair<QPersistentModelIndex, int>> crew_actions;
     QPersistentModelIndex pilot;
     for (auto control : crew_control_widgets) {
-        crew_actions << control->getChosenCrewAction();
-        QPersistentModelIndex crew = control->getChosenCrewAction().first;
+        auto crew_action_pair = control->getChosenCrewAction();
+        crew_actions << crew_action_pair;
+        QPersistentModelIndex crew = crew_action_pair.first;
+        // Ensure the crew is a living pilot
         if (crew.sibling(crew.row(), CrewItem::Wounds).data().toInt() < 3 &&
                 crew.sibling(crew.row(), CrewItem::Crew_Role).data().toString() == "Pilot") {
             pilot = crew.sibling(crew.row(), CrewItem::Has_Unrestricted_Maneuvers);

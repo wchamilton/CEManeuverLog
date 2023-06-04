@@ -159,6 +159,24 @@ QVariant TurnModel::data(const QModelIndex &idx, int role) const
             }
             break;
         }
+        case TurnCrewItem::Turn_Action_Col: {
+            if (role == Qt::UserRole) {
+                return item->data(idx.column());
+            }
+            else if (role == Qt::DisplayRole) {
+                switch (item->data(idx.column()).toInt()) {
+                    case TurnCrewItem::No_Action: return "No action";
+                    case TurnCrewItem::Short_Burst_Action: return "Shot a short burst";
+                    case TurnCrewItem::Medium_Burst_Action: return "Shot a medium burst";
+                    case TurnCrewItem::Long_Burst_Action: return "Shot a long burst";
+                    case TurnCrewItem::Reload_Action: return "Reloaded gun";
+                    case TurnCrewItem::Unjam_Action: return "Unjammed gun";
+                    case TurnCrewItem::Observe_Action: return "Observed tile";
+                    case TurnCrewItem::Drop_Bomb_Action: return "Dropped a bomb";
+                }
+                break;
+            }
+        }
         default: {
             if (role == Qt::DisplayRole) {
                 return item->data(idx.column());
@@ -200,7 +218,7 @@ QVariant TurnModel::headerData(int section, Qt::Orientation orientation, int rol
     }
 }
 
-void TurnModel::addTurn(QPersistentModelIndex maneuver_idx, int alt, QList<QPair<QPersistentModelIndex, QString> > crew_actions)
+void TurnModel::addTurn(QPersistentModelIndex maneuver_idx, int alt, QList<QPair<QPersistentModelIndex, int> > crew_actions)
 {
     QModelIndex last_idx = lastIndex(TurnItem::Turn_Altitude_Col);
     int last_alt = last_idx.isValid() ? last_idx.data(Qt::UserRole).toInt() : starting_alt;

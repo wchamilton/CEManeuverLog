@@ -26,7 +26,20 @@ public:
         Turn_Action_Col,
         Turn_Crew_Item_Col_Count
     };
-    TurnCrewItem(QPersistentModelIndex crew_idx, QString action, BaseItem* parent = nullptr);
+
+    // Need to make another data container to store more information regarding the target (such as relative alt)
+    enum ActionTaken {
+        No_Action = 0,
+        Short_Burst_Action,
+        Medium_Burst_Action,
+        Long_Burst_Action,
+        Reload_Action,
+        Unjam_Action,
+        Observe_Action,
+        Drop_Bomb_Action
+    };
+
+    TurnCrewItem(QPersistentModelIndex crew_idx, int action, BaseItem* parent = nullptr);
 };
 
 #endif // TURNITEM_H

@@ -31,7 +31,7 @@ public:
         this->starting_speed = starting_speed;
     }
 
-    void addTurn(QPersistentModelIndex maneuver_idx, int alt, QList<QPair<QPersistentModelIndex, QString>> crew_actions);
+    void addTurn(QPersistentModelIndex maneuver_idx, int alt, QList<QPair<QPersistentModelIndex, int> > crew_actions);
     void clearModel();
     QModelIndex lastIndex(int column = 0, QModelIndex parent = QModelIndex()) const;
 

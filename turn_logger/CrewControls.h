@@ -21,20 +21,10 @@ class CrewControls : public QWidget
         Dead
     };
 
-    enum ActionTaken {
-        No_Action = 0,
-        Shoot_Action,
-        Reload_Action,
-        Unjam_Action,
-        Observe_Action,
-        Drop_Payload_Action,
-        Custom_Action
-    };
-
 public:
     explicit CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_idx, TurnModel* turn_model, QWidget *parent = nullptr);
     ~CrewControls();
-    QPair<QPersistentModelIndex, QString> getChosenCrewAction();
+    QPair<QPersistentModelIndex, int> getChosenCrewAction();
     void handleTurnEnd();
 
 public slots:
