@@ -237,7 +237,7 @@ void ManeuverScene::setManeuversAvailable(bool has_unrestricted_maneuvers)
         }
         // If this is the first turn, let the user use whatever maneuver is in range of the starting speed and altitude
         else if (last_turn == QModelIndex()) {
-            maneuver_proxy_model->setData(can_use_maneuver_idx, prev_speed - 1 <= maneuver_speed && maneuver_speed <= prev_speed + 1);
+            maneuver_proxy_model->setData(can_use_maneuver_idx, prev_speed == maneuver_speed);
             if ((prev_alt == 0 && must_dive) ||
                 (prev_alt == plane_idx.sibling(plane_idx.row(), PlaneItem::Max_Altitude).data().toInt() && must_climb) ||
                 (can_use_maneuver_idx.sibling(i, ManeuverItem::Is_Restricted).data().toBool() &&
