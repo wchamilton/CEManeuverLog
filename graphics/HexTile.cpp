@@ -85,8 +85,8 @@ void HexTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
         break;
     }
     case Plane_Icon_Tile: {
-        QPixmap plane_png("./graphics/plane.png");
-//        QPixmap plane_png("../CEManeuverLog/graphics/plane.png");
+//        QPixmap plane_png("./graphics/plane.png");
+        QPixmap plane_png("../CEManeuverLog/graphics/plane.png");
         qreal plane_width = 2*boundingRect().width()/3;
         qreal plane_height = 2*boundingRect().height()/3;
         painter->drawPixmap(boundingRect().width()/2 - plane_width/2, boundingRect().height()/2 - 5*plane_height/12,

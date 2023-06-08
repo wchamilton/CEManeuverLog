@@ -16,8 +16,8 @@ ManeuverModifiers::ManeuverModifiers(QGraphicsItem *parent) : QGraphicsItem(pare
     digit_box = new SelectionBox(this);
     digit_box->setPos(10, 10); // -3 to account for the border
 
-    plane_profile = new QGraphicsSvgItem("./graphics/plane_profile.svg", this);
-//    plane_profile = new QGraphicsSvgItem("../CEManeuverLog/graphics/plane_profile.svg", this);
+//    plane_profile = new QGraphicsSvgItem("./graphics/plane_profile.svg", this);
+    plane_profile = new QGraphicsSvgItem("../CEManeuverLog/graphics/plane_profile.svg", this);
     plane_profile->setScale(0.15);
     plane_profile->setPos(-160, -110);
     plane_profile->setTransformOriginPoint(plane_profile->boundingRect().width()/2, plane_profile->boundingRect().height()/2);
