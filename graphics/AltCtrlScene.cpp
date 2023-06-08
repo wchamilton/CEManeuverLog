@@ -95,9 +95,32 @@ void AltCtrlScene::calculateAvailableAltitudes(QPersistentModelIndex current_man
 
     // Determine if the player can stay level
     bool can_stay_level = maneuver_level_val == "L" || maneuver_level_val == "X";
+    bool must_climb = false;
+    bool must_dive = false;
     if (turn_model->rowCount() > 0) {
         QModelIndex prev_maneuver_direction_idx = turn_model->lastIndex(TurnItem::Turn_Tolerance_Tag).data(Qt::UserRole).toModelIndex();
         can_stay_level = can_stay_level && prev_maneuver_direction_idx.data().toString() != "X";
+
+        // If not the first turn, need the pilot's actions from last turn
+        QVariant pilot_action = turn_model->lastTurnPilotIndex(TurnCrewItem::Turn_Action_Col).data(Qt::UserRole);
+        QVariant action_decorator = turn_model->lastTurnPilotIndex(TurnCrewItem::Turn_Action_Decorator_Col).data();
+
+        // If the pilot shot, see if it forces a climb/dive
+        if (pilot_action.toInt() == TurnCrewItem::Shot_Action) {
+            // Don't enforce the climb/dive if it's a short burst at range 3 and not a fixed weapon
+            QPersistentModelIndex crew_idx = turn_model->lastTurnPilotIndex(TurnCrewItem::Turn_Crew_Col).data(Qt::UserRole).toPersistentModelIndex();
+            int fire_template = crew_idx.isValid() && crew_idx.model()->rowCount(crew_idx) > 0 ? crew_idx.model()->index(0, GunItem::Fire_Template, crew_idx).data().toInt() : 0;
+            if (~(action_decorator.toInt() & TurnCrewItem::Short_Burst & TurnCrewItem::Range_3) && fire_template == 1) {
+                if (action_decorator.toInt() & TurnCrewItem::Target_Above) {
+                    must_climb = true;
+                    can_stay_level = false;
+                }
+                else if (action_decorator.toInt() & TurnCrewItem::Target_Below) {
+                    must_dive = true;
+                    can_stay_level = false;
+                }
+            }
+        }
     }
 
     // Determine the minimum altitude the player can dive to
@@ -118,6 +141,14 @@ void AltCtrlScene::calculateAvailableAltitudes(QPersistentModelIndex current_man
     }
     else if (maneuver_climb_val == "C") {
         max_alt = std::min(max_alt, can_climb_to);
+    }
+
+    // apply min/max if the pilot shot with a fixed weapon
+    if (must_climb) {
+        min = prev_alt+1;
+    }
+    if (must_dive) {
+        max_alt = prev_alt-1;
     }
 
     QList<int> available_altitudes;

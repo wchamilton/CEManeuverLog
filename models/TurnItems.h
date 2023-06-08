@@ -24,22 +24,34 @@ public:
     enum TurnCrewItemCols {
         Turn_Crew_Col = 1,          // Qt::UserRole will return the crew idx
         Turn_Action_Col,
+        Turn_Action_Decorator_Col,
         Turn_Crew_Item_Col_Count
     };
 
-    // Need to make another data container to store more information regarding the target (such as relative alt)
     enum ActionTaken {
         No_Action = 0,
-        Short_Burst_Action,
-        Medium_Burst_Action,
-        Long_Burst_Action,
+        Shot_Action,
         Reload_Action,
         Unjam_Action,
         Observe_Action,
-        Drop_Bomb_Action
+        Drop_Bomb_Action,
+        Custom_Action
+    };
+    enum ShotBitField {
+        No_Shot         = 1 << 0,
+        Short_Burst     = 1 << 1,
+        Medium_Burst    = 1 << 2,
+        Long_Burst      = 1 << 3,
+        Target_Level    = 1 << 4,
+        Target_Above    = 1 << 5,
+        Target_Below    = 1 << 6,
+        Range_0         = 1 << 7,
+        Range_1         = 1 << 8,
+        Range_2         = 1 << 9,
+        Range_3         = 1 << 10
     };
 
-    TurnCrewItem(QPersistentModelIndex crew_idx, int action, BaseItem* parent = nullptr);
+    TurnCrewItem(QPersistentModelIndex crew_idx, int action, QVariant action_decorator, BaseItem* parent = nullptr);
 };
 
 #endif // TURNITEM_H

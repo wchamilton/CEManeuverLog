@@ -24,11 +24,12 @@ class CrewControls : public QWidget
 public:
     explicit CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_idx, TurnModel* turn_model, QWidget *parent = nullptr);
     ~CrewControls();
-    QPair<QPersistentModelIndex, int> getChosenCrewAction();
+    std::tuple<QPersistentModelIndex, int, QVariant> getChosenCrewAction();
     void handleTurnEnd();
 
 public slots:
     void updateBombState();
+    void applyManeuverRestrictions(QPersistentModelIndex maneuver_idx);
 
 signals:
     void bombDropped();

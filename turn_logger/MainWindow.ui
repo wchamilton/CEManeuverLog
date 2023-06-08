@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1500</width>
+    <width>1550</width>
     <height>957</height>
    </rect>
   </property>
@@ -149,6 +149,18 @@
        <string>Log</string>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="leftMargin">
+        <number>5</number>
+       </property>
+       <property name="topMargin">
+        <number>7</number>
+       </property>
+       <property name="rightMargin">
+        <number>5</number>
+       </property>
+       <property name="bottomMargin">
+        <number>7</number>
+       </property>
        <item>
         <widget class="QLineEdit" name="date">
          <property name="placeholderText">
@@ -216,7 +228,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1500</width>
+     <width>1550</width>
      <height>22</height>
     </rect>
    </property>

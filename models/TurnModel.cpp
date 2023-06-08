@@ -166,13 +166,19 @@ QVariant TurnModel::data(const QModelIndex &idx, int role) const
             else if (role == Qt::DisplayRole) {
                 switch (item->data(idx.column()).toInt()) {
                     case TurnCrewItem::No_Action: return "No action";
-                    case TurnCrewItem::Short_Burst_Action: return "Shot a short burst";
-                    case TurnCrewItem::Medium_Burst_Action: return "Shot a medium burst";
-                    case TurnCrewItem::Long_Burst_Action: return "Shot a long burst";
+                    case TurnCrewItem::Shot_Action: {
+                        int shot_decorator = item->data(TurnCrewItem::Turn_Action_Decorator_Col).toInt();
+                        QString shot_len = shot_decorator & TurnCrewItem::Long_Burst ? "long" : shot_decorator & TurnCrewItem::Medium_Burst ? "medium" : "short";
+                        QString shot_angle = shot_decorator & TurnCrewItem::Target_Level ? "level" : shot_decorator & TurnCrewItem::Target_Above ? "higher" : "lower";
+                        int shot_range = shot_decorator & TurnCrewItem::Range_0 ? 0 : shot_decorator & TurnCrewItem::Range_1 ? 1 : shot_decorator & TurnCrewItem::Range_2 ? 2 : 3;
+
+                        return QString("Range %3 %1 burst at a %2 target").arg(shot_len).arg(shot_angle).arg(shot_range);
+                    }
                     case TurnCrewItem::Reload_Action: return "Reloaded gun";
                     case TurnCrewItem::Unjam_Action: return "Unjammed gun";
                     case TurnCrewItem::Observe_Action: return "Observed tile";
                     case TurnCrewItem::Drop_Bomb_Action: return "Dropped a bomb";
+                    case TurnCrewItem::Custom_Action: return item->data(TurnCrewItem::Turn_Action_Decorator_Col).toString();
                 }
                 break;
             }
@@ -218,7 +224,7 @@ QVariant TurnModel::headerData(int section, Qt::Orientation orientation, int rol
     }
 }
 
-void TurnModel::addTurn(QPersistentModelIndex maneuver_idx, int alt, QList<QPair<QPersistentModelIndex, int> > crew_actions)
+void TurnModel::addTurn(QPersistentModelIndex maneuver_idx, int alt, QList<std::tuple<QPersistentModelIndex, int, QVariant>> crew_actions)
 {
     QModelIndex last_idx = lastIndex(TurnItem::Turn_Altitude_Col);
     int last_alt = last_idx.isValid() ? last_idx.data(Qt::UserRole).toInt() : starting_alt;
@@ -239,8 +245,8 @@ void TurnModel::addTurn(QPersistentModelIndex maneuver_idx, int alt, QList<QPair
     }
 
     beginInsertRows(lastIndex(), 0, crew_actions.size()-1);
-    for (auto pair : crew_actions) {
-        turn->addChild(new TurnCrewItem(pair.first, pair.second, turn));
+    for (auto tuple : crew_actions) {
+        turn->addChild(new TurnCrewItem(std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple), turn));
     }
     endInsertRows();
 }
@@ -261,6 +267,31 @@ QModelIndex TurnModel::lastIndex(int column, QModelIndex parent) const
     return index(rowCount(parent)-1, column);
 }
 
+QModelIndex TurnModel::lastTurnPilotIndex(int column)
+{
+    QModelIndex last_idx = lastIndex();
+    if (!last_idx.isValid()) {
+        return QModelIndex();
+    }
+    int pilot_row = 0;
+    bool pilot_alive = false;
+    int co_pilot_row = 0;
+    for (int i=0; i<rowCount(last_idx); ++i) {
+        QModelIndex crew_idx = index(i, TurnCrewItem::Turn_Crew_Col, last_idx).data(Qt::UserRole).toModelIndex();
+        if (crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() == "Pilot") {
+            pilot_row = i;
+            pilot_alive = crew_idx.sibling(crew_idx.row(), CrewItem::Wounds).data().toInt() < 3;
+            if (pilot_alive) {
+                break;
+            }
+        }
+        else if (crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() == "Co-Pilot") {
+            co_pilot_row = i;
+        }
+    }
+    return index(pilot_alive ? pilot_row : co_pilot_row, column, last_idx);
+}
+
 TurnFilterProxy::TurnFilterProxy(TurnModel *src_model, QObject *parent) : QSortFilterProxyModel(parent)
 {
     setSourceModel(src_model);
@@ -269,6 +300,9 @@ TurnFilterProxy::TurnFilterProxy(TurnModel *src_model, QObject *parent) : QSortF
 bool TurnFilterProxy::filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const
 {
     if (!source_parent.isValid() && (source_column == TurnItem::Turn_Tolerance_Tag || source_column == TurnItem::Turn_Fuel_Consumed)) {
+        return false;
+    }
+    else if (source_parent.isValid() && (source_column == TurnCrewItem::Turn_Action_Decorator_Col)) {
         return false;
     }
     return QSortFilterProxyModel::filterAcceptsColumn(source_column, source_parent);

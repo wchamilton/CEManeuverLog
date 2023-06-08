@@ -16,7 +16,7 @@
 
 #include "models/PlaneModel.h"
 #include "models/TurnModel.h"
-#include "graphics/ManeuverScene.h"
+#include "graphics/ManeuverScene.h"2
 #include "graphics/AltCtrlScene.h"
 #include "graphics/FiringArcScene.h"
 #include "editor/PlaneEditor.h"
@@ -182,8 +182,10 @@ void MainWindow::setSelectedPlane()
         crew_control_widgets.insert(crew_idx.data().toString(), cc);
 
         if (crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() == "Pilot") {
-            maneuver_scene->setManeuversAvailable(crew_idx.sibling(crew_idx.row(), CrewItem::Has_Unrestricted_Maneuvers).data().toBool());
+            maneuver_scene->setManeuversAvailable(crew_idx);
         }
+
+        connect(maneuver_scene, &ManeuverScene::maneuverClicked, cc, &CrewControls::applyManeuverRestrictions);
 
         // Add each of the guns to the firing arc combobox
         for (int i=0; i<crew_proxy_model->rowCount(crew_idx); ++i) {
@@ -250,16 +252,17 @@ void MainWindow::rotateSelectedFlexibleGun(int delta)
 
 void MainWindow::handleTurnEnd()
 {
-    QList<QPair<QPersistentModelIndex, int>> crew_actions;
+    QList<std::tuple<QPersistentModelIndex, int, QVariant>> crew_actions;
     QPersistentModelIndex pilot;
     for (auto control : crew_control_widgets) {
         auto crew_action_pair = control->getChosenCrewAction();
         crew_actions << crew_action_pair;
-        QPersistentModelIndex crew = crew_action_pair.first;
+        QPersistentModelIndex crew = std::get<0>(crew_action_pair);
         // Ensure the crew is a living pilot
-        if (crew.sibling(crew.row(), CrewItem::Wounds).data().toInt() < 3 &&
-                crew.sibling(crew.row(), CrewItem::Crew_Role).data().toString() == "Pilot") {
-            pilot = crew.sibling(crew.row(), CrewItem::Has_Unrestricted_Maneuvers);
+        if ((crew.sibling(crew.row(), CrewItem::Wounds).data().toInt() < 3 &&
+                crew.sibling(crew.row(), CrewItem::Crew_Role).data().toString() == "Pilot") ||
+                crew.sibling(crew.row(), CrewItem::Crew_Role).data().toString() == "Co-Pilot") {
+            pilot = crew;
         }
         control->handleTurnEnd();
     }
@@ -271,8 +274,8 @@ void MainWindow::handleTurnEnd()
     }
 
     maneuver_scene->clearSelection();
-    maneuver_scene->setManeuversAvailable(pilot.isValid() ? pilot.data().toBool() : false);
     alt_ctrl_scene->setManeuver(QModelIndex());
+    maneuver_scene->setManeuversAvailable(pilot);
 
     // Decrement the remaining turns for the jam AFTER setting the maneuvers so it's applied immediately after receiving the effect
     QPersistentModelIndex plane_idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();

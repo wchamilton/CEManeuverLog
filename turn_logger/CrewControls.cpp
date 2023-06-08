@@ -33,6 +33,7 @@ CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_i
 
     // Set action as a property so we know what data to fetch, not setting one for shoot as that'll be handled specifically
     ui->no_action_radio->setProperty("action_taken", TurnCrewItem::No_Action);
+    ui->shoot_radio->setProperty("action_taken", TurnCrewItem::Shot_Action);
     ui->reload_radio->setProperty("action_taken", TurnCrewItem::Reload_Action);
     ui->unjam_radio->setProperty("action_taken", TurnCrewItem::Unjam_Action);
     ui->observe_radio->setProperty("action_taken", TurnCrewItem::Observe_Action);
@@ -85,10 +86,12 @@ CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_i
     connect(ui->target_level, &QPushButton::released, this, [=]() { ui->target_alt->setValue(1); });
     connect(ui->target_below, &QPushButton::released, this, [=]() { ui->target_alt->setValue(0); });
     connect(ui->target_alt, &QSlider::valueChanged, this, [=](int value) {
+        // In the future, maybe subclass QSlider to implement a custom function that "disables" certain ticks
+        // For now cycle down until shooting below, and then cycle back to the top (above)
         switch (value) {
-            case 0: ui->target_below->setChecked(true); break;
-            case 1: ui->target_level->setChecked(true); break;
-            case 2: ui->target_above->setChecked(true); break;
+            case 0: ui->target_below->isEnabled() ? ui->target_below->setChecked(true) : ui->target_alt->setValue(2); break;
+            case 1: ui->target_level->isEnabled() ? ui->target_level->setChecked(true) : ui->target_alt->setValue(0); break;
+            case 2: ui->target_above->isEnabled() ? ui->target_above->setChecked(true) : ui->target_alt->setValue(1); break;
         }
         applyCVCalcs();
     });
@@ -105,11 +108,24 @@ CrewControls::~CrewControls()
     delete ui;
 }
 
-QPair<QPersistentModelIndex, int> CrewControls::getChosenCrewAction()
+std::tuple<QPersistentModelIndex, int, QVariant> CrewControls::getChosenCrewAction()
 {
-    int action = ui->shoot_radio->isChecked() ? ui->burst_len->value() :
-                                                ui->actionGroup->checkedButton()->property("action_taken").toInt();
-    return QPair<QPersistentModelIndex, int>(crew_idx, action);
+    int action = ui->actionGroup->checkedButton()->property("action_taken").toInt();
+    QVariant action_decorator;
+    if (action == TurnCrewItem::Shot_Action) {
+        int bitfield = 0;
+        // Burst len
+        bitfield |= ui->long_burst_btn->isChecked() ? TurnCrewItem::Long_Burst : ui->med_burst_btn->isChecked() ? TurnCrewItem::Medium_Burst : TurnCrewItem::Short_Burst;
+        // Angle
+        bitfield |= ui->target_level->isChecked() ? TurnCrewItem::Target_Level : ui->target_above->isChecked() ? TurnCrewItem::Target_Above : TurnCrewItem::Target_Below;
+        // Range
+        bitfield |= ui->range_0_btn->isChecked() ? TurnCrewItem::Range_0 : ui->range_1_btn->isChecked() ? TurnCrewItem::Range_1 : ui->range_2_btn->isChecked() ? TurnCrewItem::Range_2 : TurnCrewItem::Range_3;
+        action_decorator = bitfield;
+    }
+    if (action == TurnCrewItem::Custom_Action) {
+        action_decorator = ui->custom_input->text();
+    }
+    return {crew_idx, action, action_decorator};
 }
 
 void CrewControls::handleTurnEnd()
@@ -143,6 +159,26 @@ void CrewControls::updateBombState()
     ui->drop_bomb_radio->setEnabled(crew_idx.parent().sibling(crew_idx.parent().row(), PlaneItem::Bombs_Carried).data().toInt() > 0 &&
                                     crew_idx.sibling(crew_idx.row(), CrewItem::Can_Drop_Bombs).data().toBool());
     ui->remaining_bombs_lbl->setText(tr("%1 available").arg(model->index(crew_idx.parent().row(), PlaneItem::Bombs_Carried).data().toInt()));
+}
+
+void CrewControls::applyManeuverRestrictions(QPersistentModelIndex maneuver_idx)
+{
+    if (crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() == "Pilot") {
+        QString climb_value = maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Climb_Value).data().toString();
+        QString level_value = maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Level_Value).data().toString();
+        QString dive_value  = maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Dive_Value).data().toString();
+
+        QModelIndex last_turn_idx = turn_model->lastIndex(TurnItem::Turn_Altitude_Col);
+
+        ui->target_above->setDisabled(climb_value == "-");
+        ui->target_level->setDisabled(level_value == "-");
+        ui->target_below->setDisabled(dive_value  == "-" || (last_turn_idx.isValid() ? last_turn_idx.data(Qt::UserRole).toInt() : turn_model->getStartingAlt()) <= 1);
+
+        ui->target_above->setChecked(ui->target_above->isEnabled());
+        ui->target_level->setChecked(ui->target_level->isEnabled());
+        ui->target_below->setChecked(ui->target_below->isEnabled());
+
+    }
 }
 
 void CrewControls::setSliderStylesheet(QString colour)

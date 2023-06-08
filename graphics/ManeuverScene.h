@@ -26,7 +26,7 @@ public:
     void clearSelection();
     void applyScheduleBG();
     void positionManeuvers();
-    void setManeuversAvailable(bool has_unrestricted_maneuvers);
+    void setManeuversAvailable(QPersistentModelIndex pilot_idx);
 
 signals:
     void maneuverClicked(QPersistentModelIndex maneuver_idx);

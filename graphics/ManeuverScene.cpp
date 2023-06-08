@@ -106,11 +106,13 @@ void ManeuverScene::updateManeuver(QString id)
 
 void ManeuverScene::clearSelection()
 {
+    setFocusItem(background_item);
     if (selected_maneuver) {
         selected_maneuver->setSelected(false);
+        selected_maneuver->update();
         selected_maneuver = nullptr;
-        clearFocus();
     }
+    QGraphicsScene::clearSelection();
 }
 
 void ManeuverScene::applyScheduleBG()
@@ -123,6 +125,7 @@ void ManeuverScene::applyScheduleBG()
     // for now use shitty png while debugging SVG
 //    background_item = addPixmap(QPixmap("./graphics/background.png"));
     background_item = addPixmap(QPixmap("../CEManeuverLog/graphics/background.png"));
+    background_item->setFlag(QGraphicsItem::ItemIsFocusable);
     background_item->setZValue(-1);
 }
 
@@ -212,13 +215,20 @@ void ManeuverScene::handleFocusChanges(QGraphicsItem *newFocusItem, QGraphicsIte
     }
 }
 
-void ManeuverScene::setManeuversAvailable(bool has_unrestricted_maneuvers)
+void ManeuverScene::setManeuversAvailable(QPersistentModelIndex pilot_idx)
 {
     QModelIndex last_turn = turn_model->lastIndex(TurnItem::Turn_Maneuver_Col);
     QPersistentModelIndex last_maneuver = last_turn.isValid() ? last_turn.data(Qt::UserRole).toPersistentModelIndex() : QPersistentModelIndex();
     int prev_alt = last_turn.isValid() ? last_turn.sibling(last_turn.row(), TurnItem::Turn_Altitude_Col).data(Qt::UserRole).toInt() : turn_model->getStartingAlt();
     int prev_speed = last_maneuver.isValid() ? last_maneuver.sibling(last_maneuver.row(), ManeuverItem::Speed).data().toInt() : turn_model->getStartingSpeed();
     QString prev_tolerance = last_turn.isValid() ? last_turn.sibling(last_turn.row(), TurnItem::Turn_Tolerance_Tag).data().toString() : "L";
+    bool has_unrestricted_maneuvers = pilot_idx.sibling(pilot_idx.row(), CrewItem::Has_Unrestricted_Maneuvers).data().toBool();
+
+    // If not the first turn, need the pilot's actions from last turn
+    QVariant pilot_action = last_turn.isValid() ? turn_model->lastTurnPilotIndex(TurnCrewItem::Turn_Action_Col).data(Qt::UserRole) : QVariant();
+    QVariant action_decorator = last_turn.isValid() ? turn_model->lastTurnPilotIndex(TurnCrewItem::Turn_Action_Decorator_Col).data() : QVariant();
+    QPersistentModelIndex crew_idx = turn_model->lastTurnPilotIndex(TurnCrewItem::Turn_Crew_Col).data(Qt::UserRole).toPersistentModelIndex();
+    int fire_template = crew_idx.isValid() && crew_idx.model()->rowCount(crew_idx) > 0 ? crew_idx.model()->index(0, GunItem::Fire_Template, crew_idx).data().toInt() : 0;
 
     for (int i=0; i<maneuver_proxy_model->rowCount(plane_idx); ++i) {
         QModelIndex can_use_maneuver_idx = maneuver_proxy_model->index(i, ManeuverItem::Can_Be_Used, plane_idx);
@@ -293,6 +303,18 @@ void ManeuverScene::setManeuversAvailable(bool has_unrestricted_maneuvers)
             // Next check speed
             else {
                 maneuver_proxy_model->setData(can_use_maneuver_idx, prev_speed - 1 <= maneuver_speed && maneuver_speed <= prev_speed + 1);
+            }
+            // If the pilot shot, see if it forces a climb/dive
+            if (pilot_action.toInt() == TurnCrewItem::Shot_Action) {
+                // Don't enforce the climb/dive if it's a short burst at range 3
+                if (~(action_decorator.toInt() & TurnCrewItem::Short_Burst & TurnCrewItem::Range_3) && fire_template == 1) {
+                    if (climb_val == "-" && action_decorator.toInt() & TurnCrewItem::Target_Above) {
+                        maneuver_proxy_model->setData(can_use_maneuver_idx, false);
+                    }
+                    else if (dive_val == "-" && action_decorator.toInt() & TurnCrewItem::Target_Below) {
+                        maneuver_proxy_model->setData(can_use_maneuver_idx, false);
+                    }
+                }
             }
         }
         updateManeuver(maneuver_name_idx.data().toString());
