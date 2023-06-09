@@ -203,17 +203,18 @@ GunItem::GunItem(QJsonObject gun, BaseItem *parent) : BaseItem(Gun_Item_Type, pa
         case 3:
         case 4: rotation_range = {1,2,3,4,5,6}; break;
         case 5:
-        case 6: rotation_range = {1}; break;
+        case 6: rotation_range = {1,2,6}; break;
         case 7: rotation_range = {1,2,6}; break;
         case 8: rotation_range = {3,4,5}; break;
         case 9: rotation_range = {4}; break;
         case 10:
         case 11: rotation_range = {1,2,3,4,5,6}; break;
         case 12: rotation_range = {1}; break;
-        case 13: rotation_range = {4}; break;
+        case 13: rotation_range = {3,4,5}; break;
         case 14: rotation_range = {2,6}; break;
         case 15: rotation_range = {5}; break;
         case 16: rotation_range = {3}; break;
+        case 17: rotation_range = {1,2,3,4,5,6}; break;
     }
 
     setData(Gun_Position_Range, QVariant::fromValue(rotation_range));

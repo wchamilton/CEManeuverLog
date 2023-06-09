@@ -122,9 +122,7 @@ void ManeuverScene::applyScheduleBG()
 //    background_item->setZValue(-1);
 //    addItem(background_item);
 
-    // for now use shitty png while debugging SVG
-//    background_item = addPixmap(QPixmap("./graphics/background.png"));
-    background_item = addPixmap(QPixmap("../CEManeuverLog/graphics/background.png"));
+    background_item = addPixmap(QPixmap(GRAPHICS_LOCATION+"/background.png"));
     background_item->setFlag(QGraphicsItem::ItemIsFocusable);
     background_item->setZValue(-1);
 }
@@ -244,6 +242,10 @@ void ManeuverScene::setManeuversAvailable(QPersistentModelIndex pilot_idx)
         // If the maneuver is the spin maneuver, just always allow it
         if (maneuver_name_idx.data().toString() == "0S1") {
             maneuver_proxy_model->setData(can_use_maneuver_idx, true);
+        }
+        else if (maneuver_name_idx.sibling(maneuver_name_idx.row(), ManeuverItem::Is_Weight_Restricted).data().toBool() &&
+                 plane_idx.sibling(plane_idx.row(), PlaneItem::Bombs_Carried).data().toInt() > 0) {
+            maneuver_proxy_model->setData(can_use_maneuver_idx, false);
         }
         // If this is the first turn, let the user use whatever maneuver is in range of the starting speed and altitude
         else if (last_turn == QModelIndex()) {
