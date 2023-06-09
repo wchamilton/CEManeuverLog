@@ -209,14 +209,14 @@ void CrewControls::applyManeuverRestrictions(QPersistentModelIndex maneuver_idx)
         ui->target_below->setChecked(ui->target_below->isEnabled());
 
         // If the maneuver doesn't allow reloading, then disable the radio selection
-        QPersistentModelIndex reload_idx = ui->gun_selection_shoot->currentData().toPersistentModelIndex();
+        QPersistentModelIndex reload_idx = ui->gun_selection_reload->currentData().toPersistentModelIndex();
         ui->reload_radio->setEnabled(reload_idx.sibling(reload_idx.row(), GunItem::Ammo_Box_Count).data().toInt() > 1 &&
                 reload_idx.sibling(reload_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt() == 0 &&
                 maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Can_Reload).data().toBool());
     }
     else {
         // If the maneuver doesn't allow reloading, then disable the radio selection
-        QPersistentModelIndex reload_idx = ui->gun_selection_shoot->currentData().toPersistentModelIndex();
+        QPersistentModelIndex reload_idx = ui->gun_selection_reload->currentData().toPersistentModelIndex();
         ui->reload_radio->setEnabled(reload_idx.sibling(reload_idx.row(), GunItem::Ammo_Box_Count).data().toInt() > 1 &&
                 reload_idx.sibling(reload_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt() == 0 &&
                 maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Observer_Can_Reload).data().toBool());

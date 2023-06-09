@@ -19,13 +19,15 @@ EffectsSelectionDialog::EffectsSelectionDialog(PlaneModel* plane_model, QPersist
             // iterate over the crew children
             for (int j=0; j<plane_model->rowCount(crew_idx); ++j) {
                 QPersistentModelIndex crew_child_idx = plane_model->index(j, 0, crew_idx);
-                if (crew_child_idx.data(Qt::UserRole).toInt() == BaseItem::Gun_Item_Type) {
+                if (crew_child_idx.data(Qt::UserRole).toInt() == BaseItem::Gun_Item_Type &&
+                        !crew_child_idx.sibling(crew_child_idx.row(), GunItem::Gun_Destroyed).data().toBool()) {
                     ui->gun_selection_cmb->addItem(crew_child_idx.data().toString(), crew_child_idx);
                 }
                 else if (crew_child_idx.data(Qt::UserRole).toInt() == BaseItem::Gun_Link_Item_Type) {
                     for (int k=0; k<plane_model->rowCount(crew_child_idx); ++k) {
                         QPersistentModelIndex linked_gun_idx = plane_model->index(k, 0, crew_child_idx);
-                        if (linked_gun_idx.data(Qt::UserRole).toInt() == BaseItem::Gun_Item_Type) {
+                        if (linked_gun_idx.data(Qt::UserRole).toInt() == BaseItem::Gun_Item_Type &&
+                                !linked_gun_idx.sibling(linked_gun_idx.row(), GunItem::Gun_Destroyed).data().toBool()) {
                             ui->gun_selection_cmb->addItem(linked_gun_idx.data().toString(), linked_gun_idx.sibling(k, GunItem::Gun_Destroyed));
                         }
                     }
@@ -33,6 +35,7 @@ EffectsSelectionDialog::EffectsSelectionDialog(PlaneModel* plane_model, QPersist
             }
         }
     }
+    ui->gunDestroyedBox->setEnabled(ui->gun_selection_cmb->count() > 0);
 }
 
 EffectsSelectionDialog::~EffectsSelectionDialog()
