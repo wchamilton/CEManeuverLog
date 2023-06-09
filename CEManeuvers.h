@@ -6,6 +6,13 @@
 #include <QVariant>
 
 Q_DECLARE_METATYPE(QList<int>)
+#define IS_RELEASE false
+
+#if IS_RELEASE
+static QString GRAPHICS_LOCATION = "./graphics";
+#else
+static QString GRAPHICS_LOCATION = "../CEManeuverLog/graphics";
+#endif
 
 struct Maneuver
 {

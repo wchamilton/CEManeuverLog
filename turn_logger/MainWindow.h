@@ -61,7 +61,7 @@ private:
     QMenu* early_war_menu = nullptr;
     QMenu* late_war_menu = nullptr;
     QActionGroup* plane_action_group = nullptr;
-    QMap<QString, CrewControls*> crew_control_widgets;
+    QMap<int, CrewControls*> crew_control_widgets;
     QLabel* status_bar_label = nullptr;
 };
 #endif // MAINWINDOW_H

@@ -179,7 +179,7 @@ void MainWindow::setSelectedPlane()
         QPersistentModelIndex crew_idx = crew_proxy_model->index(i, CrewItem::Crew_Name, crew_proxy_model->mapFromSource(plane_idx));
         CrewControls* cc = new CrewControls(crew_proxy_model, crew_idx, turn_model, ui->crew_tab);
         ui->crew_tab->addTab(cc, crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() + " (" + crew_idx.data().toString() + ")");
-        crew_control_widgets.insert(crew_idx.data().toString(), cc);
+        crew_control_widgets.insert(crew_idx.row(), cc);
 
         if (crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() == "Pilot") {
             maneuver_scene->setManeuversAvailable(crew_idx);
@@ -255,9 +255,9 @@ void MainWindow::handleTurnEnd()
     QList<std::tuple<QPersistentModelIndex, int, QVariant>> crew_actions;
     QPersistentModelIndex pilot;
     for (auto control : crew_control_widgets) {
-        auto crew_action_pair = control->getChosenCrewAction();
-        crew_actions << crew_action_pair;
-        QPersistentModelIndex crew = std::get<0>(crew_action_pair);
+        auto crew_action_tuple = control->getChosenCrewAction();
+        crew_actions << crew_action_tuple;
+        QPersistentModelIndex crew = std::get<0>(crew_action_tuple);
         // Ensure the crew is a living pilot
         if ((crew.sibling(crew.row(), CrewItem::Wounds).data().toInt() < 3 &&
                 crew.sibling(crew.row(), CrewItem::Crew_Role).data().toString() == "Pilot") ||
