@@ -23,7 +23,7 @@
                     "fire_base_2": 3,
                     "fire_base_3": 1,
                     "fire_template": 10,
-                    "gun_links": 1,
+                    "is_linked": false,
                     "name": "Lewis Gun"
                 }
             ],
@@ -40,7 +40,7 @@
                     "fire_base_2": 3,
                     "fire_base_3": 1,
                     "fire_template": 11,
-                    "gun_links": 1,
+                    "is_linked": false,
                     "name": "Lewis Gun"
                 }
             ],

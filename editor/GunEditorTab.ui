@@ -30,9 +30,6 @@
    </item>
    <item row="1" column="2">
     <widget class="QSpinBox" name="fire_template_spin">
-     <property name="toolTip">
-      <string>Belt fed guns should be set to 1 box</string>
-     </property>
      <property name="buttonSymbols">
       <enum>QAbstractSpinBox::NoButtons</enum>
      </property>
@@ -60,13 +57,6 @@
      </property>
      <property name="autoRaise">
       <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="QLabel" name="label_12">
-     <property name="text">
-      <string>Gun Links:</string>
      </property>
     </widget>
    </item>
@@ -308,16 +298,6 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="2">
-    <widget class="QSpinBox" name="gun_links">
-     <property name="buttonSymbols">
-      <enum>QAbstractSpinBox::NoButtons</enum>
-     </property>
-     <property name="minimum">
-      <number>1</number>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="4">
     <widget class="QLabel" name="label_8">
      <property name="text">
@@ -328,13 +308,16 @@
    <item row="2" column="5">
     <widget class="QSpinBox" name="ammo_per_box">
      <property name="toolTip">
-      <string>Belt fed guns should be set to 1 box</string>
+      <string>For guns with drums instead of belts, usually set this to 5</string>
      </property>
      <property name="buttonSymbols">
       <enum>QAbstractSpinBox::NoButtons</enum>
      </property>
      <property name="minimum">
       <number>0</number>
+     </property>
+     <property name="value">
+      <number>20</number>
      </property>
     </widget>
    </item>
@@ -365,8 +348,34 @@
      </property>
     </widget>
    </item>
+   <item row="2" column="2">
+    <widget class="QCheckBox" name="is_linked">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Gun linked</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>gun_name</tabstop>
+  <tabstop>fire_template_spin</tabstop>
+  <tabstop>toolButton</tabstop>
+  <tabstop>ammo_box_count</tabstop>
+  <tabstop>is_linked</tabstop>
+  <tabstop>ammo_per_box</tabstop>
+  <tabstop>fire_base_3</tabstop>
+  <tabstop>fire_base_2</tabstop>
+  <tabstop>fire_base_1</tabstop>
+  <tabstop>fire_base_0</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

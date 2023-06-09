@@ -77,15 +77,36 @@ QVariant PlaneModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-bool PlaneModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool PlaneModel::setData(const QModelIndex &idx, const QVariant &value, int role)
 {
-    if (!index.isValid()) {
+    if (!idx.isValid()) {
         return false;
     }
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
-        BaseItem* item = static_cast<BaseItem*>(index.internalPointer());
-        item->setData(index.column(), value);
-        emit dataChanged(index, index, {role});
+        BaseItem* item = static_cast<BaseItem*>(idx.internalPointer());
+        // Handle the possibilty of mixed gun types linked
+        if (item->getType() == BaseItem::Gun_Link_Item_Type) {
+            for (int i=0; i<item->childCount(); ++i) {
+                setData(index(i, idx.column(), idx), value, role);
+            }
+            emit dataChanged(idx, idx, {role});
+            return true;
+        }
+        else if (item->getType() == BaseItem::Gun_Item_Type) {
+            if (idx.column() == GunItem::Shots_Fired) {
+                item->setData(GunItem::Ammo_In_Current_Box, item->data(GunItem::Ammo_In_Current_Box).toInt() - value.toInt());
+                item->setData(idx.column(), value);
+                emit dataChanged(idx, idx, {role});
+                return true;
+            }
+            else if ((idx.column() == GunItem::Ammo_In_Current_Box || idx.column() == GunItem::Ammo_Box_Count) &&
+                     item->data(GunItem::Ammo_Box_Count).toInt() == 1) {
+                return false;
+            }
+        }
+        // All other cases
+        item->setData(idx.column(), value);
+        emit dataChanged(idx, idx, {role});
     }
     return true;
 }

@@ -6,13 +6,24 @@
                 {
                     "ammo_box_capacity": 20,
                     "ammo_box_count": 1,
-                    "fire_base_0": 11,
-                    "fire_base_1": 8,
-                    "fire_base_2": 5,
-                    "fire_base_3": 4,
+                    "fire_base_0": 9,
+                    "fire_base_1": 6,
+                    "fire_base_2": 3,
+                    "fire_base_3": 2,
                     "fire_template": 1,
-                    "gun_links": 2,
-                    "name": "Twin Vickers"
+                    "is_linked": true,
+                    "name": "Vickers"
+                },
+                {
+                    "ammo_box_capacity": 20,
+                    "ammo_box_count": 1,
+                    "fire_base_0": 9,
+                    "fire_base_1": 6,
+                    "fire_base_2": 3,
+                    "fire_base_3": 2,
+                    "fire_template": 1,
+                    "is_linked": true,
+                    "name": "Vickers"
                 }
             ],
             "role": "Pilot"

@@ -11,8 +11,8 @@
                     "fire_base_2": 3,
                     "fire_base_3": 2,
                     "fire_template": 1,
-                    "gun_links": 1,
-                    "name": "Single Vickers"
+                    "is_linked": false,
+                    "name": "Vickers"
                 }
             ],
             "role": "Pilot"

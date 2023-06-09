@@ -14,22 +14,22 @@ CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_i
 {
     ui->setupUi(this);
 
-    // Initialize the comboboxes with the model
-    ui->gun_selection_shoot->setModel(model);
-    ui->gun_selection_reload->setModel(model);
-    ui->gun_selection_unjam->setModel(model);
-
-    // Set the leaf node of the model from which the comboboxes should derive their content
-    ui->gun_selection_shoot->setRootModelIndex(crew_idx);
-    ui->gun_selection_reload->setRootModelIndex(crew_idx);
-    ui->gun_selection_unjam->setRootModelIndex(crew_idx);
+//    // Initialize the comboboxes with the model
+    for (int i=0; i<model->rowCount(crew_idx); ++i) {
+        QPersistentModelIndex child_idx = model->index(i, 0, crew_idx);
+        ui->gun_selection_shoot->addItem(child_idx.data().toString(), child_idx);
+        ui->gun_selection_reload->addItem(child_idx.data().toString(), child_idx);
+        ui->gun_selection_unjam->addItem(child_idx.data().toString(), child_idx);
+    }
 
     connect(ui->gun_selection_shoot, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CrewControls::refreshGunWidgets);
 
-    // Necessary to set the combobox to the correct leaf index
+    // Necessary to set the combobox to the correct index
     ui->gun_selection_shoot->setCurrentIndex(0);
     ui->gun_selection_reload->setCurrentIndex(0);
     ui->gun_selection_unjam->setCurrentIndex(0);
+
+    refreshGunWidgets();
 
     // Set action as a property so we know what data to fetch, not setting one for shoot as that'll be handled specifically
     ui->no_action_radio->setProperty("action_taken", TurnCrewItem::No_Action);
@@ -131,14 +131,15 @@ std::tuple<QPersistentModelIndex, int, QVariant> CrewControls::getChosenCrewActi
 void CrewControls::handleTurnEnd()
 {
     if (ui->shoot_radio->isChecked()) {
-        model->setData(model->index(ui->gun_selection_shoot->currentIndex(), GunItem::Ammo_In_Current_Box, crew_idx),
-                       std::max(ui->ammo_box->value() - (ui->burst_len->value()+1), 0));
+        QPersistentModelIndex idx = ui->gun_selection_shoot->currentData().toPersistentModelIndex();
+        model->setData(idx.sibling(idx.row(), GunItem::Shots_Fired), ui->burst_len->value()+1);
     }
     else if (ui->reload_radio->isChecked()) {
-        model->setData(model->index(ui->gun_selection_shoot->currentIndex(), GunItem::Ammo_In_Current_Box, crew_idx),
-                       model->index(ui->gun_selection_shoot->currentIndex(), GunItem::Ammo_Box_Capacity, crew_idx).data().toInt());
+        QPersistentModelIndex idx = ui->gun_selection_reload->currentData().toPersistentModelIndex();
+        model->setData(idx.sibling(idx.row(), GunItem::Ammo_In_Current_Box),
+                       idx.sibling(idx.row(), GunItem::Ammo_Box_Capacity).data().toInt());
 
-        QModelIndex ammo_box_count_idx = model->index(ui->gun_selection_shoot->currentIndex(), GunItem::Ammo_Box_Count, crew_idx);
+        QModelIndex ammo_box_count_idx = idx.sibling(idx.row(), GunItem::Ammo_Box_Count);
         model->setData(ammo_box_count_idx, ammo_box_count_idx.data().toInt()-1);
     }
     else if (ui->drop_bomb_radio->isChecked()) {
@@ -149,7 +150,35 @@ void CrewControls::handleTurnEnd()
             emit bombDropped();
         }
     }
-    refreshGunWidgets(ui->gun_selection_shoot->currentIndex());
+    refreshGunWidgets();
+
+    QModelIndexList guns;
+    for (int i=0; i<ui->gun_selection_shoot->count(); ++i) {
+        guns << ui->gun_selection_shoot->itemData(i).toModelIndex();
+    }
+
+    ui->gun_selection_shoot->blockSignals(true);
+    ui->gun_selection_unjam->blockSignals(true);
+    ui->gun_selection_reload->blockSignals(true);
+
+    ui->gun_selection_shoot->clear();
+    ui->gun_selection_unjam->clear();
+    ui->gun_selection_reload->clear();
+
+    for (auto gun : guns) {
+        ui->gun_selection_shoot->addItem(gun.data().toString(), gun);
+        ui->gun_selection_unjam->addItem(gun.data().toString(), gun);
+        ui->gun_selection_reload->addItem(gun.data().toString(), gun);
+    }
+
+    ui->gun_selection_shoot->setCurrentIndex(0);
+    ui->gun_selection_reload->setCurrentIndex(0);
+    ui->gun_selection_unjam->setCurrentIndex(0);
+
+    ui->gun_selection_shoot->blockSignals(false);
+    ui->gun_selection_unjam->blockSignals(false);
+    ui->gun_selection_reload->blockSignals(false);
+
     ui->no_action_radio->setChecked(true);
 }
 
@@ -163,7 +192,8 @@ void CrewControls::updateBombState()
 
 void CrewControls::applyManeuverRestrictions(QPersistentModelIndex maneuver_idx)
 {
-    if (crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() == "Pilot") {
+    if (crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() == "Pilot" ||
+            crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() == "Co-Pilot") {
         QString climb_value = maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Climb_Value).data().toString();
         QString level_value = maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Level_Value).data().toString();
         QString dive_value  = maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Dive_Value).data().toString();
@@ -178,6 +208,18 @@ void CrewControls::applyManeuverRestrictions(QPersistentModelIndex maneuver_idx)
         ui->target_level->setChecked(ui->target_level->isEnabled());
         ui->target_below->setChecked(ui->target_below->isEnabled());
 
+        // If the maneuver doesn't allow reloading, then disable the radio selection
+        QPersistentModelIndex reload_idx = ui->gun_selection_shoot->currentData().toPersistentModelIndex();
+        ui->reload_radio->setEnabled(reload_idx.sibling(reload_idx.row(), GunItem::Ammo_Box_Count).data().toInt() > 1 &&
+                reload_idx.sibling(reload_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt() == 0 &&
+                maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Can_Reload).data().toBool());
+    }
+    else {
+        // If the maneuver doesn't allow reloading, then disable the radio selection
+        QPersistentModelIndex reload_idx = ui->gun_selection_shoot->currentData().toPersistentModelIndex();
+        ui->reload_radio->setEnabled(reload_idx.sibling(reload_idx.row(), GunItem::Ammo_Box_Count).data().toInt() > 1 &&
+                reload_idx.sibling(reload_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt() == 0 &&
+                maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Observer_Can_Reload).data().toBool());
     }
 }
 
@@ -233,19 +275,19 @@ void CrewControls::setSliderStylesheet(QString colour)
     ui->wounds->setStyleSheet(stylesheet);
 }
 
-void CrewControls::refreshGunWidgets(int row)
+void CrewControls::refreshGunWidgets()
 {
-    QModelIndex gun_idx = model->index(row, GunItem::Gun_Name, crew_idx);
+    QPersistentModelIndex shoot_idx = ui->gun_selection_shoot->currentData().toPersistentModelIndex();
 
-    ui->fire_base_3->setText(gun_idx.sibling(gun_idx.row(), GunItem::Fire_Base_3).data().toString());
-    ui->fire_base_2->setText(gun_idx.sibling(gun_idx.row(), GunItem::Fire_Base_2).data().toString());
-    ui->fire_base_1->setText(gun_idx.sibling(gun_idx.row(), GunItem::Fire_Base_1).data().toString());
-    ui->fire_base_0->setText(gun_idx.sibling(gun_idx.row(), GunItem::Fire_Base_0).data().toString());
+    ui->fire_base_3->setText(shoot_idx.sibling(shoot_idx.row(), GunItem::Fire_Base_3).data().toString());
+    ui->fire_base_2->setText(shoot_idx.sibling(shoot_idx.row(), GunItem::Fire_Base_2).data().toString());
+    ui->fire_base_1->setText(shoot_idx.sibling(shoot_idx.row(), GunItem::Fire_Base_1).data().toString());
+    ui->fire_base_0->setText(shoot_idx.sibling(shoot_idx.row(), GunItem::Fire_Base_0).data().toString());
 
-    ui->ammo_box->setValue(gun_idx.sibling(gun_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt());
-    ui->ammo_box->setSuffix("/" + gun_idx.sibling(gun_idx.row(), GunItem::Ammo_Box_Capacity).data().toString());
-    ui->ammo_total->setValue(gun_idx.sibling(gun_idx.row(), GunItem::Total_Ammo_Remaining).data().toInt());
-    ui->ammo_total->setSuffix("/" + gun_idx.sibling(gun_idx.row(), GunItem::Total_Ammo).data().toString());
+    ui->ammo_box->setValue(shoot_idx.sibling(shoot_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt());
+    ui->ammo_box->setSuffix("/" + shoot_idx.sibling(shoot_idx.row(), GunItem::Ammo_Box_Capacity).data().toString());
+    ui->ammo_total->setValue(shoot_idx.sibling(shoot_idx.row(), GunItem::Total_Ammo_Remaining).data().toInt());
+    ui->ammo_total->setSuffix("/" + shoot_idx.sibling(shoot_idx.row(), GunItem::Total_Ammo).data().toString());
 
     // Restrict burst length based on remaining ammo
     if (ui->ammo_box->value() < 3) {
@@ -265,10 +307,11 @@ void CrewControls::refreshGunWidgets(int row)
     }
 
     // Only allow shooting if there's ammo in the current box
-    ui->shoot_radio->setEnabled(gun_idx.sibling(gun_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt() > 0);
+    ui->shoot_radio->setEnabled(shoot_idx.sibling(shoot_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt() > 0);
 
-    // Only allow reloading if there's more than the current ammo box remaining
-    ui->reload_radio->setEnabled(gun_idx.sibling(gun_idx.row(), GunItem::Ammo_Box_Count).data().toInt() > 1);
+    // Only allow reloading if there's more than the current ammo box remaining and if all the current ammo has been expended
+    QPersistentModelIndex reload_idx = ui->gun_selection_shoot->currentData().toPersistentModelIndex();
+    ui->reload_radio->setEnabled(reload_idx.sibling(reload_idx.row(), GunItem::Ammo_Box_Count).data().toInt() > 1 && !ui->shoot_radio->isEnabled());
 }
 
 void CrewControls::applyCVCalcs()

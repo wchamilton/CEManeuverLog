@@ -76,6 +76,7 @@ public:
         Plane_Item_Type,
         Maneuver_Item_Type,
         Crew_Item_Type,
+        Gun_Link_Item_Type,
         Gun_Item_Type,
         Turn_Item_Type,
         Crew_Turn_Item_Type
@@ -85,7 +86,7 @@ public:
     virtual ~BaseItem();
 
     virtual QVariant data(int column) const;
-    void setData(int column, QVariant data);
+    virtual void setData(int column, QVariant data);
     void addChild(BaseItem* item) { children << item; }
     BaseItem* childAt(int row) const { return children.size() > row && row >= 0 ? children.at(row) : nullptr; }
     int childRow(BaseItem* item) { return children.indexOf(item); }

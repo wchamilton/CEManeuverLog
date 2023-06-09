@@ -934,7 +934,7 @@ border-radius: 4px;
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="hexRangeGroup"/>
   <buttongroup name="actionGroup"/>
+  <buttongroup name="hexRangeGroup"/>
  </buttongroups>
 </ui>

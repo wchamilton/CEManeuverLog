@@ -20,6 +20,7 @@ public:
 
 private:
     Ui::GunEditorTab *ui;
+
 };
 
 #endif // GUNEDITORTAB_H

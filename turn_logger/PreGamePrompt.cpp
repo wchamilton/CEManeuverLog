@@ -50,6 +50,10 @@ PreGamePrompt::PreGamePrompt(PlaneFilterProxy *model, QPersistentModelIndex plan
             grid->addWidget(line, ++row, 0, 1, 3);
         }
     }
+
+    ui->plane_settings_grp->setTitle(model->index(plane_idx.row(), PlaneItem::Plane_Name).data().toString());
+    ui->starting_alt->setMaximum(model->index(plane_idx.row(), PlaneItem::Max_Altitude).data().toInt());
+    ui->starting_alt->setSuffix(QString("/%1").arg(model->index(plane_idx.row(), PlaneItem::Max_Altitude).data().toInt()));
 }
 
 PreGamePrompt::~PreGamePrompt()
