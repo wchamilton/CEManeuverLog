@@ -109,7 +109,6 @@ void ManeuverGraphic::updateManeuverState()
     for (auto child : childItems()) {
         HexTile* hex = static_cast<HexTile*>(child);
         hex->setIsAvailable(maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Can_Be_Used).data().toBool());
-        hex->setWeightRestricted(maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Is_Weight_Restricted).data().toBool());
     }
     setEnabled(maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Can_Be_Used).data().toBool());
 }

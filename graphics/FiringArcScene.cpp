@@ -165,15 +165,15 @@ void FiringArcScene::initFiringArcHexes(int arc)
 
         // Range 2 hexes
         firing_arc->addHex({1}, new HexTile(HexTile::All_Tile), { Maneuver::North, Maneuver::North });
-        firing_arc->addHex({1}, new HexTile(HexTile::All_Tile), { Maneuver::North, Maneuver::North_East });
-        firing_arc->addHex({1}, new HexTile(HexTile::All_Tile), { Maneuver::North_West, Maneuver::North });
+        firing_arc->addHex({2}, new HexTile(HexTile::All_Tile), { Maneuver::North, Maneuver::North_East });
+        firing_arc->addHex({6}, new HexTile(HexTile::All_Tile), { Maneuver::North_West, Maneuver::North });
 
         // Range 3 hexes
         firing_arc->addHex({1}, new HexTile(HexTile::All_Tile), { Maneuver::North, Maneuver::North, Maneuver::North });
-        firing_arc->addHex({1}, new HexTile(HexTile::All_Tile), { Maneuver::North, Maneuver::North, Maneuver::North_East });
-        firing_arc->addHex({1}, new HexTile(HexTile::All_Tile), { Maneuver::North, Maneuver::North_East, Maneuver::North_East });
-        firing_arc->addHex({1}, new HexTile(HexTile::All_Tile), { Maneuver::North_West, Maneuver::North_West, Maneuver::North });
-        firing_arc->addHex({1}, new HexTile(HexTile::All_Tile), { Maneuver::North_West, Maneuver::North, Maneuver::North });
+        firing_arc->addHex({2}, new HexTile(HexTile::All_Tile), { Maneuver::North, Maneuver::North, Maneuver::North_East });
+        firing_arc->addHex({2}, new HexTile(HexTile::All_Tile), { Maneuver::North, Maneuver::North_East, Maneuver::North_East });
+        firing_arc->addHex({6}, new HexTile(HexTile::All_Tile), { Maneuver::North_West, Maneuver::North_West, Maneuver::North });
+        firing_arc->addHex({6}, new HexTile(HexTile::All_Tile), { Maneuver::North_West, Maneuver::North, Maneuver::North });
         break;
     }
     case 6: {
@@ -182,15 +182,15 @@ void FiringArcScene::initFiringArcHexes(int arc)
 
         // Range 2 hexes
         firing_arc->addHex({1}, new HexTile(HexTile::H_S_Tile), { Maneuver::North, Maneuver::North });
-        firing_arc->addHex({1}, new HexTile(HexTile::H_S_Tile), { Maneuver::North, Maneuver::North_East });
-        firing_arc->addHex({1}, new HexTile(HexTile::H_S_Tile), { Maneuver::North_West, Maneuver::North });
+        firing_arc->addHex({2}, new HexTile(HexTile::H_S_Tile), { Maneuver::North, Maneuver::North_East });
+        firing_arc->addHex({6}, new HexTile(HexTile::H_S_Tile), { Maneuver::North_West, Maneuver::North });
 
         // Range 3 hexes
         firing_arc->addHex({1}, new HexTile(HexTile::H_S_Tile), { Maneuver::North, Maneuver::North, Maneuver::North });
-        firing_arc->addHex({1}, new HexTile(HexTile::H_S_Tile), { Maneuver::North, Maneuver::North, Maneuver::North_East });
-        firing_arc->addHex({1}, new HexTile(HexTile::H_S_Tile), { Maneuver::North, Maneuver::North_East, Maneuver::North_East });
-        firing_arc->addHex({1}, new HexTile(HexTile::H_S_Tile), { Maneuver::North_West, Maneuver::North_West, Maneuver::North });
-        firing_arc->addHex({1}, new HexTile(HexTile::H_S_Tile), { Maneuver::North_West, Maneuver::North, Maneuver::North });
+        firing_arc->addHex({2}, new HexTile(HexTile::H_S_Tile), { Maneuver::North, Maneuver::North, Maneuver::North_East });
+        firing_arc->addHex({2}, new HexTile(HexTile::H_S_Tile), { Maneuver::North, Maneuver::North_East, Maneuver::North_East });
+        firing_arc->addHex({6}, new HexTile(HexTile::H_S_Tile), { Maneuver::North_West, Maneuver::North_West, Maneuver::North });
+        firing_arc->addHex({6}, new HexTile(HexTile::H_S_Tile), { Maneuver::North_West, Maneuver::North, Maneuver::North });
         break;
     }
     case 7: {
@@ -358,16 +358,16 @@ void FiringArcScene::initFiringArcHexes(int arc)
         firing_arc->addHex({4}, new HexTile(HexTile::H_Tile), { Maneuver::South });
 
         // Range 2 hexes
-        firing_arc->addHex({3,4}, new HexTile(HexTile::All_Tile), { Maneuver::South_East, Maneuver::South });
+        firing_arc->addHex({3}, new HexTile(HexTile::All_Tile), { Maneuver::South_East, Maneuver::South });
         firing_arc->addHex({4}, new HexTile(HexTile::H_Tile), { Maneuver::South, Maneuver::South });
-        firing_arc->addHex({4,5}, new HexTile(HexTile::All_Tile), { Maneuver::South, Maneuver::South_West });
+        firing_arc->addHex({5}, new HexTile(HexTile::All_Tile), { Maneuver::South, Maneuver::South_West });
 
         // Range 3 hexes
-        firing_arc->addHex({3,4}, new HexTile(HexTile::All_Tile), { Maneuver::South_East, Maneuver::South_East, Maneuver::South });
-        firing_arc->addHex({3,4}, new HexTile(HexTile::All_Tile), { Maneuver::South_East, Maneuver::South, Maneuver::South });
+        firing_arc->addHex({3}, new HexTile(HexTile::All_Tile), { Maneuver::South_East, Maneuver::South_East, Maneuver::South });
+        firing_arc->addHex({3}, new HexTile(HexTile::All_Tile), { Maneuver::South_East, Maneuver::South, Maneuver::South });
         firing_arc->addHex({4}, new HexTile(HexTile::H_Tile), { Maneuver::South, Maneuver::South, Maneuver::South });
-        firing_arc->addHex({4,5}, new HexTile(HexTile::All_Tile), { Maneuver::South_West, Maneuver::South, Maneuver::South });
-        firing_arc->addHex({4,5}, new HexTile(HexTile::All_Tile), { Maneuver::South_West, Maneuver::South_West, Maneuver::South });
+        firing_arc->addHex({5}, new HexTile(HexTile::All_Tile), { Maneuver::South_West, Maneuver::South, Maneuver::South });
+        firing_arc->addHex({5}, new HexTile(HexTile::All_Tile), { Maneuver::South_West, Maneuver::South_West, Maneuver::South });
         break;
     }
     case 14: {
@@ -412,6 +412,50 @@ void FiringArcScene::initFiringArcHexes(int arc)
         firing_arc->addHex({3}, new HexTile(HexTile::All_Tile), { Maneuver::North_East, Maneuver::South_East, Maneuver::South_East });
         firing_arc->addHex({3}, new HexTile(HexTile::All_Tile), { Maneuver::South_East, Maneuver::South_East, Maneuver::South_East });
         firing_arc->addHex({3}, new HexTile(HexTile::All_Tile), { Maneuver::South_East, Maneuver::South_East, Maneuver::South });
+        break;
+    }
+    case 17: {
+        // Range 1 hexes
+        firing_arc->addHex({1}, new HexTile(HexTile::H_Tile), { Maneuver::North });
+        firing_arc->addHex({2}, new HexTile(HexTile::H_Tile), { Maneuver::North_East });
+        firing_arc->addHex({3}, new HexTile(HexTile::All_Tile), { Maneuver::South_East });
+        firing_arc->addHex({4}, new HexTile(HexTile::H_L_Tile), { Maneuver::South });
+        firing_arc->addHex({5}, new HexTile(HexTile::All_Tile), { Maneuver::South_West });
+        firing_arc->addHex({6}, new HexTile(HexTile::H_Tile), { Maneuver::North_West });
+
+        // Range 2 hexes
+        firing_arc->addHex({1}, new HexTile(HexTile::H_Tile), { Maneuver::North, Maneuver::North });
+        firing_arc->addHex({1,2}, new HexTile(HexTile::H_Tile), { Maneuver::North, Maneuver::North_East });
+        firing_arc->addHex({2}, new HexTile(HexTile::H_Tile), { Maneuver::North_East, Maneuver::North_East });
+        firing_arc->addHex({2,3}, new HexTile(HexTile::All_Tile), { Maneuver::North_East, Maneuver::South_East });
+        firing_arc->addHex({3}, new HexTile(HexTile::All_Tile), { Maneuver::South_East, Maneuver::South_East });
+        firing_arc->addHex({3,4}, new HexTile(HexTile::All_Tile), { Maneuver::South_East, Maneuver::South });
+        firing_arc->addHex({4}, new HexTile(HexTile::All_Tile), { Maneuver::South, Maneuver::South });
+        firing_arc->addHex({4,5}, new HexTile(HexTile::All_Tile), { Maneuver::South, Maneuver::South_West });
+        firing_arc->addHex({5}, new HexTile(HexTile::All_Tile), { Maneuver::South_West, Maneuver::South_West });
+        firing_arc->addHex({5,6}, new HexTile(HexTile::All_Tile), { Maneuver::South_West, Maneuver::North_West });
+        firing_arc->addHex({6}, new HexTile(HexTile::H_Tile), { Maneuver::North_West, Maneuver::North_West });
+        firing_arc->addHex({1,6}, new HexTile(HexTile::H_Tile), { Maneuver::North_West, Maneuver::North });
+
+        // Range 3 hexes
+        firing_arc->addHex({1}, new HexTile(HexTile::H_Tile), { Maneuver::North, Maneuver::North, Maneuver::North });
+        firing_arc->addHex({1,2}, new HexTile(HexTile::H_Tile), { Maneuver::North, Maneuver::North, Maneuver::North_East });
+        firing_arc->addHex({1,2}, new HexTile(HexTile::H_Tile), { Maneuver::North, Maneuver::North_East, Maneuver::North_East });
+        firing_arc->addHex({2}, new HexTile(HexTile::H_Tile), { Maneuver::North_East, Maneuver::North_East, Maneuver::North_East });
+        firing_arc->addHex({2,3}, new HexTile(HexTile::H_Tile), { Maneuver::North_East, Maneuver::North_East, Maneuver::South_East });
+        firing_arc->addHex({2,3}, new HexTile(HexTile::All_Tile), { Maneuver::North_East, Maneuver::South_East, Maneuver::South_East });
+        firing_arc->addHex({3}, new HexTile(HexTile::All_Tile), { Maneuver::South_East, Maneuver::South_East, Maneuver::South_East });
+        firing_arc->addHex({3,4}, new HexTile(HexTile::All_Tile), { Maneuver::South_East, Maneuver::South_East, Maneuver::South });
+        firing_arc->addHex({3,4}, new HexTile(HexTile::All_Tile), { Maneuver::South_East, Maneuver::South, Maneuver::South });
+        firing_arc->addHex({4}, new HexTile(HexTile::All_Tile), { Maneuver::South, Maneuver::South, Maneuver::South });
+        firing_arc->addHex({4,5}, new HexTile(HexTile::All_Tile), { Maneuver::South_West, Maneuver::South, Maneuver::South });
+        firing_arc->addHex({4,5}, new HexTile(HexTile::All_Tile), { Maneuver::South_West, Maneuver::South_West, Maneuver::South });
+        firing_arc->addHex({5}, new HexTile(HexTile::All_Tile), { Maneuver::South_West, Maneuver::South_West, Maneuver::South_West });
+        firing_arc->addHex({5,6}, new HexTile(HexTile::All_Tile), { Maneuver::South_West, Maneuver::South_West, Maneuver::North_West });
+        firing_arc->addHex({5,6}, new HexTile(HexTile::H_Tile), { Maneuver::South_West, Maneuver::North_West, Maneuver::North_West });
+        firing_arc->addHex({6}, new HexTile(HexTile::H_Tile), { Maneuver::North_West, Maneuver::North_West, Maneuver::North_West });
+        firing_arc->addHex({1,6}, new HexTile(HexTile::H_Tile), { Maneuver::North_West, Maneuver::North_West, Maneuver::North });
+        firing_arc->addHex({1,6}, new HexTile(HexTile::H_Tile), { Maneuver::North_West, Maneuver::North, Maneuver::North });
         break;
     }
     default: return;
