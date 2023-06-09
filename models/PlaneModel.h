@@ -22,7 +22,7 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex &idx) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+    bool setData(const QModelIndex &idx, const QVariant &value, int role = Qt::EditRole) override;
     QModelIndex loadPlaneJSON(QJsonObject plane);
     QJsonObject dumpPlaneToJSON(const QModelIndex &index);
     void prepareTemplateModel();

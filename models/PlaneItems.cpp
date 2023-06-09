@@ -145,8 +145,20 @@ CrewItem::CrewItem(QJsonObject crew, BaseItem *parent) : BaseItem(Crew_Item_Type
     setData(Has_Ignore_Deflection, false);
     QJsonArray guns = crew.value("guns").toArray();
 
+    GunLinkItem* link_item = nullptr; // Initialize this if we find linked guns
+
+    // Iterate over the guns in the json, any linked items get stored under the same umbrella while others get separated
     for (int i=0; i<guns.size(); ++i) {
-        addChild(new GunItem(guns.at(i).toObject(), this));
+        if (guns.at(i).toObject().value("is_linked").toBool()) {
+            if (link_item == nullptr) {
+                link_item = new GunLinkItem(this);
+                addChild(link_item);
+            }
+            link_item->addChild(new GunItem(guns.at(i).toObject(), link_item));
+        }
+        else {
+            addChild(new GunItem(guns.at(i).toObject(), this));
+        }
     }
 }
 
@@ -160,21 +172,31 @@ QJsonObject CrewItem::toJSON() const
 
     QJsonArray guns;
     for (int i=0; i<childCount(); ++i) {
-        guns << static_cast<GunItem*>(childAt(i))->toJSON();
+        if (childAt(i)->getType() == BaseItem::Gun_Link_Item_Type) {
+            for (int j=0; j<childAt(i)->childCount(); ++j) {
+                guns << static_cast<GunItem*>(childAt(i)->childAt(j))->toJSON();
+            }
+        }
+        else if (childAt(i)->getType() == BaseItem::Gun_Item_Type) {
+            guns << static_cast<GunItem*>(childAt(i))->toJSON();
+        }
     }
     crew["guns"] = guns;
     return crew;
 }
 
+// Need a proxy for the gun item that will consolidate linked guns to display as one powerful one but requiring the more
+// restrictive of the two
 GunItem::GunItem(QJsonObject gun, BaseItem *parent) : BaseItem(Gun_Item_Type, parent)
 {
     setData(Gun_Name,            gun["name"].toVariant());
-    setData(Gun_Count,           gun["gun_links"].toVariant());
+    setData(Gun_Is_Linked,       gun["is_linked"].toBool());
     setData(Fire_Template,       gun["fire_template"].toVariant());
     setData(Fire_Base_3,         gun["fire_base_3"].toVariant());
     setData(Fire_Base_2,         gun["fire_base_2"].toVariant());
     setData(Fire_Base_1,         gun["fire_base_1"].toVariant());
     setData(Fire_Base_0,         gun["fire_base_0"].toVariant());
+    setData(Shots_Fired,         0);
     setData(Ammo_Box_Capacity,   gun["ammo_box_capacity"].toVariant());
     setData(Ammo_Box_Count,      gun["ammo_box_count"].toVariant());
     setData(Ammo_In_Current_Box, gun["ammo_box_capacity"].toVariant());
@@ -234,7 +256,7 @@ QJsonObject GunItem::toJSON() const
 {
     QJsonObject gun;
     gun["name"]              = data(Gun_Name).toString();
-    gun["gun_links"]         = data(Gun_Count).toInt();
+    gun["is_linked"]         = data(Gun_Is_Linked).toBool();
     gun["fire_template"]     = data(Fire_Template).toInt();
     gun["fire_base_3"]       = data(Fire_Base_3).toInt();
     gun["fire_base_2"]       = data(Fire_Base_2).toInt();
@@ -243,4 +265,41 @@ QJsonObject GunItem::toJSON() const
     gun["ammo_box_capacity"] = data(Ammo_Box_Capacity).toInt();
     gun["ammo_box_count"]    = data(Ammo_Box_Count).toInt();
     return gun;
+}
+
+GunLinkItem::GunLinkItem(BaseItem *parent) : BaseItem(BaseItem::Gun_Link_Item_Type, parent) {}
+
+QVariant GunLinkItem::data(int column) const
+{
+    QList<BaseItem*> linked_guns;
+    for (int i=0; i<childCount(); ++i) {
+        if (!childAt(i)->data(GunItem::Gun_Destroyed).toBool()) {
+            linked_guns << childAt(i);
+        }
+    }
+    switch (column) {
+        case GunItem::Gun_Name: {
+            QStringList compound_name_components;
+            for (auto gun : linked_guns) {
+                compound_name_components << gun->data(column).toString();
+            }
+            return compound_name_components.join(" + ");
+        }
+        case GunItem::Fire_Base_0:
+        case GunItem::Fire_Base_1:
+        case GunItem::Fire_Base_2:
+        case GunItem::Fire_Base_3: {
+            return linked_guns.first()->data(column).toInt() + 2*(linked_guns.size()-1);
+        }
+        default: {
+            for (auto gun : linked_guns) {
+                // If any guns are drum based, base the other columns off it as that will be the most restrictive
+                if (gun->data(GunItem::Ammo_Box_Count).toInt() > 1) {
+                    return gun->data(column);
+                }
+            }
+            // Possible that they're all belt fed so just use the first one for all fields
+            return linked_guns.first()->data(column);
+        }
+    }
 }

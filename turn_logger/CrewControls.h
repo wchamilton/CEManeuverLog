@@ -30,13 +30,13 @@ public:
 public slots:
     void updateBombState();
     void applyManeuverRestrictions(QPersistentModelIndex maneuver_idx);
+    void refreshGunWidgets();
 
 signals:
     void bombDropped();
 
 private slots:
     void setSliderStylesheet(QString colour);
-    void refreshGunWidgets(int row);
     void applyCVCalcs();
 
 private:

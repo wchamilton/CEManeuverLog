@@ -25,7 +25,7 @@ void GunEditorTab::populateGunItem(GunItem *gun_item)
     gun_item->setData(GunItem::Fire_Base_0, ui->fire_base_0->value());
     gun_item->setData(GunItem::Ammo_Box_Capacity, ui->ammo_per_box->value());
     gun_item->setData(GunItem::Ammo_Box_Count, ui->ammo_box_count->value());
-    gun_item->setData(GunItem::Gun_Count, ui->gun_links->value());
+    gun_item->setData(GunItem::Gun_Is_Linked, ui->is_linked->isChecked());
 }
 
 void GunEditorTab::populateFromJSON(QJsonObject gun)
@@ -38,5 +38,5 @@ void GunEditorTab::populateFromJSON(QJsonObject gun)
     ui->fire_base_0->setValue(gun["fire_base_0"].toInt());
     ui->ammo_per_box->setValue(gun["ammo_box_capacity"].toInt());
     ui->ammo_box_count->setValue(gun["ammo_box_count"].toInt());
-    ui->gun_links->setValue(gun["gun_links"].toInt());
+    ui->is_linked->setChecked(gun["is_linked"].toBool());
 }

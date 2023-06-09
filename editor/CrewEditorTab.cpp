@@ -37,21 +37,15 @@ void CrewEditorTab::populateCrewItem(CrewItem *crew)
 void CrewEditorTab::populateFromJSON(QJsonObject crew)
 {
     ui->role_cmb->setCurrentText(crew["role"].toString());
+    ui->can_drop_bombs_chk->setChecked(crew["can_drop_bombs"].toBool());
     QJsonArray guns = crew["guns"].toArray();
 
     for (int i=0; i<guns.count(); ++i) {
         QJsonObject gun = guns.at(i).toObject();
-        QString gun_prefix = "";
-        if (gun["gun_links"].toInt() == 2) {
-            gun_prefix = "Twin ";
-        }
-        else if (gun["gun_links"].toInt() == 3) {
-            gun_prefix = "Triple ";
-        }
 
         GunEditorTab* tab = new GunEditorTab(ui->gun_tab_widget);
         tab->populateFromJSON(gun);
 
-        ui->gun_tab_widget->addTab(tab, QString("%1's %2%3").arg(crew["role"].toString()).arg(gun_prefix).arg(gun["name"].toString()));
+        ui->gun_tab_widget->addTab(tab, QString("%1's %2").arg(crew["role"].toString()).arg(gun["name"].toString()));
     }
 }

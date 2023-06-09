@@ -259,7 +259,7 @@
     <property name="title">
      <string>Game Effects</string>
     </property>
-    <addaction name="actionRudder_Jam"/>
+    <addaction name="actionDamage_Chit_Effects"/>
    </widget>
    <addaction name="game_menu"/>
    <addaction name="select_plane_menu"/>
@@ -338,6 +338,11 @@
   <action name="actionRudder_Jam">
    <property name="text">
     <string>Rudder Jam</string>
+   </property>
+  </action>
+  <action name="actionDamage_Chit_Effects">
+   <property name="text">
+    <string>Damage Chit Effects</string>
    </property>
   </action>
  </widget>

@@ -16,7 +16,7 @@
 
 #include "models/PlaneModel.h"
 #include "models/TurnModel.h"
-#include "graphics/ManeuverScene.h"2
+#include "graphics/ManeuverScene.h"
 #include "graphics/AltCtrlScene.h"
 #include "graphics/FiringArcScene.h"
 #include "editor/PlaneEditor.h"
@@ -38,9 +38,9 @@ MainWindow::MainWindow(QWidget *parent) :
     maneuver_proxy_model = new PlaneFilterProxy(plane_model, this);
     maneuver_proxy_model->setTypeFilter({BaseItem::Maneuver_Item_Type});
 
-    // Init crew proxy to contain crew and their weaponry (if applicable)
+    // Init crew proxy to contain crew
     crew_proxy_model = new PlaneFilterProxy(plane_model, this);
-    crew_proxy_model->setTypeFilter({BaseItem::Crew_Item_Type, BaseItem::Gun_Item_Type});
+    crew_proxy_model->setTypeFilter({BaseItem::Crew_Item_Type, BaseItem::Gun_Link_Item_Type, BaseItem::Gun_Item_Type});
 
     // Init turn model which keeps a history of all events that happened during the game for tracking game logic
     turn_model = new TurnModel(this);
@@ -132,8 +132,13 @@ MainWindow::MainWindow(QWidget *parent) :
         alt_ctrl_scene->setManeuver(idx);
         setTurnState(Movement_Selected);
     });
-    connect(ui->actionRudder_Jam, &QAction::triggered, this, [=] {
+    connect(ui->actionDamage_Chit_Effects, &QAction::triggered, this, [=] {
         EffectsSelectionDialog(plane_model, plane_action_group->checkedAction()->data().toPersistentModelIndex()).exec();
+
+        // debug code: remove this post testing
+//        for (auto control : crew_control_widgets) {
+//            control->refreshGunWidgets();
+//        }
     });
 }
 

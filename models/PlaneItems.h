@@ -91,17 +91,25 @@ public:
     QJsonObject toJSON() const;
 };
 
+class GunLinkItem : public BaseItem
+{
+public:
+    GunLinkItem(BaseItem* parent = nullptr);
+    QVariant data(int column) const override;
+};
+
 class GunItem : public BaseItem
 {
 public:
     enum GunCols {
         Gun_Name = 0,
-        Gun_Count,
+        Gun_Is_Linked,
         Fire_Template,
         Fire_Base_0,
         Fire_Base_1,
         Fire_Base_2,
         Fire_Base_3,
+        Shots_Fired,
         Ammo_Box_Capacity,
         Ammo_Box_Count,
         Ammo_In_Current_Box,

@@ -15,7 +15,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,1,0">
    <item row="0" column="0">
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="plane_settings_grp">
      <property name="title">
       <string>Plane Settings</string>
      </property>
@@ -73,7 +73,7 @@
    <item row="1" column="0">
     <widget class="QGroupBox" name="crew_names_grid">
      <property name="title">
-      <string>Crew Settings</string>
+      <string>Crew</string>
      </property>
      <layout class="QGridLayout" name="gridLayout"/>
     </widget>
