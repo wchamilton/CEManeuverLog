@@ -180,6 +180,8 @@ void CrewControls::handleTurnEnd()
     ui->gun_selection_reload->blockSignals(false);
 
     ui->no_action_radio->setChecked(true);
+
+    selected_maneuver = QPersistentModelIndex();
 }
 
 void CrewControls::updateBombState()
@@ -221,6 +223,8 @@ void CrewControls::applyManeuverRestrictions(QPersistentModelIndex maneuver_idx)
                 reload_idx.sibling(reload_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt() == 0 &&
                 maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Observer_Can_Reload).data().toBool());
     }
+
+    selected_maneuver = maneuver_idx;
 }
 
 void CrewControls::setSliderStylesheet(QString colour)
@@ -329,9 +333,8 @@ int CrewControls::calculateCV()
     int hex_range = ui->range_0_btn->isChecked() ? 0 : ui->range_1_btn->isChecked() ? 1 : ui->range_2_btn->isChecked() ? 2 : 3;
 
     // First part of the combat value is the fire base
-    int combat_value = model->index(ui->gun_selection_shoot->currentIndex(), GunItem::Fire_Base_0 + hex_range, crew_idx).data().toInt();
-
-    QPersistentModelIndex maneuver = turn_model->lastIndex(TurnItem::Turn_Maneuver_Col).data().toPersistentModelIndex();
+    QPersistentModelIndex gun_idx = ui->gun_selection_shoot->currentData().toPersistentModelIndex();
+    int combat_value = gun_idx.sibling(gun_idx.row(), GunItem::Fire_Base_0 + hex_range).data().toInt();
 
     // Check if the crew has Ignore Deflection
     bool ignores_deflection = crew_idx.sibling(crew_idx.row(), CrewItem::Has_Ignore_Deflection).data().toBool();
@@ -359,11 +362,11 @@ int CrewControls::calculateCV()
         combat_value += ui->target_spinning->isChecked() ? -6 : !ignores_deflection && ui->deflection->isChecked() ? -1 : 0;
         combat_value += ui->target_below->isChecked() ? 1 : ui->target_above->isChecked() ? -1 : 0;
         combat_value += ui->target_stalled->isChecked() ? 3 : 0;
-        if (maneuver.isValid()) {
-            if (maneuver.sibling(maneuver.row(), ManeuverItem::Is_Restricted).data().toBool()) {
+        if (selected_maneuver.isValid()) {
+            if (selected_maneuver.sibling(selected_maneuver.row(), ManeuverItem::Is_Restricted).data().toBool()) {
                 combat_value += -1;
             }
-            if (maneuver.sibling(maneuver.row(), ManeuverItem::Speed).data().toInt() > 2) {
+            if (selected_maneuver.sibling(selected_maneuver.row(), ManeuverItem::Speed).data().toInt() > 2) {
                 combat_value += -1;
             }
         }
@@ -381,11 +384,11 @@ int CrewControls::calculateCV()
         combat_value += ui->target_spinning->isChecked() ? -7 : !ignores_deflection && ui->deflection->isChecked() ? -2 : 0;
         combat_value += ui->target_below->isChecked() ? 1 : ui->target_above->isChecked() ? -1 : 0;
         combat_value += ui->target_stalled->isChecked() ? 2 : 0;
-        if (maneuver.isValid()) {
-            if (maneuver.sibling(maneuver.row(), ManeuverItem::Is_Restricted).data().toBool()) {
+        if (selected_maneuver.isValid()) {
+            if (selected_maneuver.sibling(selected_maneuver.row(), ManeuverItem::Is_Restricted).data().toBool()) {
                 combat_value += -2;
             }
-            if (maneuver.sibling(maneuver.row(), ManeuverItem::Speed).data().toInt() > 2) {
+            if (selected_maneuver.sibling(selected_maneuver.row(), ManeuverItem::Speed).data().toInt() > 2) {
                 combat_value += -2;
             }
         }
@@ -407,11 +410,11 @@ int CrewControls::calculateCV()
         combat_value += !ignores_deflection && ui->deflection->isChecked() ? -3 : 0;
         combat_value += ui->target_below->isChecked() ? 0 : ui->target_above->isChecked() ? -2 : 0;
         combat_value += ui->target_stalled->isChecked() ? 2 : 0;
-        if (maneuver.isValid()) {
-            if (maneuver.sibling(maneuver.row(), ManeuverItem::Is_Restricted).data().toBool()) {
+        if (selected_maneuver.isValid()) {
+            if (selected_maneuver.sibling(selected_maneuver.row(), ManeuverItem::Is_Restricted).data().toBool()) {
                 combat_value += -3;
             }
-            if (maneuver.sibling(maneuver.row(), ManeuverItem::Speed).data().toInt() > 2) {
+            if (selected_maneuver.sibling(selected_maneuver.row(), ManeuverItem::Speed).data().toInt() > 2) {
                 combat_value += -3;
             }
         }

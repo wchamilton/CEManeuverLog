@@ -46,6 +46,7 @@ private:
     PlaneFilterProxy *model = nullptr;
     QPersistentModelIndex crew_idx;
     TurnModel* turn_model = nullptr;
+    QPersistentModelIndex selected_maneuver;
 };
 
 #endif // CREWCONTROLS_H
