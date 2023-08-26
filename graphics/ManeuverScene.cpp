@@ -122,7 +122,6 @@ void ManeuverScene::applyScheduleBG()
 //    background_item->setZValue(-1);
 //    addItem(background_item);
 
-    // for now use shitty png while debugging SVG
     background_item = addPixmap(QPixmap(GRAPHICS_LOCATION+"/background.png"));
     background_item->setFlag(QGraphicsItem::ItemIsFocusable);
     background_item->setZValue(-1);
