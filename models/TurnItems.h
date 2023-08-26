@@ -32,6 +32,7 @@ public:
         No_Action = 0,
         Shot_Action,
         Reload_Action,
+        Failed_Unjam_Action,
         Unjam_Action,
         Observe_Action,
         Drop_Bomb_Action,

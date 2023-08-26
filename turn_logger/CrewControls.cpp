@@ -3,7 +3,7 @@
 #include "models/PlaneModel.h"
 #include "models/TurnModel.h"
 
-#include <QDebug>
+#include <QMessageBox>
 
 CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_idx, TurnModel *turn_model, QWidget *parent) :
     QWidget(parent),
@@ -110,6 +110,42 @@ CrewControls::~CrewControls()
 
 std::tuple<QPersistentModelIndex, int, QVariant> CrewControls::getChosenCrewAction()
 {
+    // First, handle triggers of selection
+    if (ui->shoot_radio->isChecked()) {
+        QPersistentModelIndex idx = ui->gun_selection_shoot->currentData().toPersistentModelIndex();
+        model->setData(idx.sibling(idx.row(), GunItem::Shots_Fired), ui->burst_len->value()+1);
+
+        // Handle possible jam
+        if (ui->long_burst_btn->isChecked()) {
+            if (QMessageBox::question(this, "Jam Check", "Fired a long burst. Was it a jam?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+                model->setData(idx.sibling(idx.row(), GunItem::Gun_Jammed), true);
+            }
+        }
+    }
+    else if (ui->reload_radio->isChecked()) {
+        QPersistentModelIndex idx = ui->gun_selection_reload->currentData().toPersistentModelIndex();
+        model->setData(idx.sibling(idx.row(), GunItem::Ammo_In_Current_Box),
+                       idx.sibling(idx.row(), GunItem::Ammo_Box_Capacity).data().toInt());
+
+        QModelIndex ammo_box_count_idx = idx.sibling(idx.row(), GunItem::Ammo_Box_Count);
+        model->setData(ammo_box_count_idx, ammo_box_count_idx.data().toInt()-1);
+    }
+    else if (ui->unjam_radio->isChecked()) {
+        QPersistentModelIndex idx = ui->gun_selection_unjam->currentData().toPersistentModelIndex();
+        if (QMessageBox::question(this, "Unjam Check", "Attempted to unjam. Was it successful?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+            model->setData(idx.sibling(idx.row(), GunItem::Gun_Jammed), false);
+        }
+    }
+    else if (ui->drop_bomb_radio->isChecked()) {
+        QModelIndex plane_bombs_idx = crew_idx.parent().sibling(crew_idx.parent().row(), PlaneItem::Bombs_Carried);
+        if (plane_bombs_idx.data().toInt() > 0) {
+            model->setData(plane_bombs_idx, plane_bombs_idx.data().toInt() -1);
+            // Need to update the rest of the crew that a bomb was dropped
+            emit bombDropped();
+        }
+    }
+
+    // Second, package up the resulting turn information
     int action = ui->actionGroup->checkedButton()->property("action_taken").toInt();
     QVariant action_decorator;
     if (action == TurnCrewItem::Shot_Action) {
@@ -122,7 +158,14 @@ std::tuple<QPersistentModelIndex, int, QVariant> CrewControls::getChosenCrewActi
         bitfield |= ui->range_0_btn->isChecked() ? TurnCrewItem::Range_0 : ui->range_1_btn->isChecked() ? TurnCrewItem::Range_1 : ui->range_2_btn->isChecked() ? TurnCrewItem::Range_2 : TurnCrewItem::Range_3;
         action_decorator = bitfield;
     }
-    if (action == TurnCrewItem::Custom_Action) {
+    else if (action == TurnCrewItem::Unjam_Action) {
+        // If an unjam attempt was made but failed
+        QPersistentModelIndex idx = ui->gun_selection_unjam->currentData().toPersistentModelIndex();
+        if (idx.sibling(idx.row(), GunItem::Gun_Jammed).data().toBool()) {
+            action = TurnCrewItem::Failed_Unjam_Action;
+        }
+    }
+    else if (action == TurnCrewItem::Custom_Action) {
         action_decorator = ui->custom_input->text();
     }
     return {crew_idx, action, action_decorator};
@@ -130,26 +173,39 @@ std::tuple<QPersistentModelIndex, int, QVariant> CrewControls::getChosenCrewActi
 
 void CrewControls::handleTurnEnd()
 {
-    if (ui->shoot_radio->isChecked()) {
-        QPersistentModelIndex idx = ui->gun_selection_shoot->currentData().toPersistentModelIndex();
-        model->setData(idx.sibling(idx.row(), GunItem::Shots_Fired), ui->burst_len->value()+1);
-    }
-    else if (ui->reload_radio->isChecked()) {
-        QPersistentModelIndex idx = ui->gun_selection_reload->currentData().toPersistentModelIndex();
-        model->setData(idx.sibling(idx.row(), GunItem::Ammo_In_Current_Box),
-                       idx.sibling(idx.row(), GunItem::Ammo_Box_Capacity).data().toInt());
+//    if (ui->shoot_radio->isChecked()) {
+//        QPersistentModelIndex idx = ui->gun_selection_shoot->currentData().toPersistentModelIndex();
+//        model->setData(idx.sibling(idx.row(), GunItem::Shots_Fired), ui->burst_len->value()+1);
 
-        QModelIndex ammo_box_count_idx = idx.sibling(idx.row(), GunItem::Ammo_Box_Count);
-        model->setData(ammo_box_count_idx, ammo_box_count_idx.data().toInt()-1);
-    }
-    else if (ui->drop_bomb_radio->isChecked()) {
-        QModelIndex plane_bombs_idx = crew_idx.parent().sibling(crew_idx.parent().row(), PlaneItem::Bombs_Carried);
-        if (plane_bombs_idx.data().toInt() > 0) {
-            model->setData(plane_bombs_idx, plane_bombs_idx.data().toInt() -1);
-            // Need to update the rest of the crew that a bomb was dropped
-            emit bombDropped();
-        }
-    }
+//        // Handle possible jam
+//        if (ui->long_burst_btn->isChecked()) {
+//            if (QMessageBox::question(this, "Jam Check", "Fired a long burst. Was it a jam?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+//                model->setData(idx.sibling(idx.row(), GunItem::Gun_Jammed), true);
+//            }
+//        }
+//    }
+//    else if (ui->reload_radio->isChecked()) {
+//        QPersistentModelIndex idx = ui->gun_selection_reload->currentData().toPersistentModelIndex();
+//        model->setData(idx.sibling(idx.row(), GunItem::Ammo_In_Current_Box),
+//                       idx.sibling(idx.row(), GunItem::Ammo_Box_Capacity).data().toInt());
+
+//        QModelIndex ammo_box_count_idx = idx.sibling(idx.row(), GunItem::Ammo_Box_Count);
+//        model->setData(ammo_box_count_idx, ammo_box_count_idx.data().toInt()-1);
+//    }
+//    else if (ui->unjam_radio->isChecked()) {
+//        QPersistentModelIndex idx = ui->gun_selection_unjam->currentData().toPersistentModelIndex();
+//        if (QMessageBox::question(this, "Unjam Check", "Attempted to unjam. Was it successful?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+//            model->setData(idx.sibling(idx.row(), GunItem::Gun_Jammed), false);
+//        }
+//    }
+//    else if (ui->drop_bomb_radio->isChecked()) {
+//        QModelIndex plane_bombs_idx = crew_idx.parent().sibling(crew_idx.parent().row(), PlaneItem::Bombs_Carried);
+//        if (plane_bombs_idx.data().toInt() > 0) {
+//            model->setData(plane_bombs_idx, plane_bombs_idx.data().toInt() -1);
+//            // Need to update the rest of the crew that a bomb was dropped
+//            emit bombDropped();
+//        }
+//    }
     refreshGunWidgets();
 
     QModelIndexList guns;
@@ -193,36 +249,27 @@ void CrewControls::updateBombState()
 }
 
 void CrewControls::applyManeuverRestrictions(QPersistentModelIndex maneuver_idx)
-{
-    if (crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() == "Pilot" ||
-            crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() == "Co-Pilot") {
-        QString climb_value = maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Climb_Value).data().toString();
-        QString level_value = maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Level_Value).data().toString();
-        QString dive_value  = maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Dive_Value).data().toString();
+{  
+    auto determine_column = [](QPersistentModelIndex idx) {
+        QPersistentModelIndex crew_idx = idx.parent();
+        QString gun_owner_role = crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString();
+        if (gun_owner_role == "Observer" || gun_owner_role == "Gunner") {
+            return ManeuverItem::Observer_Can_Reload;
+        }
+        else {
+            return ManeuverItem::Can_Reload;
+        }
+    };
 
-        QModelIndex last_turn_idx = turn_model->lastIndex(TurnItem::Turn_Altitude_Col);
+    // If the maneuver doesn't allow reloading, then disable the radio selection
+    QPersistentModelIndex reload_idx = ui->gun_selection_reload->currentData().toPersistentModelIndex();
+    ui->reload_radio->setEnabled(reload_idx.sibling(reload_idx.row(), GunItem::Ammo_Box_Count).data().toInt() > 1 &&
+            reload_idx.sibling(reload_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt() == 0 &&
+            maneuver_idx.sibling(maneuver_idx.row(), determine_column(reload_idx)).data().toBool());
 
-        ui->target_above->setDisabled(climb_value == "-");
-        ui->target_level->setDisabled(level_value == "-");
-        ui->target_below->setDisabled(dive_value  == "-" || (last_turn_idx.isValid() ? last_turn_idx.data(Qt::UserRole).toInt() : turn_model->getStartingAlt()) <= 1);
-
-        ui->target_above->setChecked(ui->target_above->isEnabled());
-        ui->target_level->setChecked(ui->target_level->isEnabled());
-        ui->target_below->setChecked(ui->target_below->isEnabled());
-
-        // If the maneuver doesn't allow reloading, then disable the radio selection
-        QPersistentModelIndex reload_idx = ui->gun_selection_reload->currentData().toPersistentModelIndex();
-        ui->reload_radio->setEnabled(reload_idx.sibling(reload_idx.row(), GunItem::Ammo_Box_Count).data().toInt() > 1 &&
-                reload_idx.sibling(reload_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt() == 0 &&
-                maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Can_Reload).data().toBool());
-    }
-    else {
-        // If the maneuver doesn't allow reloading, then disable the radio selection
-        QPersistentModelIndex reload_idx = ui->gun_selection_reload->currentData().toPersistentModelIndex();
-        ui->reload_radio->setEnabled(reload_idx.sibling(reload_idx.row(), GunItem::Ammo_Box_Count).data().toInt() > 1 &&
-                reload_idx.sibling(reload_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt() == 0 &&
-                maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Observer_Can_Reload).data().toBool());
-    }
+    // Similarly, if the maneuver doesn't allow reloading, then disable the unjam selection
+    QPersistentModelIndex unjam_idx = ui->gun_selection_unjam->currentData().toPersistentModelIndex();
+    ui->unjam_radio->setEnabled(maneuver_idx.sibling(maneuver_idx.row(), determine_column(unjam_idx)).data().toBool());
 
     selected_maneuver = maneuver_idx;
 }
@@ -316,6 +363,14 @@ void CrewControls::refreshGunWidgets()
     // Only allow reloading if there's more than the current ammo box remaining and if all the current ammo has been expended
     QPersistentModelIndex reload_idx = ui->gun_selection_shoot->currentData().toPersistentModelIndex();
     ui->reload_radio->setEnabled(reload_idx.sibling(reload_idx.row(), GunItem::Ammo_Box_Count).data().toInt() > 1 && !ui->shoot_radio->isEnabled());
+
+    // If jammed, only give the option to unjam
+    if (shoot_idx.sibling(shoot_idx.row(), GunItem::Gun_Jammed).data().toBool()) {
+        ui->shoot_radio->setEnabled(false);
+    }
+    if (reload_idx.sibling(reload_idx.row(), GunItem::Gun_Jammed).data().toBool()) {
+        ui->reload_radio->setEnabled(false);
+    }
 }
 
 void CrewControls::applyCVCalcs()

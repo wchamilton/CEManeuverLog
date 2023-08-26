@@ -148,38 +148,35 @@ void PlaneEditor::exportJSON()
         plane->addChild(item);
     }
 
-    QSettings settings;
-    settings.beginGroup("CanvasEagles");
-    QString planes_dir = "./Planes";
-    if (settings.contains("planes_dir")) {
-        planes_dir = settings.value("planes_dir").toString();
+    QString file_path = QFileDialog::getSaveFileName(this, tr("Save Plane"), PLANES_LOCATION + QDir::separator() + ui->plane_name->text(), tr("JSON files (*.json)"));
+    if (file_path != "") {
+        QFileInfo file_info(file_path);
+        if (file_info.suffix() != "json") {
+            file_info.setFile(file_path + ".json");
+        }
+
+        QFile file(file_info.absoluteFilePath());
+        if (file.open(QIODevice::WriteOnly|QIODevice::Text)) {
+            // Ensure that if there are any unicode characters, they're preserved properly
+            QTextStream out(&file);
+            QString configDoc = QJsonDocument(plane_model->dumpPlaneToJSON(plane_model->index(0,0))).toJson();
+
+            out << configDoc;
+            out.flush();
+            file.close();
+        }
     }
 
-    QString file_path = QFileDialog::getSaveFileName(this, tr("Save Plane"), planes_dir + QDir::separator() + ui->plane_name->text(), tr("JSON files (*.json)"));
-    if (file_path == "") {
-        return;
+    // Clean up
+    int child_row = 0;
+    while (child_row < plane->childCount()) {
+        if (plane->childAt(child_row)->getType() == BaseItem::Crew_Item_Type) {
+            plane->removeChild(child_row);
+        }
+        else {
+            ++child_row;
+        }
     }
-
-    QFileInfo file_info(file_path);
-    if (file_info.suffix() != "json") {
-        file_info.setFile(file_path + ".json");
-    }
-
-    QFile file(file_info.absoluteFilePath());
-    if (!file.open(QIODevice::WriteOnly|QIODevice::Text)) {
-        return;
-    }
-
-    // Ensure that if there are any unicode characters, they're preserved properly
-    QTextStream out(&file);
-    QString configDoc = QJsonDocument(plane_model->dumpPlaneToJSON(plane_model->index(0,0))).toJson();
-
-    out << configDoc;
-    out.flush();
-    file.close();
-    settings.remove("planes_dir");
-    settings.setValue("planes_dir", file_info.dir().absolutePath());
-    settings.endGroup();
 }
 
 void PlaneEditor::initWidgets()

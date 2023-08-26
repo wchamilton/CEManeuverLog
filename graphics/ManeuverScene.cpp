@@ -179,10 +179,10 @@ void ManeuverScene::positionManeuvers()
 
     // Restricted speed 2
     maneuver_map["30L2"]->moveBy(125, 650);
-    maneuver_map["31L2"]->moveBy(185, 670);
+    maneuver_map["31L2"]->moveBy(182, 670);
     maneuver_map["27S2"]->moveBy(291, 650);
     maneuver_map["29S2"]->moveBy(291, 650);
-    maneuver_map["31R2"]->moveBy(385, 670);
+    maneuver_map["31R2"]->moveBy(387, 670);
     maneuver_map["30R2"]->moveBy(445, 650);
 
     // Restricted speed 3

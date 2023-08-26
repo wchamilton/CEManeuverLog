@@ -115,6 +115,7 @@ public:
         Ammo_In_Current_Box,
         Total_Ammo_Remaining,
         Total_Ammo,
+        Gun_Jammed,
         Gun_Destroyed,
         Gun_Position,
         Gun_Last_Position,
