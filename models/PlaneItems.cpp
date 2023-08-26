@@ -277,6 +277,9 @@ QVariant GunLinkItem::data(int column) const
             linked_guns << childAt(i);
         }
     }
+    if (linked_guns.isEmpty()) {
+        return QVariant();
+    }
     switch (column) {
         case GunItem::Gun_Name: {
             QStringList compound_name_components;

@@ -80,7 +80,7 @@ MainWindow::MainWindow(QWidget *parent) :
     autoLoadPlanes();
 
     connect(ui->actionLoad_Planes, &QAction::triggered, this, [&]{
-        QString file_path = QFileDialog::getOpenFileName(this, tr("Open File"), ".", tr("JSON files (*.json)"));
+        QString file_path = QFileDialog::getOpenFileName(this, tr("Open File"), PLANES_LOCATION, tr("JSON files (*.json)"));
         loadJSON(file_path);
         plane_action_group->actions().last()->trigger();
     });
@@ -90,14 +90,7 @@ MainWindow::MainWindow(QWidget *parent) :
     });
 
     connect(ui->actionEdit_plane, &QAction::triggered, this, [&] {
-        QSettings settings;
-        settings.beginGroup("CanvasEagles");
-        QString planes_dir = "./Planes";
-        if (settings.contains("planes_dir")) {
-            planes_dir = settings.value("planes_dir").toString();
-        }
-
-        QString file_path = QFileDialog::getOpenFileName(this, tr("Open File"), planes_dir, tr("JSON files (*.json)"));
+        QString file_path = QFileDialog::getOpenFileName(this, tr("Open File"), PLANES_LOCATION, tr("JSON files (*.json)"));
         if (file_path != "") {
             QFile file(file_path);
             if (!file.open(QIODevice::ReadOnly|QIODevice::Text)) {
@@ -110,22 +103,6 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
-    connect(ui->actionSet_Plane_Auto_Load_Location, &QAction::triggered, this, [&] {
-        QSettings settings;
-        settings.beginGroup("CanvasEagles");
-        QString planes_dir = "./Planes";
-        if (settings.contains("planes_dir")) {
-            planes_dir = settings.value("planes_dir").toString();
-        }
-        planes_dir = QFileDialog::getExistingDirectory(this, tr("Select Folder"), planes_dir);
-        settings.remove("planes_dir");
-        if (planes_dir != "") {
-            settings.setValue("planes_dir", planes_dir);
-            autoLoadPlanes();
-        }
-        settings.endGroup();
-    });
-
     connect(ui->log_movement_btn, &QPushButton::clicked, this, [=](){ setTurnState(Movement_Locked); });
     connect(ui->next_turn_btn, &QPushButton::clicked, this, &MainWindow::handleTurnEnd);
     connect(maneuver_scene, &ManeuverScene::maneuverClicked, this, [=](QPersistentModelIndex idx) {
@@ -134,11 +111,6 @@ MainWindow::MainWindow(QWidget *parent) :
     });
     connect(ui->actionDamage_Chit_Effects, &QAction::triggered, this, [=] {
         EffectsSelectionDialog(plane_model, plane_action_group->checkedAction()->data().toPersistentModelIndex()).exec();
-
-        // debug code: remove this post testing
-//        for (auto control : crew_control_widgets) {
-//            control->refreshGunWidgets();
-//        }
     });
 }
 
@@ -272,6 +244,12 @@ void MainWindow::handleTurnEnd()
         control->handleTurnEnd();
     }
 
+    for (int i=0; i<ui->firing_arc_selection->count(); ++i){
+        QModelIndex gun_idx = ui->firing_arc_selection->itemData(i).toPersistentModelIndex();
+        crew_proxy_model->setData(gun_idx.sibling(gun_idx.row(), GunItem::Gun_Last_Position),
+                                  gun_idx.sibling(gun_idx.row(), GunItem::Gun_Position).data().toInt());
+    }
+
     turn_model->addTurn(maneuver_scene->getSelectedManeuverIdx(), alt_ctrl_scene->getCurrentAlt(), crew_actions);
     ui->turn_log->expandAll();
     for (int i=0; i<ui->turn_log->header()->count(); ++i) {
@@ -311,17 +289,11 @@ void MainWindow::setTurnState(MainWindow::TurnState state)
 
 void MainWindow::autoLoadPlanes()
 {
-    QSettings settings;
-    settings.beginGroup("CanvasEagles");
-    QString load_location = settings.contains("auto-load_location") ? settings.value("auto-load_location").toString() : "./Planes";
-    settings.endGroup();
-    if (load_location != "") {
-        early_war_menu->clear();
-        late_war_menu->clear();
-        QDir planes_dir(load_location);
-        for (QFileInfo file_info : planes_dir.entryInfoList({"*.json"})) {
-            loadJSON(file_info.absoluteFilePath());
-        }
+    early_war_menu->clear();
+    late_war_menu->clear();
+    QDir planes_dir(PLANES_LOCATION);
+    for (QFileInfo file_info : planes_dir.entryInfoList({"*.json"})) {
+        loadJSON(file_info.absoluteFilePath());
     }
 }
 

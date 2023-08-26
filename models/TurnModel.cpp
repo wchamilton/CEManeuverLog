@@ -175,6 +175,7 @@ QVariant TurnModel::data(const QModelIndex &idx, int role) const
                         return QString("Range %3 %1 burst at a %2 target").arg(shot_len).arg(shot_angle).arg(shot_range);
                     }
                     case TurnCrewItem::Reload_Action: return "Reloaded gun";
+                    case TurnCrewItem::Failed_Unjam_Action: return "Failed to unjam gun";
                     case TurnCrewItem::Unjam_Action: return "Unjammed gun";
                     case TurnCrewItem::Observe_Action: return "Observed tile";
                     case TurnCrewItem::Drop_Bomb_Action: return "Dropped a bomb";
