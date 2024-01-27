@@ -82,6 +82,7 @@ CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_i
         }
         applyCVCalcs();
     });
+
     connect(ui->target_above, &QPushButton::released, this, [=]() { ui->target_alt->setValue(2); });
     connect(ui->target_level, &QPushButton::released, this, [=]() { ui->target_alt->setValue(1); });
     connect(ui->target_below, &QPushButton::released, this, [=]() { ui->target_alt->setValue(0); });
@@ -173,39 +174,6 @@ std::tuple<QPersistentModelIndex, int, QVariant> CrewControls::getChosenCrewActi
 
 void CrewControls::handleTurnEnd()
 {
-//    if (ui->shoot_radio->isChecked()) {
-//        QPersistentModelIndex idx = ui->gun_selection_shoot->currentData().toPersistentModelIndex();
-//        model->setData(idx.sibling(idx.row(), GunItem::Shots_Fired), ui->burst_len->value()+1);
-
-//        // Handle possible jam
-//        if (ui->long_burst_btn->isChecked()) {
-//            if (QMessageBox::question(this, "Jam Check", "Fired a long burst. Was it a jam?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-//                model->setData(idx.sibling(idx.row(), GunItem::Gun_Jammed), true);
-//            }
-//        }
-//    }
-//    else if (ui->reload_radio->isChecked()) {
-//        QPersistentModelIndex idx = ui->gun_selection_reload->currentData().toPersistentModelIndex();
-//        model->setData(idx.sibling(idx.row(), GunItem::Ammo_In_Current_Box),
-//                       idx.sibling(idx.row(), GunItem::Ammo_Box_Capacity).data().toInt());
-
-//        QModelIndex ammo_box_count_idx = idx.sibling(idx.row(), GunItem::Ammo_Box_Count);
-//        model->setData(ammo_box_count_idx, ammo_box_count_idx.data().toInt()-1);
-//    }
-//    else if (ui->unjam_radio->isChecked()) {
-//        QPersistentModelIndex idx = ui->gun_selection_unjam->currentData().toPersistentModelIndex();
-//        if (QMessageBox::question(this, "Unjam Check", "Attempted to unjam. Was it successful?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-//            model->setData(idx.sibling(idx.row(), GunItem::Gun_Jammed), false);
-//        }
-//    }
-//    else if (ui->drop_bomb_radio->isChecked()) {
-//        QModelIndex plane_bombs_idx = crew_idx.parent().sibling(crew_idx.parent().row(), PlaneItem::Bombs_Carried);
-//        if (plane_bombs_idx.data().toInt() > 0) {
-//            model->setData(plane_bombs_idx, plane_bombs_idx.data().toInt() -1);
-//            // Need to update the rest of the crew that a bomb was dropped
-//            emit bombDropped();
-//        }
-//    }
     refreshGunWidgets();
 
     QModelIndexList guns;
@@ -390,6 +358,7 @@ int CrewControls::calculateCV()
     // First part of the combat value is the fire base
     QPersistentModelIndex gun_idx = ui->gun_selection_shoot->currentData().toPersistentModelIndex();
     int combat_value = gun_idx.sibling(gun_idx.row(), GunItem::Fire_Base_0 + hex_range).data().toInt();
+    QString cv_tooltip = QString("Damage at range %1: %2").arg(hex_range).arg(combat_value);
 
     // Check if the crew has Ignore Deflection
     bool ignores_deflection = crew_idx.sibling(crew_idx.row(), CrewItem::Has_Ignore_Deflection).data().toBool();
@@ -397,91 +366,250 @@ int CrewControls::calculateCV()
     // DOUBLE CHECK THAT SPINNING TARGETS CANNOT ALSO BE STALLED
     switch (hex_range) {
     case 0: {
-        if ((!ignores_deflection && ui->deflection->isChecked()) || ui->target_spinning->isChecked() || ui->target_stalled->isChecked()) {
+        if (ui->deflection->isChecked() || ui->target_spinning->isChecked() || ui->target_stalled->isChecked()) {
             return 0;
         }
 
-        combat_value += ui->short_burst_btn->isChecked() ? 0 : ui->med_burst_btn->isChecked() ? 2 : 4;
-        combat_value += ui->target_below->isChecked() ? 1 : ui->target_above->isChecked() ? -1 : 0;
+        if (ui->short_burst_btn->isChecked()) {
+            cv_tooltip += "\nShort Burst (+0) -> " + QString::number(combat_value);
+        }
+        else if (ui->med_burst_btn->isChecked()) {
+            combat_value += 2;
+            cv_tooltip += "\nMedium Burst (+2) -> " + QString::number(combat_value);
+        }
+        else {
+            combat_value += 4;
+            cv_tooltip += "\nLong Burst (+4) -> " + QString::number(combat_value);
+        }
+
+        if (ui->target_below->isChecked()) {
+            combat_value += 1;
+            cv_tooltip += "\nLower target (+1) -> " + QString::number(combat_value);
+        }
+        else if (ui->target_above->isChecked()) {
+            combat_value -= 1;
+            cv_tooltip += "\nHigher target (-1) -> " + QString::number(combat_value);
+        }
+        else {
+            cv_tooltip += "\nLevel target (+0) -> " + QString::number(combat_value);
+        }
+
         if (ui->tailed_target->isChecked() &&
                 crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Observer" &&
                 crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Gunner") {
             combat_value += 2;
+            cv_tooltip += "\nTailed target (+2) -> " + QString::number(combat_value);
         }
-        combat_value += ui->shot_at_target->isChecked() ? 1 : 0;
-        combat_value += ui->wounds->value() == 0 ? 0 : ui->wounds->value() == 1 ? -1 : -3;
+        if (ui->shot_at_target->isChecked()) {
+            combat_value += 1;
+            cv_tooltip += "\nShot at target (+1) -> " + QString::number(combat_value);
+        }
+        if (ui->wounds->value() == 1) {
+            combat_value -= 1;
+            cv_tooltip += "\nWounded (-1) -> " + QString::number(combat_value);
+        }
+        else if (ui->wounds->value() == 2) {
+            combat_value -= 3;
+            cv_tooltip += "\nWounded (-3) -> " + QString::number(combat_value);
+        }
         break;
     }
     case 1: {
-        combat_value += ui->short_burst_btn->isChecked() ? 0 : ui->med_burst_btn->isChecked() ? 2 : 3;
-        combat_value += ui->target_spinning->isChecked() ? -6 : !ignores_deflection && ui->deflection->isChecked() ? -1 : 0;
-        combat_value += ui->target_below->isChecked() ? 1 : ui->target_above->isChecked() ? -1 : 0;
-        combat_value += ui->target_stalled->isChecked() ? 3 : 0;
+        if (ui->short_burst_btn->isChecked()) {
+            cv_tooltip += "\nShort Burst (+0) -> " + QString::number(combat_value);
+        }
+        else if (ui->med_burst_btn->isChecked()) {
+            combat_value += 2;
+            cv_tooltip += "\nMedium Burst (+2) -> " + QString::number(combat_value);
+        }
+        else {
+            combat_value += 3;
+            cv_tooltip += "\nLong Burst (+3) -> " + QString::number(combat_value);
+        }
+        if (ui->target_spinning->isChecked()) {
+            combat_value -= 6;
+            cv_tooltip += "\nSpinning target (-6) -> " + QString::number(combat_value);
+        }
+        else if (!ignores_deflection && ui->deflection->isChecked()) {
+            combat_value -= 1;
+            cv_tooltip += "\nShooting with deflection (-1) -> " + QString::number(combat_value);
+        }
+        if (ui->target_below->isChecked()) {
+            combat_value += 1;
+            cv_tooltip += "\nLower target (+1) -> " + QString::number(combat_value);
+        }
+        else if (ui->target_above->isChecked()) {
+            combat_value -= 1;
+            cv_tooltip += "\nHigher target (-1) -> " + QString::number(combat_value);
+        }
+        else {
+            cv_tooltip += "\nLevel target (+0) -> " + QString::number(combat_value);
+        }
+        if (ui->target_stalled->isChecked()) {
+            combat_value += 3;
+            cv_tooltip += "\nTarget stalled (+3) -> " + QString::number(combat_value);
+        }
         if (selected_maneuver.isValid()) {
             if (selected_maneuver.sibling(selected_maneuver.row(), ManeuverItem::Is_Restricted).data().toBool()) {
                 combat_value += -1;
+                cv_tooltip += "\nPerformed Restricted Maneuver (-1) -> " + QString::number(combat_value);
             }
             if (selected_maneuver.sibling(selected_maneuver.row(), ManeuverItem::Speed).data().toInt() > 2) {
                 combat_value += -1;
+                cv_tooltip += "\nPerformed Speed 3+ Maneuver (-1) -> " + QString::number(combat_value);
             }
         }
         if (ui->tailed_target->isChecked() &&
                 crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Observer" &&
                 crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Gunner") {
             combat_value += 2;
+            cv_tooltip += "\nTailed target (+2) -> " + QString::number(combat_value);
         }
-        combat_value += ui->shot_at_target->isChecked() ? 1 : 0;
-        combat_value += ui->wounds->value() == 0 ? 0 : ui->wounds->value() == 1 ? -1 : -3;
+        if (ui->shot_at_target->isChecked()) {
+            combat_value += 1;
+            cv_tooltip += "\nShot at target (+1) -> " + QString::number(combat_value);
+        }
+        if (ui->wounds->value() == 1) {
+            combat_value -= 1;
+            cv_tooltip += "\nWounded (-1) -> " + QString::number(combat_value);
+        }
+        else if (ui->wounds->value() == 2) {
+            combat_value -= 3;
+            cv_tooltip += "\nWounded (-3) -> " + QString::number(combat_value);
+        }
         break;
     }
     case 2: {
-        combat_value += ui->short_burst_btn->isChecked() ? 0 : ui->med_burst_btn->isChecked() ? 1 : 2;
-        combat_value += ui->target_spinning->isChecked() ? -7 : !ignores_deflection && ui->deflection->isChecked() ? -2 : 0;
-        combat_value += ui->target_below->isChecked() ? 1 : ui->target_above->isChecked() ? -1 : 0;
-        combat_value += ui->target_stalled->isChecked() ? 2 : 0;
+        if (ui->short_burst_btn->isChecked()) {
+            cv_tooltip += "\nShort Burst (+0) -> " + QString::number(combat_value);
+        }
+        else if (ui->med_burst_btn->isChecked()) {
+            combat_value += 1;
+            cv_tooltip += "\nMedium Burst (+1) -> " + QString::number(combat_value);
+        }
+        else {
+            combat_value += 2;
+            cv_tooltip += "\nLong Burst (+2) -> " + QString::number(combat_value);
+        }
+
+        if (ui->target_spinning->isChecked()) {
+            combat_value -= 7;
+            cv_tooltip += "\nSpinning target (-7) -> " + QString::number(combat_value);
+        }
+        else if (!ignores_deflection && ui->deflection->isChecked()) {
+            combat_value -= 2;
+            cv_tooltip += "\nShooting with deflection (-2) -> " + QString::number(combat_value);
+        }
+
+        if (ui->target_below->isChecked()) {
+            combat_value += 1;
+            cv_tooltip += "\nLower target (+1) -> " + QString::number(combat_value);
+        }
+        else if (ui->target_above->isChecked()) {
+            combat_value -= 1;
+            cv_tooltip += "\nHigher target (-1) -> " + QString::number(combat_value);
+        }
+        else {
+            cv_tooltip += "\nLevel target (+0) -> " + QString::number(combat_value);
+        }
+
+        if (ui->target_stalled->isChecked()) {
+            combat_value += 2;
+            cv_tooltip += "\nTarget stalled (+2) -> " + QString::number(combat_value);
+        }
         if (selected_maneuver.isValid()) {
             if (selected_maneuver.sibling(selected_maneuver.row(), ManeuverItem::Is_Restricted).data().toBool()) {
                 combat_value += -2;
+                cv_tooltip += "\nPerformed Restricted Maneuver (-2) -> " + QString::number(combat_value);
             }
             if (selected_maneuver.sibling(selected_maneuver.row(), ManeuverItem::Speed).data().toInt() > 2) {
                 combat_value += -2;
+                cv_tooltip += "\nPerformed Speed 3+ Maneuver (-2) -> " + QString::number(combat_value);
             }
         }
         if (ui->tailed_target->isChecked() &&
                 crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Observer" &&
                 crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Gunner") {
             combat_value += 1;
+            cv_tooltip += "\nTailed target (+1) -> " + QString::number(combat_value);
         }
-        combat_value += ui->shot_at_target->isChecked() ? 1 : 0;
-        combat_value += ui->wounds->value() == 0 ? 0 : ui->wounds->value() == 1 ? -1 : -3;
+        if (ui->shot_at_target->isChecked()) {
+            combat_value += 1;
+            cv_tooltip += "\nShot at target (+1) -> " + QString::number(combat_value);
+        }
+        if (ui->wounds->value() == 1) {
+            combat_value -= 1;
+            cv_tooltip += "\nWounded (-1) -> " + QString::number(combat_value);
+        }
+        else if (ui->wounds->value() == 2) {
+            combat_value -= 3;
+            cv_tooltip += "\nWounded (-3) -> " + QString::number(combat_value);
+        }
         break;
     }
     case 3: {
-        if (ui->target_spinning->isChecked() || ui->wounds->value() >= 1) {
+        if (ui->target_spinning->isChecked() || ui->wounds->value() > 0) {
             return 0;
         }
 
-        combat_value += ui->short_burst_btn->isChecked() ? 0 : ui->med_burst_btn->isChecked() ? 1 : 2;
-        combat_value += !ignores_deflection && ui->deflection->isChecked() ? -3 : 0;
-        combat_value += ui->target_below->isChecked() ? 0 : ui->target_above->isChecked() ? -2 : 0;
-        combat_value += ui->target_stalled->isChecked() ? 2 : 0;
+        if (ui->short_burst_btn->isChecked()) {
+            cv_tooltip += "\nShort Burst (+0) -> " + QString::number(combat_value);
+        }
+        else if (ui->med_burst_btn->isChecked()) {
+            combat_value += 1;
+            cv_tooltip += "\nMedium Burst (+1) -> " + QString::number(combat_value);
+        }
+        else {
+            combat_value += 2;
+            cv_tooltip += "\nLong Burst (+2) -> " + QString::number(combat_value);
+        }
+
+        if (!ignores_deflection && ui->deflection->isChecked()) {
+            combat_value -= 3;
+            cv_tooltip += "\nShooting with deflection (-3) -> " + QString::number(combat_value);
+        }
+        if (ui->target_below->isChecked()) {
+            combat_value += 0;
+            cv_tooltip += "\nLower target (+0) -> " + QString::number(combat_value);
+        }
+        else if (ui->target_above->isChecked()) {
+            combat_value -= 1;
+            cv_tooltip += "\nHigher target (-2) -> " + QString::number(combat_value);
+        }
+        else {
+            cv_tooltip += "\nLevel target (+0) -> " + QString::number(combat_value);
+        }
+        if (ui->target_stalled->isChecked()) {
+            combat_value += 2;
+            cv_tooltip += "\nTarget stalled (+2) -> " + QString::number(combat_value);
+        }
         if (selected_maneuver.isValid()) {
             if (selected_maneuver.sibling(selected_maneuver.row(), ManeuverItem::Is_Restricted).data().toBool()) {
                 combat_value += -3;
+                cv_tooltip += "\nPerformed Restricted Maneuver (-3) -> " + QString::number(combat_value);
             }
             if (selected_maneuver.sibling(selected_maneuver.row(), ManeuverItem::Speed).data().toInt() > 2) {
                 combat_value += -3;
+                cv_tooltip += "\nPerformed Speed 3+ Maneuver (-3) -> " + QString::number(combat_value);
             }
         }
         if (ui->tailed_target->isChecked() &&
                 crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Observer" &&
                 crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Gunner") {
             combat_value += 1;
+            cv_tooltip += "\nTailed target (+1) -> " + QString::number(combat_value);
         }
-        combat_value += ui->wounds->value() == 0 ? 0 : -1;
+        if (ui->wounds->value() == 1) {
+            combat_value -= 1;
+            cv_tooltip += "\nWounded (-1) -> " + QString::number(combat_value);
+        }
+        else if (ui->wounds->value() == 2) {
+            combat_value -= 3;
+            cv_tooltip += "\nWounded (-3) -> " + QString::number(combat_value);
+        }
         break;
     }
     }
-
+    ui->combat_value->setToolTip(cv_tooltip);
     return combat_value;
 }
