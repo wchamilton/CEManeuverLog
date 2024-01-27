@@ -17,7 +17,7 @@ PlaneItem::PlaneItem(QJsonObject plane, BaseItem *parent) : BaseItem(Plane_Item_
     setData(Tail_Critical,         plane["tail_critical"].toVariant());
     setData(Rated_Climb,           plane["rated_climb"].toVariant());
     setData(Rated_Dive,            plane["rated_dive"].toVariant());
-    setData(Max_Altitude,          plane["max_alt"].toString().left(1).toInt());
+    setData(Max_Altitude,          plane["max_alt"].toString().remove("+").toInt());
     setData(Can_Return_To_Max_Alt, plane["max_alt"].toString().right(1) == "+");
     setData(Stability,             plane["stability"].toVariant());
     setData(Is_Gliding,            false);
@@ -137,7 +137,7 @@ QJsonObject ManeuverItem::toJSON() const
 
 CrewItem::CrewItem(QJsonObject crew, BaseItem *parent) : BaseItem(Crew_Item_Type, parent)
 {
-    /// TODO: Store this as an enumeration and display the correct role via a switch statement
+    /// TODO: Store this as an enumeration and display the correct role via a switch statement/map
     setData(Crew_Role, crew["role"].toString());
     setData(Can_Drop_Bombs, crew["can_drop_bombs"].toBool());
     setData(Wounds, 0);

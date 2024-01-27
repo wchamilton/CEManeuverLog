@@ -205,14 +205,24 @@ void MainWindow::rotateSelectedFlexibleGun(int delta)
     QList<int> range = gun_idx.sibling(gun_idx.row(), GunItem::Gun_Position_Range).data().value<QList<int>>();
     int current_range_idx = range.indexOf(ui->gun_pos_spin->value());
     int starting_pos_idx = range.indexOf(starting_pos);
-    if ((current_range_idx == starting_pos_idx+1 || current_range_idx == starting_pos_idx+7) && delta == 1) {
+
+    // Handle position 1 and 6 for wrap around
+    if (((current_range_idx == 5 && starting_pos_idx == 0) || current_range_idx == starting_pos_idx - 1) && delta == -1) {
         return;
     }
-    else if ((current_range_idx == starting_pos_idx-1 || current_range_idx == starting_pos_idx+5) && delta == -1) {
+    else if (((current_range_idx == 0 && starting_pos_idx == 5) || current_range_idx == starting_pos_idx + 1) && delta == 1) {
         return;
     }
 
-    // Handle wrap arounds
+    // Restrict movement of arcs where wraparound occurs but isn't at position 1 or 6
+    if (current_range_idx == range.size()-1 && starting_pos != 6 && delta == 1) {
+        return;
+    }
+    else if (current_range_idx == 0 && range.size() != 6 && delta == -1) {
+        return;
+    }
+
+    // Handle wrap arounds that are allowed
     if (current_range_idx == 0 && delta == -1) {
         ui->gun_pos_spin->setValue(range.at(range.size()-1));
     }
