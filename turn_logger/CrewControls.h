@@ -44,7 +44,7 @@ private:
     Ui::CrewControls *ui;
 
     PlaneFilterProxy *model = nullptr;
-    QPersistentModelIndex crew_idx;
+    QPersistentModelIndex crew_idx; // When this is passed in, it is assumed to be set to column Crew_Name
     TurnModel* turn_model = nullptr;
     QPersistentModelIndex selected_maneuver;
 };
