@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>419</width>
+    <width>472</width>
     <height>529</height>
    </rect>
   </property>
@@ -754,6 +754,9 @@
         <property name="text">
          <string>Custom</string>
         </property>
+        <attribute name="buttonGroup">
+         <string notr="true">actionGroup</string>
+        </attribute>
        </widget>
       </item>
       <item row="7" column="1">

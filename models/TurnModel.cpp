@@ -178,7 +178,7 @@ QVariant TurnModel::data(const QModelIndex &idx, int role) const
                     case TurnCrewItem::Failed_Unjam_Action: return "Failed to unjam gun";
                     case TurnCrewItem::Unjam_Action: return "Unjammed gun";
                     case TurnCrewItem::Observe_Action: return "Observed tile";
-                    case TurnCrewItem::Drop_Bomb_Action: return "Dropped a bomb";
+                    case TurnCrewItem::Drop_Bomb_Action: return item->data(TurnCrewItem::Turn_Action_Decorator_Col).toString();
                     case TurnCrewItem::Custom_Action: return item->data(TurnCrewItem::Turn_Action_Decorator_Col).toString();
                 }
                 break;

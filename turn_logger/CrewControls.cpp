@@ -3,6 +3,7 @@
 #include "models/PlaneModel.h"
 #include "models/TurnModel.h"
 
+#include <QDebug>
 #include <QMessageBox>
 
 CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_idx, TurnModel *turn_model, QWidget *parent) :
@@ -166,6 +167,9 @@ std::tuple<QPersistentModelIndex, int, QVariant> CrewControls::getChosenCrewActi
             action = TurnCrewItem::Failed_Unjam_Action;
         }
     }
+    else if (action == TurnCrewItem::Drop_Bomb_Action) {
+        action_decorator = QString("Dropped bomb - %1").arg(QMessageBox::question(this, "Bomb drop", "Attempted to bomb target. Was it a successful hit?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes ? "Hit!" : "Miss!");
+    }
     else if (action == TurnCrewItem::Custom_Action) {
         action_decorator = ui->custom_input->text();
     }
@@ -211,7 +215,7 @@ void CrewControls::handleTurnEnd()
 void CrewControls::updateBombState()
 {
     // Bombs can only be dropped if the plane has any (left) on board
-    ui->drop_bomb_radio->setEnabled(crew_idx.parent().sibling(crew_idx.parent().row(), PlaneItem::Bombs_Carried).data().toInt() > 0 &&
+    ui->drop_bomb_radio->setEnabled(model->index(crew_idx.parent().row(), PlaneItem::Bombs_Carried).data().toInt() > 0 &&
                                     crew_idx.sibling(crew_idx.row(), CrewItem::Can_Drop_Bombs).data().toBool());
     ui->remaining_bombs_lbl->setText(tr("%1 available").arg(model->index(crew_idx.parent().row(), PlaneItem::Bombs_Carried).data().toInt()));
 }
