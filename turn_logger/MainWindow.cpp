@@ -202,37 +202,30 @@ void MainWindow::rotateSelectedFlexibleGun(int delta)
     }
 
     int starting_pos = gun_idx.sibling(gun_idx.row(), GunItem::Gun_Last_Position).data().toInt();
-    QList<int> range = gun_idx.sibling(gun_idx.row(), GunItem::Gun_Position_Range).data().value<QList<int>>();
+    QList<int> complete_pos_range = gun_idx.sibling(gun_idx.row(), GunItem::Gun_Position_Range).data().value<QList<int>>();
+    int starting_pos_idx = complete_pos_range.indexOf(starting_pos);
+
+    // Create subset of range:
+    QList<int> range = { starting_pos_idx == 0 ? complete_pos_range[complete_pos_range.size()-1] : complete_pos_range[starting_pos_idx-1],
+                         complete_pos_range[starting_pos_idx],
+                         starting_pos_idx == complete_pos_range.size()-1 ? complete_pos_range[0] : complete_pos_range[starting_pos_idx+1]};
+
+    // Current range index is set relative to subset
     int current_range_idx = range.indexOf(ui->gun_pos_spin->value());
-    int starting_pos_idx = range.indexOf(starting_pos);
 
-    // Handle position 1 and 6 for wrap around
-    if (((current_range_idx == 5 && starting_pos_idx == 0) || current_range_idx == starting_pos_idx - 1) && delta == -1) {
-        return;
-    }
-    else if (((current_range_idx == 0 && starting_pos_idx == 5) || current_range_idx == starting_pos_idx + 1) && delta == 1) {
+    // OOB protection
+    if (current_range_idx + delta == range.size() || current_range_idx + delta < 0) {
         return;
     }
 
-    // Restrict movement of arcs where wraparound occurs but isn't at position 1 or 6
-    if (current_range_idx == range.size()-1 && starting_pos != 6 && delta == 1) {
-        return;
-    }
-    else if (current_range_idx == 0 && range.size() != 6 && delta == -1) {
+    // If the gun is not in position 1 or 6 then this can be used as validation
+    if (!(ui->gun_pos_spin->value() == 1 && delta == -1) &&
+             !(ui->gun_pos_spin->value() == 6 && delta == 1) &&
+             abs(range.at(current_range_idx + delta) - ui->gun_pos_spin->value()) > 1) {
         return;
     }
 
-    // Handle wrap arounds that are allowed
-    if (current_range_idx == 0 && delta == -1) {
-        ui->gun_pos_spin->setValue(range.at(range.size()-1));
-    }
-    else if (current_range_idx == range.size()-1 && delta == 1) {
-        ui->gun_pos_spin->setValue(range.at(0));
-    }
-    else {
-        ui->gun_pos_spin->setValue(range.at(current_range_idx + delta));
-    }
-
+    ui->gun_pos_spin->setValue(range.at(current_range_idx + delta));
     firing_arc_scene->setGunRotation(ui->gun_pos_spin->value());
     crew_proxy_model->setData(gun_idx.sibling(gun_idx.row(), GunItem::Gun_Position), ui->gun_pos_spin->value());
 }
