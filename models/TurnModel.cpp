@@ -125,6 +125,7 @@ QVariant TurnModel::data(const QModelIndex &idx, int role) const
                 QPersistentModelIndex plane_idx = item->data(TurnItem::Turn_Maneuver_Col).toPersistentModelIndex().parent();
                 int max_fuel = plane_idx.sibling(plane_idx.row(), PlaneItem::Fuel).data().toInt();
                 int fuel_consumed = 0;
+
                 for (int i=0; i<=idx.row(); ++i) {
                     fuel_consumed += index(i, TurnItem::Turn_Fuel_Consumed).data(Qt::UserRole).toInt();
                 }
