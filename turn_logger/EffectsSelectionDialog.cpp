@@ -53,5 +53,9 @@ void EffectsSelectionDialog::accept()
     if (ui->gunDestroyedBox->isChecked()) {
         plane_model->setData(ui->gun_selection_cmb->currentData().toModelIndex(), true);
     }
+    if (ui->fuelLostBox->isChecked()) {
+        QModelIndex fuel_idx = plane_idx.sibling(plane_idx.row(), PlaneItem::Fuel);
+        plane_model->setData(fuel_idx, fuel_idx.data().toInt() - ui->fuel_lost->value());
+    }
     QDialog::accept();
 }
