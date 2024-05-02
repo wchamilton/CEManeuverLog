@@ -213,16 +213,18 @@ void MainWindow::rotateSelectedFlexibleGun(int delta)
     // Current range index is set relative to subset
     int current_range_idx = range.indexOf(ui->gun_pos_spin->value());
 
-    // OOB protection
-    if (current_range_idx + delta == range.size() || current_range_idx + delta < 0) {
-        return;
-    }
+    if (complete_pos_range.size() > 2) {
+        // OOB protection
+        if (current_range_idx + delta == range.size() || current_range_idx + delta < 0) {
+            return;
+        }
 
-    // If the gun is not in position 1 or 6 then this can be used as validation
-    if (!(ui->gun_pos_spin->value() == 1 && delta == -1) &&
-             !(ui->gun_pos_spin->value() == 6 && delta == 1) &&
-             abs(range.at(current_range_idx + delta) - ui->gun_pos_spin->value()) > 1) {
-        return;
+        // If the gun is not in position 1 or 6 then this can be used as validation
+        if (!(ui->gun_pos_spin->value() == 1 && delta == -1) &&
+                 !(ui->gun_pos_spin->value() == 6 && delta == 1) &&
+                 abs(range.at(current_range_idx + delta) - ui->gun_pos_spin->value()) > 1) {
+            return;
+        }
     }
 
     ui->gun_pos_spin->setValue(range.at(current_range_idx + delta));
