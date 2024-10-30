@@ -3,6 +3,7 @@
 #include "models/PlaneModel.h"
 #include "models/TurnModel.h"
 
+#include <QDebug>
 #include <QMessageBox>
 
 CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_idx, TurnModel *turn_model, QWidget *parent) :
@@ -118,7 +119,7 @@ std::tuple<QPersistentModelIndex, int, QVariant> CrewControls::getChosenCrewActi
 
         // Handle possible jam
         if (ui->long_burst_btn->isChecked()) {
-            if (QMessageBox::question(this, "Jam Check", "Fired a long burst. Was it a jam?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+            if (QMessageBox::question(this, "Jam Check", QString("%1 fired a long burst. Was it a jam?").arg(crew_idx.data().toString()), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
                 model->setData(idx.sibling(idx.row(), GunItem::Gun_Jammed), true);
             }
         }
@@ -133,7 +134,7 @@ std::tuple<QPersistentModelIndex, int, QVariant> CrewControls::getChosenCrewActi
     }
     else if (ui->unjam_radio->isChecked()) {
         QPersistentModelIndex idx = ui->gun_selection_unjam->currentData().toPersistentModelIndex();
-        if (QMessageBox::question(this, "Unjam Check", "Attempted to unjam. Was it successful?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+        if (QMessageBox::question(this, "Unjam Check", QString("%1 attempted to unjam. Was it successful?").arg(crew_idx.data().toString()), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
             model->setData(idx.sibling(idx.row(), GunItem::Gun_Jammed), false);
         }
     }
@@ -165,6 +166,9 @@ std::tuple<QPersistentModelIndex, int, QVariant> CrewControls::getChosenCrewActi
         if (idx.sibling(idx.row(), GunItem::Gun_Jammed).data().toBool()) {
             action = TurnCrewItem::Failed_Unjam_Action;
         }
+    }
+    else if (action == TurnCrewItem::Drop_Bomb_Action) {
+        action_decorator = QString("Dropped bomb - %1").arg(QMessageBox::question(this, "Bomb drop", QString("%1 attempted to bomb target. Was it a successful hit?").arg(crew_idx.data().toString()), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes ? "Hit!" : "Miss!");
     }
     else if (action == TurnCrewItem::Custom_Action) {
         action_decorator = ui->custom_input->text();
@@ -211,7 +215,7 @@ void CrewControls::handleTurnEnd()
 void CrewControls::updateBombState()
 {
     // Bombs can only be dropped if the plane has any (left) on board
-    ui->drop_bomb_radio->setEnabled(crew_idx.parent().sibling(crew_idx.parent().row(), PlaneItem::Bombs_Carried).data().toInt() > 0 &&
+    ui->drop_bomb_radio->setEnabled(model->index(crew_idx.parent().row(), PlaneItem::Bombs_Carried).data().toInt() > 0 &&
                                     crew_idx.sibling(crew_idx.row(), CrewItem::Can_Drop_Bombs).data().toBool());
     ui->remaining_bombs_lbl->setText(tr("%1 available").arg(model->index(crew_idx.parent().row(), PlaneItem::Bombs_Carried).data().toInt()));
 }

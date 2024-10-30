@@ -3,17 +3,6 @@
         {
             "can_drop_bombs": false,
             "guns": [
-                {
-                    "ammo_box_capacity": 20,
-                    "ammo_box_count": 1,
-                    "fire_base_0": 9,
-                    "fire_base_1": 6,
-                    "fire_base_2": 3,
-                    "fire_base_3": 2,
-                    "fire_template": 1,
-                    "is_linked": false,
-                    "name": "Vickers"
-                }
             ],
             "role": "Pilot"
         },
@@ -22,25 +11,14 @@
             "guns": [
                 {
                     "ammo_box_capacity": 5,
-                    "ammo_box_count": 4,
+                    "ammo_box_count": 2,
                     "fire_base_0": 0,
                     "fire_base_1": 5,
-                    "fire_base_2": 2,
+                    "fire_base_2": 3,
                     "fire_base_3": 1,
-                    "fire_template": 3,
-                    "is_linked": true,
-                    "name": "Flexible Lewis Gun"
-                },
-                {
-                    "ammo_box_capacity": 5,
-                    "ammo_box_count": 4,
-                    "fire_base_0": 0,
-                    "fire_base_1": 5,
-                    "fire_base_2": 2,
-                    "fire_base_3": 1,
-                    "fire_template": 3,
-                    "is_linked": true,
-                    "name": "Flexible Lewis Gun"
+                    "fire_template": 4,
+                    "is_linked": false,
+                    "name": "98K Rifle"
                 }
             ],
             "role": "Observer"
@@ -48,9 +26,9 @@
     ],
     "engine_critical": 3,
     "engine_hp": 8,
-    "fuel": 67,
-    "fuselage_critical": 7,
-    "fuselage_hp": 28,
+    "fuel": 65,
+    "fuselage_critical": 6,
+    "fuselage_hp": 25,
     "maneuvers": [
         {
             "can_be_repeated": true,
@@ -72,31 +50,7 @@
             "is_climb_restricted": false,
             "is_restricted": false,
             "is_weight_restricted": true,
-            "name": "1L0",
-            "observer_can_reload": true,
-            "tolerances": "-/X/-"
-        },
-        {
-            "can_be_repeated": false,
-            "can_put_out_fires": false,
-            "can_reload": false,
-            "causes_spin_check": true,
-            "is_climb_restricted": false,
-            "is_restricted": false,
-            "is_weight_restricted": true,
             "name": "1S0",
-            "observer_can_reload": true,
-            "tolerances": "-/X/-"
-        },
-        {
-            "can_be_repeated": false,
-            "can_put_out_fires": false,
-            "can_reload": false,
-            "causes_spin_check": true,
-            "is_climb_restricted": false,
-            "is_restricted": false,
-            "is_weight_restricted": true,
-            "name": "1R0",
             "observer_can_reload": true,
             "tolerances": "-/X/-"
         },
@@ -158,7 +112,7 @@
             "is_weight_restricted": false,
             "name": "7S1",
             "observer_can_reload": true,
-            "tolerances": "C1/L/D"
+            "tolerances": "C1/L/D1"
         },
         {
             "can_be_repeated": true,
@@ -183,30 +137,6 @@
             "name": "10R1",
             "observer_can_reload": false,
             "tolerances": "-/L/D1"
-        },
-        {
-            "can_be_repeated": true,
-            "can_put_out_fires": false,
-            "can_reload": false,
-            "causes_spin_check": false,
-            "is_climb_restricted": false,
-            "is_restricted": false,
-            "is_weight_restricted": true,
-            "name": "9L2",
-            "observer_can_reload": false,
-            "tolerances": "-/X/D1"
-        },
-        {
-            "can_be_repeated": true,
-            "can_put_out_fires": true,
-            "can_reload": false,
-            "causes_spin_check": false,
-            "is_climb_restricted": false,
-            "is_restricted": false,
-            "is_weight_restricted": false,
-            "name": "16L2",
-            "observer_can_reload": false,
-            "tolerances": "-/L/D"
         },
         {
             "can_be_repeated": true,
@@ -240,45 +170,21 @@
             "is_climb_restricted": false,
             "is_restricted": false,
             "is_weight_restricted": false,
-            "name": "14R2",
+            "name": "13S2",
             "observer_can_reload": true,
             "tolerances": "-/L/D"
         },
         {
             "can_be_repeated": true,
-            "can_put_out_fires": true,
+            "can_put_out_fires": false,
             "can_reload": false,
             "causes_spin_check": false,
             "is_climb_restricted": false,
             "is_restricted": false,
             "is_weight_restricted": false,
-            "name": "16R2",
-            "observer_can_reload": false,
+            "name": "14R2",
+            "observer_can_reload": true,
             "tolerances": "-/L/D"
-        },
-        {
-            "can_be_repeated": true,
-            "can_put_out_fires": false,
-            "can_reload": false,
-            "causes_spin_check": false,
-            "is_climb_restricted": false,
-            "is_restricted": false,
-            "is_weight_restricted": true,
-            "name": "9R2",
-            "observer_can_reload": false,
-            "tolerances": "-/X/D1"
-        },
-        {
-            "can_be_repeated": false,
-            "can_put_out_fires": false,
-            "can_reload": false,
-            "causes_spin_check": false,
-            "is_climb_restricted": false,
-            "is_restricted": true,
-            "is_weight_restricted": true,
-            "name": "31L2",
-            "observer_can_reload": false,
-            "tolerances": "-/X/D1"
         },
         {
             "can_be_repeated": true,
@@ -287,32 +193,20 @@
             "causes_spin_check": false,
             "is_climb_restricted": true,
             "is_restricted": true,
-            "is_weight_restricted": true,
+            "is_weight_restricted": false,
             "name": "29S2",
             "observer_can_reload": false,
-            "tolerances": "C1/-/D1"
-        },
-        {
-            "can_be_repeated": false,
-            "can_put_out_fires": false,
-            "can_reload": false,
-            "causes_spin_check": false,
-            "is_climb_restricted": false,
-            "is_restricted": true,
-            "is_weight_restricted": true,
-            "name": "31R2",
-            "observer_can_reload": false,
-            "tolerances": "-/X/D1"
+            "tolerances": "-/-/D1"
         }
     ],
-    "max_alt": "8+",
-    "name": "DeHaviland DH-4 (Twin Lewis)",
-    "plane_era": "Late War",
-    "rated_climb": 2,
-    "rated_dive": 3,
+    "max_alt": "6",
+    "name": "16 E ALBII 2-Seater",
+    "plane_era": "Early War",
+    "rated_climb": 1,
+    "rated_dive": 2,
     "stability": "B",
     "tail_critical": 3,
     "tail_hp": 6,
-    "wing_critical": 12,
-    "wing_hp": 40
+    "wing_critical": 9,
+    "wing_hp": 36
 }

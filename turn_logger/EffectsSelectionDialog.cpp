@@ -53,5 +53,8 @@ void EffectsSelectionDialog::accept()
     if (ui->gunDestroyedBox->isChecked()) {
         plane_model->setData(ui->gun_selection_cmb->currentData().toModelIndex(), true);
     }
+    if (ui->fuelLostBox->isChecked()) {
+        // TODO: Add mechanism to lose fuel
+    }
     QDialog::accept();
 }

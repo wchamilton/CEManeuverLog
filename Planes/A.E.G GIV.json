@@ -7,7 +7,7 @@
             "role": "Pilot"
         },
         {
-            "can_drop_bombs": false,
+            "can_drop_bombs": true,
             "guns": [
                 {
                     "ammo_box_capacity": 10,
@@ -24,7 +24,7 @@
             "role": "Gunner"
         },
         {
-            "can_drop_bombs": false,
+            "can_drop_bombs": true,
             "guns": [
                 {
                     "ammo_box_capacity": 10,
