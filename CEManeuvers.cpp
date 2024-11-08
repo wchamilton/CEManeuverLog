@@ -2,12 +2,12 @@
 
 extern const QList<Maneuver> master_maneuver_list = {
     // Spin maneuver
-    Maneuver("0S1", "-", "-", "D1", false, Maneuver::Rot_North, { Maneuver::Right }),
+    Maneuver("0S1", "-/-/-", false, Maneuver::Rot_North, { Maneuver::Right }),
 
     // Speed 0 maneuvers
-    Maneuver("1L0", "-", "X", "-", true, Maneuver::Rot_North_West, { Maneuver::Left  }),
-    Maneuver("1S0", "-", "X", "-", true, Maneuver::Rot_North,      { Maneuver::Right }),
-    Maneuver("1R0", "-", "X", "-", true, Maneuver::Rot_North_East, { Maneuver::Right }),
+    Maneuver("1L0", "-/X/-", true, Maneuver::Rot_North_West, { Maneuver::Left  }),
+    Maneuver("1S0", "-/X/-", true, Maneuver::Rot_North,      { Maneuver::Right }),
+    Maneuver("1R0", "-/X/-", true, Maneuver::Rot_North_East, { Maneuver::Right }),
 
     // Speed 1 maneuvers
     Maneuver("10L1", Maneuver::Rot_North,      { Maneuver::North_West }),

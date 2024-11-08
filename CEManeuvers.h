@@ -38,12 +38,10 @@ struct Maneuver
         Rot_North_West = 300
     };
     Maneuver() = default;
-    Maneuver(QString name, QString climb_value, QString level_value, QString dive_value, bool causes_spin_check,
+    Maneuver(QString name, QString tolerances, bool causes_spin_check,
              RotationAngle final_rotation, QList<Directions> tile_movements) :
         name(name),
-        climb_value(climb_value),
-        level_value(level_value),
-        dive_value(dive_value),
+        tolerances(tolerances),
         causes_spin_check(causes_spin_check),
         final_rotation(final_rotation),
         tile_movements(tile_movements)
@@ -58,9 +56,7 @@ struct Maneuver
     {}
 
     QString name;
-    QString climb_value = "-";
-    QString level_value = "-";
-    QString dive_value  = "-";
+    QString tolerances = "-/-/-";
     bool is_restricted = false;
     bool is_climb_restricted = false;
     bool causes_spin_check = false;
@@ -75,16 +71,18 @@ class BaseItem
 public:
     enum ItemType {
         Base_Item_Type = 0,
-        Plane_Item_Type,
         Maneuver_Item_Type,
-        Crew_Item_Type,
-        Gun_Link_Item_Type,
-        Gun_Item_Type,
+        Plane_Item_Type,
+        Plane_Maneuver_Item_Type,
+        Plane_Armaments_Item_Type,
+        Plane_Crew_Item_Type,
+        Chit_Item_Type,
+        Game_Item_Type,
         Turn_Item_Type,
-        Crew_Turn_Item_Type
+        Turn_Crew_Action_Item_Type,
     };
 
-    BaseItem(ItemType type, BaseItem* item = nullptr) : type(type), parent(item) {}
+    BaseItem(ItemType type, BaseItem* parent = nullptr) : type(type), parent(parent) {}
     virtual ~BaseItem();
 
     virtual QVariant data(int column) const;

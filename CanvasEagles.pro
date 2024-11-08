@@ -23,6 +23,8 @@ SOURCES += \
     graphics/SelectionBox.cpp \
     main.cpp \
     CEManeuvers.cpp \
+    models/GameModel.cpp \
+    models/GameModelItems.cpp \
     models/TurnItems.cpp \
     models/TurnModel.cpp \
     turn_logger/EffectsSelectionDialog.cpp \
@@ -46,6 +48,8 @@ HEADERS += \
     graphics/FiringArcScene.h \
     graphics/ManeuverModifiers.h \
     graphics/SelectionBox.h \
+    models/GameModel.h \
+    models/GameModelItems.h \
     models/TurnItems.h \
     models/TurnModel.h \
     turn_logger/EffectsSelectionDialog.h \
