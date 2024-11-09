@@ -168,7 +168,7 @@ std::tuple<QPersistentModelIndex, int, QVariant> CrewControls::getChosenCrewActi
         }
     }
     else if (action == TurnCrewItem::Drop_Bomb_Action) {
-        action_decorator = QString("Dropped bomb - %1").arg(QMessageBox::question(this, "Bomb drop", QString("%1 attempted to bomb target. Was it a successful hit?").arg(crew_idx.data().toString()), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes ? "Hit!" : "Miss!");
+        action_decorator = QString("Dropped bomb - %1").arg(QMessageBox::question(this, "Bomb drop", QString("%1 attempted to bomb target. Was it a successful hit?").arg(crew_idx.data().toString()), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes ? "Hit!" : "Whiff!");
     }
     else if (action == TurnCrewItem::Custom_Action) {
         action_decorator = ui->custom_input->text();
