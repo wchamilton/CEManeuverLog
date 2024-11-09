@@ -123,23 +123,23 @@ void PlaneEditor::updatePreview(int row)
 
 void PlaneEditor::exportJSON()
 {
-    PlaneItem* plane = static_cast<PlaneItem*>(plane_model->index(0,0).internalPointer());
+    PlaneItemOld* plane = static_cast<PlaneItemOld*>(plane_model->index(0,0).internalPointer());
 
-    plane->setData(PlaneItem::Plane_Name, ui->plane_name->text().simplified());
-    plane->setData(PlaneItem::Plane_Era, ui->early_war_btn->isChecked() ? "Early War" : "Late War");
-    plane->setData(PlaneItem::Fuel, ui->fuel_amt->value());
-    plane->setData(PlaneItem::Engine_HP, ui->engine_hp->value());
-    plane->setData(PlaneItem::Engine_Critical, ui->engine_critical_hp->value());
-    plane->setData(PlaneItem::Wing_HP, ui->wing_hp->value());
-    plane->setData(PlaneItem::Wing_Critical, ui->wing_critical_hp->value());
-    plane->setData(PlaneItem::Fuselage_HP, ui->fuselage_hp->value());
-    plane->setData(PlaneItem::Fuselage_Critical, ui->fuselage_critical_hp->value());
-    plane->setData(PlaneItem::Tail_HP, ui->tail_hp->value());
-    plane->setData(PlaneItem::Tail_Critical, ui->tail_critical_hp->value());
-    plane->setData(PlaneItem::Rated_Climb, ui->rated_climb->value());
-    plane->setData(PlaneItem::Rated_Dive, ui->rated_dive->value());
-    plane->setData(PlaneItem::Max_Altitude, ui->max_alt->text().simplified());
-    plane->setData(PlaneItem::Stability, ui->stab_rating->text().simplified());
+    plane->setData(PlaneItemOld::Plane_Name, ui->plane_name->text().simplified());
+    plane->setData(PlaneItemOld::Plane_Era, ui->early_war_btn->isChecked() ? "Early War" : "Late War");
+    plane->setData(PlaneItemOld::Fuel, ui->fuel_amt->value());
+    plane->setData(PlaneItemOld::Engine_HP, ui->engine_hp->value());
+    plane->setData(PlaneItemOld::Engine_Critical, ui->engine_critical_hp->value());
+    plane->setData(PlaneItemOld::Wing_HP, ui->wing_hp->value());
+    plane->setData(PlaneItemOld::Wing_Critical, ui->wing_critical_hp->value());
+    plane->setData(PlaneItemOld::Fuselage_HP, ui->fuselage_hp->value());
+    plane->setData(PlaneItemOld::Fuselage_Critical, ui->fuselage_critical_hp->value());
+    plane->setData(PlaneItemOld::Tail_HP, ui->tail_hp->value());
+    plane->setData(PlaneItemOld::Tail_Critical, ui->tail_critical_hp->value());
+    plane->setData(PlaneItemOld::Rated_Climb, ui->rated_climb->value());
+    plane->setData(PlaneItemOld::Rated_Dive, ui->rated_dive->value());
+    plane->setData(PlaneItemOld::Max_Altitude, ui->max_alt->text().simplified());
+    plane->setData(PlaneItemOld::Stability, ui->stab_rating->text().simplified());
 
     // Start at 1 since index 0 is used by the [+] tab
     for (int i=1; i<ui->crew_editor_tab->count(); ++i) {
@@ -170,7 +170,7 @@ void PlaneEditor::exportJSON()
     // Clean up
     int child_row = 0;
     while (child_row < plane->childCount()) {
-        if (plane->childAt(child_row)->getType() == BaseItem::Crew_Item_Type) {
+        if (plane->childAt(child_row)->getType() == BaseItem::Plane_Crew_Item_Type) {
             plane->removeChild(child_row);
         }
         else {

@@ -19,11 +19,11 @@ void AltCtrlScene::setPlane(QPersistentModelIndex plane_idx)
 
     plane_name = addText(plane_idx.data().toString());
     plane_tolerances = addText(QString("Dive:\t %1\nClimb:\t %2\nAltitude:\t %3%4\nStability:\t %5")
-                               .arg(plane_idx.sibling(plane_idx.row(), PlaneItem::Rated_Dive).data().toString())
-                               .arg(plane_idx.sibling(plane_idx.row(), PlaneItem::Rated_Climb).data().toString())
-                               .arg(plane_idx.sibling(plane_idx.row(), PlaneItem::Max_Altitude).data().toString())
-                               .arg(plane_idx.sibling(plane_idx.row(), PlaneItem::Can_Return_To_Max_Alt).data().toBool() ? "+" : "")
-                               .arg(plane_idx.sibling(plane_idx.row(), PlaneItem::Stability).data().toString()));
+                               .arg(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Rated_Dive).data().toString())
+                               .arg(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Rated_Climb).data().toString())
+                               .arg(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Max_Altitude).data().toString())
+                               .arg(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Can_Return_To_Max_Alt).data().toBool() ? "+" : "")
+                               .arg(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Stability).data().toString()));
 
     plane_name->setY(panel->boundingRect().bottom() + 50);
     plane_tolerances->setY(plane_name->y() + 30);
@@ -86,7 +86,7 @@ void AltCtrlScene::calculateAvailableAltitudes(QPersistentModelIndex current_man
     QString maneuver_climb_val = current_maneuver.sibling(current_maneuver.row(), ManeuverItem::Climb_Value).data().toString();
 
     QModelIndex plane_idx = current_maneuver.parent();
-    int max_plane_alt = plane_idx.sibling(plane_idx.row(), PlaneItem::Max_Altitude).data().toInt();
+    int max_plane_alt = plane_idx.sibling(plane_idx.row(), PlaneItemOld::Max_Altitude).data().toInt();
 
     // If this is the first turn, we need to ensure that we can only pick maneuvers within range of the starting altitude
     QModelIndex prev_turn_idx = turn_model->lastIndex(TurnItem::Turn_Altitude_Col);
@@ -127,10 +127,10 @@ void AltCtrlScene::calculateAvailableAltitudes(QPersistentModelIndex current_man
     int min = std::max(maneuver_dive_val == "D1" ? prev_alt - 1 : maneuver_dive_val == "-" ? prev_alt : 0, 0);
 
     // Determine if the player can climb
-    int can_climb_to = plane_idx.sibling(plane_idx.row(), PlaneItem::Rated_Climb).data().toInt() + prev_alt;
+    int can_climb_to = plane_idx.sibling(plane_idx.row(), PlaneItemOld::Rated_Climb).data().toInt() + prev_alt;
     int max_alt = max_plane_alt;
 
-    if (!plane_idx.sibling(plane_idx.row(), PlaneItem::Can_Return_To_Max_Alt).data().toBool()) {
+    if (!plane_idx.sibling(plane_idx.row(), PlaneItemOld::Can_Return_To_Max_Alt).data().toBool()) {
         --max_alt;
     }
     if (maneuver_climb_val == "C1") {

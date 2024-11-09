@@ -85,7 +85,7 @@ QVariant TurnModel::data(const QModelIndex &idx, int role) const
             }
             else if (role == Qt::DisplayRole) {
                 QPersistentModelIndex plane_idx = item->data(TurnItem::Turn_Maneuver_Col).toPersistentModelIndex().parent();
-                return QString("%1/%2").arg(item->data(idx.column()).toInt()).arg(plane_idx.sibling(plane_idx.row(), PlaneItem::Max_Altitude).data().toInt());
+                return QString("%1/%2").arg(item->data(idx.column()).toInt()).arg(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Max_Altitude).data().toInt());
             }
             break;
         }
@@ -123,7 +123,7 @@ QVariant TurnModel::data(const QModelIndex &idx, int role) const
             }
             else if (role == Qt::DisplayRole || role == Qt::ForegroundRole) {
                 QPersistentModelIndex plane_idx = item->data(TurnItem::Turn_Maneuver_Col).toPersistentModelIndex().parent();
-                int max_fuel = plane_idx.sibling(plane_idx.row(), PlaneItem::Fuel).data().toInt();
+                int max_fuel = plane_idx.sibling(plane_idx.row(), PlaneItemOld::Fuel).data().toInt();
                 int fuel_consumed = 0;
 
                 for (int i=0; i<=idx.row(); ++i) {
@@ -148,7 +148,7 @@ QVariant TurnModel::data(const QModelIndex &idx, int role) const
         }
         }
     }
-    else if (item->getType() == BaseItem::Crew_Turn_Item_Type) {
+    else if (item->getType() == BaseItem::Turn_Crew_Action_Item_Type) {
         switch (idx.column()) {
         case TurnCrewItem::Turn_Crew_Col: {
             if (role == Qt::UserRole) {

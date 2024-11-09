@@ -8,16 +8,19 @@ GameModel::GameModel(QObject *parent)
 QVariant GameModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     // FIXME: Implement me!
+    return QVariant();
 }
 
 QModelIndex GameModel::index(int row, int column, const QModelIndex &parent) const
 {
     // FIXME: Implement me!
+    return QModelIndex();
 }
 
 QModelIndex GameModel::parent(const QModelIndex &index) const
 {
     // FIXME: Implement me!
+    return QModelIndex();
 }
 
 int GameModel::rowCount(const QModelIndex &parent) const

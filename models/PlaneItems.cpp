@@ -2,7 +2,7 @@
 #include <QJsonArray>
 #include <QDebug>
 
-PlaneItem::PlaneItem(QJsonObject plane, BaseItem *parent) : BaseItem(Plane_Item_Type, parent)
+PlaneItemOld::PlaneItemOld(QJsonObject plane, BaseItem *parent) : BaseItem(Plane_Item_Type, parent)
 {
     setData(Plane_Name,            plane["name"].toVariant());
     setData(Plane_Era,             plane["plane_era"].toVariant());
@@ -37,14 +37,14 @@ PlaneItem::PlaneItem(QJsonObject plane, BaseItem *parent) : BaseItem(Plane_Item_
     }
 }
 
-PlaneItem::PlaneItem(BaseItem *parent) : BaseItem(Plane_Item_Type, parent)
+PlaneItemOld::PlaneItemOld(BaseItem *parent) : BaseItem(Plane_Item_Type, parent)
 {
     for (auto maneuver : master_maneuver_list) {
         addChild(new ManeuverItem(maneuver, this));
     }
 }
 
-QJsonObject PlaneItem::toJSON() const
+QJsonObject PlaneItemOld::toJSON() const
 {
     QJsonObject plane;
     plane["name"] = data(Plane_Name).toString();
@@ -69,7 +69,7 @@ QJsonObject PlaneItem::toJSON() const
         if (childAt(i)->getType() == Maneuver_Item_Type && childAt(i)->data(ManeuverItem::Added_To_Schedule).toBool()) {
             maneuvers << static_cast<ManeuverItem*>(childAt(i))->toJSON();
         }
-        else if (childAt(i)->getType() == Crew_Item_Type) {
+        else if (childAt(i)->getType() == BaseItem::Plane_Crew_Item_Type) {
             crew << static_cast<CrewItem*>(childAt(i))->toJSON();
         }
     }
@@ -110,9 +110,6 @@ ManeuverItem::ManeuverItem(Maneuver maneuver, BaseItem *parent) : BaseItem(Maneu
     setData(Can_Be_Used,         true);
     setData(Can_Be_Repeated,     true);
     setData(Added_To_Schedule,   false); // Maneuvers need to be added to the schedule to be saved
-    setData(Climb_Value,         maneuver.climb_value);
-    setData(Level_Value,         maneuver.level_value);
-    setData(Dive_Value,          maneuver.dive_value);
     setData(Is_Restricted,       maneuver.is_restricted);
     setData(Is_Climb_Restricted, maneuver.is_climb_restricted);
     setData(Causes_Spin_Check,   maneuver.causes_spin_check);
@@ -135,7 +132,7 @@ QJsonObject ManeuverItem::toJSON() const
     return maneuver;
 }
 
-CrewItem::CrewItem(QJsonObject crew, BaseItem *parent) : BaseItem(Crew_Item_Type, parent)
+CrewItem::CrewItem(QJsonObject crew, BaseItem *parent) : BaseItem(BaseItem::Plane_Crew_Item_Type, parent)
 {
     /// TODO: Store this as an enumeration and display the correct role via a switch statement/map
     setData(Crew_Role, crew["role"].toString());
@@ -162,7 +159,7 @@ CrewItem::CrewItem(QJsonObject crew, BaseItem *parent) : BaseItem(Crew_Item_Type
     }
 }
 
-CrewItem::CrewItem(BaseItem *parent) : BaseItem(BaseItem::Crew_Item_Type, parent) {}
+CrewItem::CrewItem(BaseItem *parent) : BaseItem(BaseItem::Plane_Crew_Item_Type, parent) {}
 
 QJsonObject CrewItem::toJSON() const
 {
@@ -172,12 +169,12 @@ QJsonObject CrewItem::toJSON() const
 
     QJsonArray guns;
     for (int i=0; i<childCount(); ++i) {
-        if (childAt(i)->getType() == BaseItem::Gun_Link_Item_Type) {
+        if (childAt(i)->getType() == BaseItem::Plane_Armaments_Item_Type) {
             for (int j=0; j<childAt(i)->childCount(); ++j) {
                 guns << static_cast<GunItem*>(childAt(i)->childAt(j))->toJSON();
             }
         }
-        else if (childAt(i)->getType() == BaseItem::Gun_Item_Type) {
+        else if (childAt(i)->getType() == BaseItem::Plane_Armaments_Item_Type) {
             guns << static_cast<GunItem*>(childAt(i))->toJSON();
         }
     }
@@ -187,7 +184,7 @@ QJsonObject CrewItem::toJSON() const
 
 // Need a proxy for the gun item that will consolidate linked guns to display as one powerful one but requiring the more
 // restrictive of the two
-GunItem::GunItem(QJsonObject gun, BaseItem *parent) : BaseItem(Gun_Item_Type, parent)
+GunItem::GunItem(QJsonObject gun, BaseItem *parent) : BaseItem(Plane_Armaments_Item_Type, parent)
 {
     setData(Gun_Name,            gun["name"].toVariant());
     setData(Gun_Is_Linked,       gun["is_linked"].toBool());
@@ -242,7 +239,7 @@ GunItem::GunItem(QJsonObject gun, BaseItem *parent) : BaseItem(Gun_Item_Type, pa
     setData(Gun_Position_Range, QVariant::fromValue(rotation_range));
 }
 
-GunItem::GunItem(BaseItem *parent) : BaseItem(BaseItem::Gun_Item_Type, parent) {}
+GunItem::GunItem(BaseItem *parent) : BaseItem(BaseItem::Plane_Armaments_Item_Type, parent) {}
 
 QVariant GunItem::data(int column) const
 {
@@ -267,7 +264,7 @@ QJsonObject GunItem::toJSON() const
     return gun;
 }
 
-GunLinkItem::GunLinkItem(BaseItem *parent) : BaseItem(BaseItem::Gun_Link_Item_Type, parent) {}
+GunLinkItem::GunLinkItem(BaseItem *parent) : BaseItem(BaseItem::Plane_Armaments_Item_Type, parent) {}
 
 QVariant GunLinkItem::data(int column) const
 {

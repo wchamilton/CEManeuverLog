@@ -40,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Init crew proxy to contain crew
     crew_proxy_model = new PlaneFilterProxy(plane_model, this);
-    crew_proxy_model->setTypeFilter({BaseItem::Crew_Item_Type, BaseItem::Gun_Link_Item_Type, BaseItem::Gun_Item_Type});
+    crew_proxy_model->setTypeFilter({BaseItem::Plane_Crew_Item_Type, BaseItem::Plane_Armaments_Item_Type, BaseItem::Plane_Armaments_Item_Type});
 
     // Init turn model which keeps a history of all events that happened during the game for tracking game logic
     turn_model = new TurnModel(this);
@@ -186,10 +186,10 @@ void MainWindow::setSelectedPlane()
     ui->firing_arc_selection->currentIndexChanged(0);
 
     // Set the module HP indexes
-    ui->engine_grp->setModelIndexes(plane_idx.sibling(plane_idx.row(), PlaneItem::Engine_HP), plane_idx.sibling(plane_idx.row(), PlaneItem::Engine_Critical));
-    ui->wing_grp->setModelIndexes(plane_idx.sibling(plane_idx.row(), PlaneItem::Wing_HP), plane_idx.sibling(plane_idx.row(), PlaneItem::Wing_Critical));
-    ui->fuselage_grp->setModelIndexes(plane_idx.sibling(plane_idx.row(), PlaneItem::Fuselage_HP), plane_idx.sibling(plane_idx.row(), PlaneItem::Fuselage_Critical));
-    ui->tail_grp->setModelIndexes(plane_idx.sibling(plane_idx.row(), PlaneItem::Tail_HP), plane_idx.sibling(plane_idx.row(), PlaneItem::Tail_Critical));
+    ui->engine_grp->setModelIndexes(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Engine_HP), plane_idx.sibling(plane_idx.row(), PlaneItemOld::Engine_Critical));
+    ui->wing_grp->setModelIndexes(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Wing_HP), plane_idx.sibling(plane_idx.row(), PlaneItemOld::Wing_Critical));
+    ui->fuselage_grp->setModelIndexes(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Fuselage_HP), plane_idx.sibling(plane_idx.row(), PlaneItemOld::Fuselage_Critical));
+    ui->tail_grp->setModelIndexes(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Tail_HP), plane_idx.sibling(plane_idx.row(), PlaneItemOld::Tail_Critical));
 
     setTurnState(Start_Of_Turn);
 }
@@ -267,12 +267,12 @@ void MainWindow::handleTurnEnd()
 
     // Decrement the remaining turns for the jam AFTER setting the maneuvers so it's applied immediately after receiving the effect
     QPersistentModelIndex plane_idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();
-    QModelIndex plane_rudder_state_idx = plane_idx.sibling(plane_idx.row(), PlaneItem::Rudder_State);
-    if (plane_rudder_state_idx.data().value<PlaneItem::RudderStates>() != PlaneItem::Rudder_Normal) {
-        QModelIndex jam_dur_idx = plane_idx.sibling(plane_idx.row(), PlaneItem::Rudder_Jam_Duration);
+    QModelIndex plane_rudder_state_idx = plane_idx.sibling(plane_idx.row(), PlaneItemOld::Rudder_State);
+    if (plane_rudder_state_idx.data().value<PlaneItemOld::RudderStates>() != PlaneItemOld::Rudder_Normal) {
+        QModelIndex jam_dur_idx = plane_idx.sibling(plane_idx.row(), PlaneItemOld::Rudder_Jam_Duration);
         plane_model->setData(jam_dur_idx, jam_dur_idx.data().toInt() - 1);
         if (jam_dur_idx.data().toInt() == 0) {
-            plane_model->setData(plane_rudder_state_idx, PlaneItem::Rudder_Normal);
+            plane_model->setData(plane_rudder_state_idx, PlaneItemOld::Rudder_Normal);
         }
     }
 
@@ -324,10 +324,10 @@ void MainWindow::clearUI()
 void MainWindow::generatePlaneMenu(QPersistentModelIndex idx)
 {
     QAction* plane_action = nullptr;
-    if (idx.sibling(idx.row(), PlaneItem::Plane_Era).data().toString() == "Early War") {
+    if (idx.sibling(idx.row(), PlaneItemOld::Plane_Era).data().toString() == "Early War") {
         plane_action = early_war_menu->addAction(idx.data().toString());
     }
-    else if (idx.sibling(idx.row(), PlaneItem::Plane_Era).data().toString() == "Late War") {
+    else if (idx.sibling(idx.row(), PlaneItemOld::Plane_Era).data().toString() == "Late War") {
         plane_action = late_war_menu->addAction(idx.data().toString());
     }
     plane_action->setData(idx);

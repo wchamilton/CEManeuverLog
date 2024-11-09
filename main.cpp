@@ -1,4 +1,5 @@
-#include "turn_logger/MainWindow.h"
+//#include "turn_logger/MainWindow.h"
+#include "EntryDialog.h"
 
 #include <QApplication>
 #include <QFile>
@@ -19,8 +20,10 @@ int main(int argc, char *argv[])
     qApp->setOrganizationName("Name Pending");
     qApp->setApplicationName("CEManeuverLog");
 
-    MainWindow w;
+//    MainWindow w;
 //    w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w.size(), qApp.));
-    w.show();
+//    w.show();
+    EntryDialog dlg;
+    dlg.show();
     return a.exec();
 }

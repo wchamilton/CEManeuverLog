@@ -15,18 +15,18 @@ EffectsSelectionDialog::EffectsSelectionDialog(PlaneModel* plane_model, QPersist
     // iterate over the plane children
     for (int i=0; i<plane_model->rowCount(plane_idx); ++i) {
         QModelIndex crew_idx = plane_model->index(i, 0, plane_idx);
-        if (crew_idx.data(Qt::UserRole).toInt() == BaseItem::Crew_Item_Type) {
+        if (crew_idx.data(Qt::UserRole).toInt() == BaseItem::Plane_Crew_Item_Type) {
             // iterate over the crew children
             for (int j=0; j<plane_model->rowCount(crew_idx); ++j) {
                 QPersistentModelIndex crew_child_idx = plane_model->index(j, 0, crew_idx);
-                if (crew_child_idx.data(Qt::UserRole).toInt() == BaseItem::Gun_Item_Type &&
+                if (crew_child_idx.data(Qt::UserRole).toInt() == BaseItem::Plane_Armaments_Item_Type &&
                         !crew_child_idx.sibling(crew_child_idx.row(), GunItem::Gun_Destroyed).data().toBool()) {
                     ui->gun_selection_cmb->addItem(crew_child_idx.data().toString(), crew_child_idx);
                 }
-                else if (crew_child_idx.data(Qt::UserRole).toInt() == BaseItem::Gun_Link_Item_Type) {
+                else if (crew_child_idx.data(Qt::UserRole).toInt() == BaseItem::Plane_Armaments_Item_Type) {
                     for (int k=0; k<plane_model->rowCount(crew_child_idx); ++k) {
                         QPersistentModelIndex linked_gun_idx = plane_model->index(k, 0, crew_child_idx);
-                        if (linked_gun_idx.data(Qt::UserRole).toInt() == BaseItem::Gun_Item_Type &&
+                        if (linked_gun_idx.data(Qt::UserRole).toInt() == BaseItem::Plane_Armaments_Item_Type &&
                                 !linked_gun_idx.sibling(linked_gun_idx.row(), GunItem::Gun_Destroyed).data().toBool()) {
                             ui->gun_selection_cmb->addItem(linked_gun_idx.data().toString(), linked_gun_idx.sibling(k, GunItem::Gun_Destroyed));
                         }
@@ -46,9 +46,9 @@ EffectsSelectionDialog::~EffectsSelectionDialog()
 void EffectsSelectionDialog::accept()
 {
     if (ui->rudderJamBox->isChecked()) {
-        plane_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Rudder_State), ui->jammed_left_radio->isChecked() ?
-                                 PlaneItem::Rudder_Jammed_Left : PlaneItem::Rudder_Jammed_Right);
-        plane_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Rudder_Jam_Duration), ui->jam_duration->value());
+        plane_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Rudder_State), ui->jammed_left_radio->isChecked() ?
+                                 PlaneItemOld::Rudder_Jammed_Left : PlaneItemOld::Rudder_Jammed_Right);
+        plane_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Rudder_Jam_Duration), ui->jam_duration->value());
     }
     if (ui->gunDestroyedBox->isChecked()) {
         plane_model->setData(ui->gun_selection_cmb->currentData().toModelIndex(), true);

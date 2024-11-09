@@ -244,14 +244,14 @@ void ManeuverScene::setManeuversAvailable(QPersistentModelIndex pilot_idx)
             maneuver_proxy_model->setData(can_use_maneuver_idx, true);
         }
         else if (maneuver_name_idx.sibling(maneuver_name_idx.row(), ManeuverItem::Is_Weight_Restricted).data().toBool() &&
-                 plane_idx.sibling(plane_idx.row(), PlaneItem::Bombs_Carried).data().toInt() > 0) {
+                 plane_idx.sibling(plane_idx.row(), PlaneItemOld::Bombs_Carried).data().toInt() > 0) {
             maneuver_proxy_model->setData(can_use_maneuver_idx, false);
         }
         // If this is the first turn, let the user use whatever maneuver is in range of the starting speed and altitude
         else if (last_turn == QModelIndex()) {
             maneuver_proxy_model->setData(can_use_maneuver_idx, prev_speed == maneuver_speed);
             if ((prev_alt == 0 && must_dive) ||
-                (prev_alt == plane_idx.sibling(plane_idx.row(), PlaneItem::Max_Altitude).data().toInt() && must_climb) ||
+                (prev_alt == plane_idx.sibling(plane_idx.row(), PlaneItemOld::Max_Altitude).data().toInt() && must_climb) ||
                 (can_use_maneuver_idx.sibling(i, ManeuverItem::Is_Restricted).data().toBool() &&
                  !has_unrestricted_maneuvers)) {
                 maneuver_proxy_model->setData(can_use_maneuver_idx, false);
@@ -264,9 +264,9 @@ void ManeuverScene::setManeuversAvailable(QPersistentModelIndex pilot_idx)
             QString available_directions;
 
             // In the account of a chit effect causing a rudder jam, account for that here
-            PlaneItem::RudderStates rudder_state = plane_idx.sibling(plane_idx.row(), PlaneItem::Rudder_State).data().value<PlaneItem::RudderStates>();
-            if (rudder_state == PlaneItem::RudderStates::Rudder_Normal) {
-                if (plane_idx.sibling(plane_idx.row(), PlaneItem::Stability).data().toString() == "C") {
+            PlaneItemOld::RudderStates rudder_state = plane_idx.sibling(plane_idx.row(), PlaneItemOld::Rudder_State).data().value<PlaneItemOld::RudderStates>();
+            if (rudder_state == PlaneItemOld::RudderStates::Rudder_Normal) {
+                if (plane_idx.sibling(plane_idx.row(), PlaneItemOld::Stability).data().toString() == "C") {
                     available_directions = "LSR";
                 }
                 else if (last_direction == "L") {
@@ -279,10 +279,10 @@ void ManeuverScene::setManeuversAvailable(QPersistentModelIndex pilot_idx)
                     available_directions = "SR";
                 }
             }
-            else if (rudder_state == PlaneItem::Rudder_Jammed_Left) {
+            else if (rudder_state == PlaneItemOld::Rudder_Jammed_Left) {
                 available_directions = "L";
             }
-            else if (rudder_state == PlaneItem::Rudder_Jammed_Right) {
+            else if (rudder_state == PlaneItemOld::Rudder_Jammed_Right) {
                 available_directions = "R";
             }
 
@@ -299,7 +299,7 @@ void ManeuverScene::setManeuversAvailable(QPersistentModelIndex pilot_idx)
             }
             // If the altitude will be at max or min, exclude maneuvers that would send beyond
             else if ((prev_alt == 0 && must_dive) ||
-                     (prev_alt == plane_idx.sibling(plane_idx.row(), PlaneItem::Max_Altitude).data().toInt() && must_climb)) {
+                     (prev_alt == plane_idx.sibling(plane_idx.row(), PlaneItemOld::Max_Altitude).data().toInt() && must_climb)) {
                 maneuver_proxy_model->setData(can_use_maneuver_idx, false);
             }
             // Next check speed

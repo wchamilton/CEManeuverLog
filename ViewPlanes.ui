@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ViewPlanes</class>
+ <widget class="QDialog" name="ViewPlanes">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1069</width>
+    <height>924</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout" columnstretch="0,1,0,0" columnminimumwidth="0,0,0,200">
+   <item row="0" column="0" rowspan="4">
+    <widget class="QTreeView" name="treeView"/>
+   </item>
+   <item row="0" column="1" rowspan="4">
+    <widget class="QGraphicsView" name="graphicsView"/>
+   </item>
+   <item row="0" column="2">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Player Name</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="QLineEdit" name="lineEdit"/>
+   </item>
+   <item row="1" column="2">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Combat Date</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QDateEdit" name="dateEdit">
+     <property name="showGroupSeparator" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="dateTime">
+      <datetime>
+       <hour>0</hour>
+       <minute>0</minute>
+       <second>0</second>
+       <year>1914</year>
+       <month>1</month>
+       <day>1</day>
+      </datetime>
+     </property>
+     <property name="displayFormat">
+      <string>MMM dd, yyyy</string>
+     </property>
+     <property name="calendarPopup">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2" colspan="2">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Plane</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0,0,1,1">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Fuel:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>&lt;val&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Engine HP:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>&lt;val&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Engine Critical HP:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>&lt;val&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Wing HP:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLabel" name="label_13">
+        <property name="text">
+         <string>&lt;val&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_12">
+        <property name="text">
+         <string>Wing Critical HP:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>&lt;val&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_16">
+        <property name="text">
+         <string>Fuselage HP:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLabel" name="label_14">
+        <property name="text">
+         <string>&lt;val&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="label_15">
+        <property name="text">
+         <string>Fuselage Critical HP:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QLabel" name="label_17">
+        <property name="text">
+         <string>&lt;val&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QLabel" name="label_19">
+        <property name="text">
+         <string>Tail HP:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QLabel" name="label_21">
+        <property name="text">
+         <string>&lt;val&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0">
+       <widget class="QLabel" name="label_20">
+        <property name="text">
+         <string>Tail Critical HP:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QLabel" name="label_18">
+        <property name="text">
+         <string>&lt;val&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Rated Climb:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="1">
+       <widget class="QLabel" name="label_22">
+        <property name="text">
+         <string>&lt;val&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="0">
+       <widget class="QLabel" name="label_24">
+        <property name="text">
+         <string>Rated Dive:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="1">
+       <widget class="QLabel" name="label_23">
+        <property name="text">
+         <string>&lt;val&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="0">
+       <widget class="QLabel" name="label_26">
+        <property name="text">
+         <string>Max Altitude:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="1">
+       <widget class="QLabel" name="label_25">
+        <property name="text">
+         <string>&lt;val&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="0">
+       <widget class="QLabel" name="label_28">
+        <property name="text">
+         <string>Stability Rating:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="1">
+       <widget class="QLabel" name="label_27">
+        <property name="text">
+         <string>&lt;val&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="0" colspan="2">
+       <widget class="QGroupBox" name="groupBox_2">
+        <property name="title">
+         <string>Crew</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3"/>
+       </widget>
+      </item>
+      <item row="14" column="0" colspan="2">
+       <widget class="QGroupBox" name="groupBox_3">
+        <property name="title">
+         <string>Weapons</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_4"/>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="3" column="2" colspan="2">
+    <widget class="QPushButton" name="pushButton">
+     <property name="text">
+      <string>&lt;Action&gt;</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

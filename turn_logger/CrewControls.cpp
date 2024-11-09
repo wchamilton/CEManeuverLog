@@ -139,7 +139,7 @@ std::tuple<QPersistentModelIndex, int, QVariant> CrewControls::getChosenCrewActi
         }
     }
     else if (ui->drop_bomb_radio->isChecked()) {
-        QModelIndex plane_bombs_idx = crew_idx.parent().sibling(crew_idx.parent().row(), PlaneItem::Bombs_Carried);
+        QModelIndex plane_bombs_idx = crew_idx.parent().sibling(crew_idx.parent().row(), PlaneItemOld::Bombs_Carried);
         if (plane_bombs_idx.data().toInt() > 0) {
             model->setData(plane_bombs_idx, plane_bombs_idx.data().toInt() -1);
             // Need to update the rest of the crew that a bomb was dropped
@@ -215,9 +215,9 @@ void CrewControls::handleTurnEnd()
 void CrewControls::updateBombState()
 {
     // Bombs can only be dropped if the plane has any (left) on board
-    ui->drop_bomb_radio->setEnabled(model->index(crew_idx.parent().row(), PlaneItem::Bombs_Carried).data().toInt() > 0 &&
+    ui->drop_bomb_radio->setEnabled(model->index(crew_idx.parent().row(), PlaneItemOld::Bombs_Carried).data().toInt() > 0 &&
                                     crew_idx.sibling(crew_idx.row(), CrewItem::Can_Drop_Bombs).data().toBool());
-    ui->remaining_bombs_lbl->setText(tr("%1 available").arg(model->index(crew_idx.parent().row(), PlaneItem::Bombs_Carried).data().toInt()));
+    ui->remaining_bombs_lbl->setText(tr("%1 available").arg(model->index(crew_idx.parent().row(), PlaneItemOld::Bombs_Carried).data().toInt()));
 }
 
 void CrewControls::applyManeuverRestrictions(QPersistentModelIndex maneuver_idx)

@@ -48,7 +48,7 @@ int PlaneModel::rowCount(const QModelIndex &parent) const
 
 int PlaneModel::columnCount(const QModelIndex &parent) const
 {
-    return PlaneItem::COL_COUNT;
+    return PlaneItemOld::COL_COUNT;
 }
 
 Qt::ItemFlags PlaneModel::flags(const QModelIndex &idx) const
@@ -85,25 +85,25 @@ bool PlaneModel::setData(const QModelIndex &idx, const QVariant &value, int role
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         BaseItem* item = static_cast<BaseItem*>(idx.internalPointer());
         // Handle the possibilty of mixed gun types linked
-        if (item->getType() == BaseItem::Gun_Link_Item_Type) {
-            for (int i=0; i<item->childCount(); ++i) {
-                setData(index(i, idx.column(), idx), value, role);
-            }
-            emit dataChanged(idx, idx, {role});
-            return true;
-        }
-        else if (item->getType() == BaseItem::Gun_Item_Type) {
-            if (idx.column() == GunItem::Shots_Fired) {
-                item->setData(GunItem::Ammo_In_Current_Box, item->data(GunItem::Ammo_In_Current_Box).toInt() - value.toInt());
-                item->setData(idx.column(), value);
-                emit dataChanged(idx, idx, {role});
-                return true;
-            }
-            else if ((idx.column() == GunItem::Ammo_In_Current_Box || idx.column() == GunItem::Ammo_Box_Count) &&
-                     item->data(GunItem::Ammo_Box_Count).toInt() == 1) {
-                return false;
-            }
-        }
+//        if (item->getType() == BaseItem::Gun_Link_Item_Type) {
+//            for (int i=0; i<item->childCount(); ++i) {
+//                setData(index(i, idx.column(), idx), value, role);
+//            }
+//            emit dataChanged(idx, idx, {role});
+//            return true;
+//        }
+//        else if (item->getType() == BaseItem::Gun_Item_Type) {
+//            if (idx.column() == GunItem::Shots_Fired) {
+//                item->setData(GunItem::Ammo_In_Current_Box, item->data(GunItem::Ammo_In_Current_Box).toInt() - value.toInt());
+//                item->setData(idx.column(), value);
+//                emit dataChanged(idx, idx, {role});
+//                return true;
+//            }
+//            else if ((idx.column() == GunItem::Ammo_In_Current_Box || idx.column() == GunItem::Ammo_Box_Count) &&
+//                     item->data(GunItem::Ammo_Box_Count).toInt() == 1) {
+//                return false;
+//            }
+//        }
         // All other cases
         item->setData(idx.column(), value);
         emit dataChanged(idx, idx, {role});
@@ -114,23 +114,23 @@ bool PlaneModel::setData(const QModelIndex &idx, const QVariant &value, int role
 QModelIndex PlaneModel::loadPlaneJSON(QJsonObject plane)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    PlaneItem *item = new PlaneItem(plane, root);
+    PlaneItemOld *item = new PlaneItemOld(plane, root);
     root->addChild(item);
     endInsertRows();
-    return index(item->row(), PlaneItem::Plane_Name);
+    return index(item->row(), PlaneItemOld::Plane_Name);
 }
 
 QJsonObject PlaneModel::dumpPlaneToJSON(const QModelIndex &index)
 {
     if (data(index, Qt::UserRole).toInt() == BaseItem::Plane_Item_Type) {
-        return static_cast<PlaneItem*>(index.internalPointer())->toJSON();
+        return static_cast<PlaneItemOld*>(index.internalPointer())->toJSON();
     }
     return QJsonObject();
 }
 
 void PlaneModel::prepareTemplateModel()
 {
-    root->addChild(new PlaneItem(root));
+    root->addChild(new PlaneItemOld(root));
 }
 
 void PlaneModel::clearModel()

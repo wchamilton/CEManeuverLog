@@ -6,7 +6,7 @@
 
 #include "CEManeuvers.h"
 
-class PlaneItem : public BaseItem
+class PlaneItemOld : public BaseItem
 {
 public:
     enum RudderStates {
@@ -40,11 +40,11 @@ public:
         Bombs_Carried,
         COL_COUNT
     };
-    PlaneItem(QJsonObject plane, BaseItem* parent = nullptr);
-    PlaneItem(BaseItem* parent = nullptr);
+    PlaneItemOld(QJsonObject plane, BaseItem* parent = nullptr);
+    PlaneItemOld(BaseItem* parent = nullptr);
     QJsonObject toJSON() const;
 };
-Q_DECLARE_METATYPE(PlaneItem::RudderStates)
+Q_DECLARE_METATYPE(PlaneItemOld::RudderStates)
 
 class ManeuverItem : public BaseItem
 {

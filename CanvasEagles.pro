@@ -16,6 +16,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    EntryDialog.cpp \
+    ViewPlanes.cpp \
     graphics/AltCtrlScene.cpp \
     graphics/FiringArc.cpp \
     graphics/FiringArcScene.cpp \
@@ -43,6 +45,8 @@ SOURCES += \
 
 HEADERS += \
     CEManeuvers.h \
+    EntryDialog.h \
+    ViewPlanes.h \
     graphics/AltCtrlScene.h \
     graphics/FiringArc.h \
     graphics/FiringArcScene.h \
@@ -67,6 +71,8 @@ HEADERS += \
     turn_logger/PreGamePrompt.h
 
 FORMS += \
+    EntryDialog.ui \
+    ViewPlanes.ui \
     turn_logger/EffectsSelectionDialog.ui \
     turn_logger/MainWindow.ui \
     turn_logger/CrewControls.ui \

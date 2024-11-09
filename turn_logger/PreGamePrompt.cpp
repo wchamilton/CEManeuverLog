@@ -51,9 +51,9 @@ PreGamePrompt::PreGamePrompt(PlaneFilterProxy *model, QPersistentModelIndex plan
         }
     }
 
-    ui->plane_settings_grp->setTitle(model->index(plane_idx.row(), PlaneItem::Plane_Name).data().toString());
-    ui->starting_alt->setMaximum(model->index(plane_idx.row(), PlaneItem::Max_Altitude).data().toInt());
-    ui->starting_alt->setSuffix(QString("/%1").arg(model->index(plane_idx.row(), PlaneItem::Max_Altitude).data().toInt()));
+    ui->plane_settings_grp->setTitle(model->index(plane_idx.row(), PlaneItemOld::Plane_Name).data().toString());
+    ui->starting_alt->setMaximum(model->index(plane_idx.row(), PlaneItemOld::Max_Altitude).data().toInt());
+    ui->starting_alt->setSuffix(QString("/%1").arg(model->index(plane_idx.row(), PlaneItemOld::Max_Altitude).data().toInt()));
 }
 
 PreGamePrompt::~PreGamePrompt()
@@ -70,7 +70,7 @@ void PreGamePrompt::accept()
         plane_model->setData(crew_name_idx.sibling(crew_name_idx.row(), CrewItem::Has_Unrestricted_Maneuvers),
                              input.second.unrestricted_maneuvers ? input.second.unrestricted_maneuvers->isChecked() : false);
     }
-    plane_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Bombs_Carried), ui->has_bombs->isChecked() ? ui->bomb_count->value() : 0);
+    plane_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Bombs_Carried), ui->has_bombs->isChecked() ? ui->bomb_count->value() : 0);
     turn_model->setStartingValues(ui->starting_alt->value(), ui->starting_speed->value());
     QDialog::accept();
 }
