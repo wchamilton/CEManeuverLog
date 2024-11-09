@@ -6,7 +6,7 @@
 #include <QVariant>
 
 Q_DECLARE_METATYPE(QList<int>)
-#define IS_RELEASE true
+#define IS_RELEASE false
 
 #if IS_RELEASE
 static QString GRAPHICS_LOCATION = "./graphics";

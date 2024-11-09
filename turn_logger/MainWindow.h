@@ -53,6 +53,7 @@ private:
     PlaneModel* plane_model = nullptr;
     TurnModel* turn_model = nullptr;
     TurnFilterProxy* turn_proxy = nullptr;
+    TurnState turn_state = Start_Of_Turn;
     PlaneFilterProxy* maneuver_proxy_model = nullptr;
     PlaneFilterProxy* crew_proxy_model = nullptr;
     ManeuverScene* maneuver_scene = nullptr;

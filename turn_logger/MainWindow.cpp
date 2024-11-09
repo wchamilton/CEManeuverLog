@@ -103,7 +103,21 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
-    connect(ui->log_movement_btn, &QPushButton::clicked, this, [=](){ setTurnState(Movement_Locked); });
+    connect(ui->log_movement_btn, &QPushButton::clicked, this, [=](){
+        if (maneuver_scene->getSelectedManeuver().isEmpty()) {
+            return;
+        }
+        if (turn_state == Movement_Selected) {
+            setTurnState(Movement_Locked);
+            ui->log_movement_btn->setText("Unlock Movement");
+            ui->log_movement_btn->setToolTip("You're not cheating right?");
+        }
+        else if (turn_state == Movement_Locked) {
+            setTurnState(Movement_Selected);
+            ui->log_movement_btn->setText("Lock Movement");
+            ui->log_movement_btn->setToolTip("");
+        }
+    });
     connect(ui->next_turn_btn, &QPushButton::clicked, this, &MainWindow::handleTurnEnd);
     connect(maneuver_scene, &ManeuverScene::maneuverClicked, this, [=](QPersistentModelIndex idx) {
         alt_ctrl_scene->setManeuver(idx);
@@ -276,17 +290,19 @@ void MainWindow::handleTurnEnd()
         }
     }
 
+    ui->log_movement_btn->setText("Lock Movement");
+    ui->log_movement_btn->setToolTip("");
     setTurnState(Start_Of_Turn);
 }
 
 void MainWindow::setTurnState(MainWindow::TurnState state)
 {
+    turn_state = state;
     ui->graphicsView->setEnabled(state != Movement_Locked);
     ui->firing_arc_control->setEnabled(state == Movement_Selected);
     ui->alt_control->setEnabled(state == Movement_Selected);
     ui->rotate_gun_left->setEnabled(state == Movement_Selected);
     ui->rotate_gun_right->setEnabled(state == Movement_Selected);
-    ui->log_movement_btn->setEnabled(state == Movement_Selected);
     ui->crew_tab->setEnabled(state == Movement_Locked);
     ui->next_turn_btn->setEnabled(state == Movement_Locked);
     ui->menuGame_Effects->setEnabled(state == Movement_Locked);
