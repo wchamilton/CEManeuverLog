@@ -59,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent) :
     plane_action_group = new QActionGroup(this);
 
     // Init the scene that contains the maneuver schedule
-    maneuver_scene = new ManeuverScene(maneuver_proxy_model, ui->graphicsView);
+    // maneuver_scene = new ManeuverScene(maneuver_proxy_model, ui->graphicsView);
     maneuver_scene->applyScheduleBG();
     maneuver_scene->positionManeuvers();
     ui->graphicsView->setScene(maneuver_scene);
@@ -140,12 +140,12 @@ void MainWindow::setSelectedPlane()
     clearUI();
 
     QPersistentModelIndex plane_idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();
-    maneuver_scene->setPlane(maneuver_proxy_model->mapFromSource(plane_idx));
+    // maneuver_scene->setPlane(maneuver_proxy_model->mapFromSource(plane_idx));
 
     PreGamePrompt crew_names_dlg(crew_proxy_model, crew_proxy_model->mapFromSource(plane_idx), turn_model, this);
     crew_names_dlg.exec();
 
-    maneuver_scene->setTurnModel(turn_model);
+    // maneuver_scene->setTurnModel(turn_model);
     alt_ctrl_scene->setTurnModel(turn_model);
     alt_ctrl_scene->setPlane(maneuver_proxy_model->mapFromSource(plane_idx));
 
@@ -159,7 +159,7 @@ void MainWindow::setSelectedPlane()
         crew_control_widgets.insert(crew_idx.row(), cc);
 
         if (crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() == "Pilot") {
-            maneuver_scene->setManeuversAvailable(crew_idx);
+            // maneuver_scene->setManeuversAvailable(crew_idx);
         }
 
         connect(maneuver_scene, &ManeuverScene::maneuverClicked, cc, &CrewControls::applyManeuverRestrictions);
@@ -263,7 +263,7 @@ void MainWindow::handleTurnEnd()
 
     maneuver_scene->clearSelection();
     alt_ctrl_scene->setManeuver(QModelIndex());
-    maneuver_scene->setManeuversAvailable(pilot);
+    // maneuver_scene->setManeuversAvailable(pilot);
 
     // Decrement the remaining turns for the jam AFTER setting the maneuvers so it's applied immediately after receiving the effect
     QPersistentModelIndex plane_idx = plane_action_group->checkedAction()->data().toPersistentModelIndex();
@@ -304,7 +304,7 @@ void MainWindow::autoLoadPlanes()
 
 void MainWindow::clearUI()
 {
-    maneuver_scene->setPlane(QPersistentModelIndex());
+    // maneuver_scene->setPlane(QPersistentModelIndex());
 
     ui->engine_grp->clear();
     ui->wing_grp->clear();

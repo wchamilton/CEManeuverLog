@@ -1,4 +1,4 @@
-QT       += core widgets gui svg
+QT += core widgets gui svgwidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -17,7 +17,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     EntryDialog.cpp \
-    ViewPlanes.cpp \
     graphics/AltCtrlScene.cpp \
     graphics/FiringArc.cpp \
     graphics/FiringArcScene.cpp \
@@ -41,12 +40,12 @@ SOURCES += \
     editor/PlaneEditor.cpp \
     editor/CrewEditorTab.cpp \
     editor/GunEditorTab.cpp \
+    turn_logger/PlaneSelectionDialog.cpp \
     turn_logger/PreGamePrompt.cpp
 
 HEADERS += \
     CEManeuvers.h \
     EntryDialog.h \
-    ViewPlanes.h \
     graphics/AltCtrlScene.h \
     graphics/FiringArc.h \
     graphics/FiringArcScene.h \
@@ -68,11 +67,11 @@ HEADERS += \
     editor/PlaneEditor.h \
     editor/CrewEditorTab.h \
     editor/GunEditorTab.h \
+    turn_logger/PlaneSelectionDialog.h \
     turn_logger/PreGamePrompt.h
 
 FORMS += \
     EntryDialog.ui \
-    ViewPlanes.ui \
     turn_logger/EffectsSelectionDialog.ui \
     turn_logger/MainWindow.ui \
     turn_logger/CrewControls.ui \
@@ -80,6 +79,7 @@ FORMS += \
     editor/PlaneEditor.ui \
     editor/CrewEditorTab.ui \
     editor/GunEditorTab.ui \
+    turn_logger/PlaneSelectionDialog.ui \
     turn_logger/PreGamePrompt.ui
 
 # Default rules for deployment.

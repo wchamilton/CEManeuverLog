@@ -117,7 +117,7 @@ void PlaneEditor::updatePreview(int row)
     ui->set_can_repeat->setChecked(idx.sibling(row, ManeuverItem::Can_Be_Repeated).data().toBool());
     ui->set_weight_restricted->setChecked(idx.sibling(row, ManeuverItem::Is_Weight_Restricted).data().toBool());
 
-    maneuver_preview_scene->setManeuver(idx);
+    // maneuver_preview_scene->setManeuver(idx);
     ui->maneuver_preview_gv->fitInView(maneuver_preview_scene->getManeuver(idx.data().toString()), Qt::KeepAspectRatio);
 }
 
@@ -205,8 +205,8 @@ void PlaneEditor::initWidgets()
     maneuver_proxy_model->sort(ManeuverItem::Speed);
 
     // Initialize the scenes and apply them to the graphics views
-    maneuver_preview_scene = new ManeuverScene(maneuver_proxy_model, ui->maneuver_preview_gv);
-    maneuver_schedule_scene = new ManeuverScene(maneuver_proxy_model, ui->maneuver_schedule_gv);
+    // maneuver_preview_scene = new ManeuverScene(maneuver_proxy_model, ui->maneuver_preview_gv);
+    // maneuver_schedule_scene = new ManeuverScene(maneuver_proxy_model, ui->maneuver_schedule_gv);
     maneuver_schedule_scene->applyScheduleBG();
     maneuver_schedule_scene->positionManeuvers();
     ui->maneuver_preview_gv->setScene(maneuver_preview_scene);
@@ -285,12 +285,12 @@ void PlaneEditor::setManeuverData(int column, QVariant data)
 
 void PlaneEditor::addManeuverToSchedule(QPersistentModelIndex idx)
 {
-    maneuver_schedule_scene->addManeuver(idx);
+    // maneuver_schedule_scene->addManeuver(idx);
     maneuver_proxy_model->setData(idx.sibling(idx.row(), ManeuverItem::Added_To_Schedule), true);
 }
 
 void PlaneEditor::removeManeuverFromSchedule(QPersistentModelIndex idx)
 {
-    maneuver_schedule_scene->removeManeuver(idx);
+    // maneuver_schedule_scene->removeManeuver(idx);
     maneuver_proxy_model->setData(idx.sibling(idx.row(), ManeuverItem::Added_To_Schedule), false);
 }

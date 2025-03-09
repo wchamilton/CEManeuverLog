@@ -1,5 +1,6 @@
 //#include "turn_logger/MainWindow.h"
 #include "EntryDialog.h"
+#include "CEManeuvers.h"
 
 #include <QApplication>
 #include <QFile>
@@ -10,8 +11,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-//    QFile file("stylesheet.qss");
-    QFile file("../CEManeuverLog/stylesheet.qss");
+    QFile file("../../../CEManeuverLog/stylesheet.qss");
     file.open(QFile::ReadOnly);
     QString style_sheet = QLatin1String(file.readAll());
     a.setStyleSheet(style_sheet);
@@ -19,10 +19,8 @@ int main(int argc, char *argv[])
     QSettings::setDefaultFormat(QSettings::IniFormat);
     qApp->setOrganizationName("Name Pending");
     qApp->setApplicationName("CEManeuverLog");
+    a.setWindowIcon(QIcon(GRAPHICS_LOCATION + "/plane_icon.png"));
 
-//    MainWindow w;
-//    w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w.size(), qApp.));
-//    w.show();
     EntryDialog dlg;
     dlg.show();
     return a.exec();

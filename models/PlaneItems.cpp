@@ -39,7 +39,7 @@ PlaneItemOld::PlaneItemOld(QJsonObject plane, BaseItem *parent) : BaseItem(Plane
 
 PlaneItemOld::PlaneItemOld(BaseItem *parent) : BaseItem(Plane_Item_Type, parent)
 {
-    for (auto maneuver : master_maneuver_list) {
+    for (auto maneuver : master_maneuver_map) {
         addChild(new ManeuverItem(maneuver, this));
     }
 }
@@ -111,7 +111,7 @@ ManeuverItem::ManeuverItem(Maneuver maneuver, BaseItem *parent) : BaseItem(Maneu
     setData(Can_Be_Repeated,     true);
     setData(Added_To_Schedule,   false); // Maneuvers need to be added to the schedule to be saved
     setData(Is_Restricted,       maneuver.is_restricted);
-    setData(Is_Climb_Restricted, maneuver.is_climb_restricted);
+    setData(Is_Climb_Restricted, maneuver.has_climb_condition);
     setData(Causes_Spin_Check,   maneuver.causes_spin_check);
 }
 

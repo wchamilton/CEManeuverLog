@@ -15,12 +15,11 @@ public:
         Shift_Right
     };
 
-    ManeuverGraphic(ShiftText shift_val = Shift_None, QGraphicsItem *parent = nullptr);
+    ManeuverGraphic(QPersistentModelIndex maneuver_idx, ShiftText shift_val = Shift_None, QGraphicsItem *parent = nullptr);
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     void addHex(Maneuver::Directions position, HexTile::TileType tile_type = HexTile::Blank_Tile, qreal rotation = 0);
     QPainterPath shape() const override;
-    void setModelIndex(QPersistentModelIndex idx);
     void updateManeuverState();
     QPersistentModelIndex getIdx() { return maneuver_idx; }
     void setSelected(bool selected);

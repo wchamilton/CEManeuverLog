@@ -6,11 +6,12 @@
 #include <QFontMetrics>
 #include <QDebug>
 
-#include "models/PlaneItems.h"
+#include "models/GameModelItems.h"
 
 static const QString black_square(u8"\u2BC0");
-ManeuverGraphic::ManeuverGraphic(ShiftText shift_val, QGraphicsItem *parent) :
+ManeuverGraphic::ManeuverGraphic(QPersistentModelIndex maneuver_idx, ShiftText shift_val, QGraphicsItem *parent) :
     QGraphicsItem(parent),
+    maneuver_idx(maneuver_idx),
     shift_val(shift_val)
 {
     setScale(0.27);
@@ -18,7 +19,6 @@ ManeuverGraphic::ManeuverGraphic(ShiftText shift_val, QGraphicsItem *parent) :
     setFlag(ItemIsFocusable, true);
     // Always start with a starting hex
     addHex(Maneuver::Stationary, HexTile::Starting_Tile);
-    setVisible(false);
 }
 
 QRectF ManeuverGraphic::boundingRect() const
@@ -29,8 +29,8 @@ QRectF ManeuverGraphic::boundingRect() const
 
 void ManeuverGraphic::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    qreal hex_center = childItems().first()->boundingRect().width() / 2;
-    qreal hex_height = childItems().first()->boundingRect().height();
+    qreal hex_center = childItems().constFirst()->boundingRect().width() / 2;
+    qreal hex_height = childItems().constFirst()->boundingRect().height();
     switch (shift_val) {
         case Shift_Left: hex_center = 0; break;
         case Shift_Right: hex_center = childItems().size() * hex_center; break;
@@ -43,6 +43,9 @@ void ManeuverGraphic::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     font.setFamily("Tahoma");
     font.setLetterSpacing(QFont::PercentageSpacing, 110);
     painter->setFont(font);
+    QPen pen = painter->pen();
+    pen.setBrush(Qt::black);
+    painter->setPen(pen);
 
     painter->drawText(hex_center - painter->fontMetrics().tightBoundingRect(getID()).width()/2, hex_height + painter->fontMetrics().height(), getID());
     painter->drawText(hex_center - painter->fontMetrics().tightBoundingRect(getTolerances()).width()/2, hex_height + 2*painter->fontMetrics().height(), getTolerances());
@@ -83,7 +86,9 @@ QPainterPath ManeuverGraphic::shape() const
     QRectF rect;
     rect.setTop(path.boundingRect().bottom());
     int text_width = font_metrics.tightBoundingRect(getTolerances()).width();
-    if (font_metrics.tightBoundingRect(getAdditionalInfo()).width() > text_width) text_width = font_metrics.tightBoundingRect(getAdditionalInfo()).width();
+    if (font_metrics.tightBoundingRect(getAdditionalInfo()).width() > text_width) {
+        text_width = font_metrics.tightBoundingRect(getAdditionalInfo()).width();
+    }
 
     rect.setLeft(hex_center - text_width/2);
     rect.setWidth(text_width);
@@ -93,24 +98,13 @@ QPainterPath ManeuverGraphic::shape() const
     return path;
 }
 
-void ManeuverGraphic::setModelIndex(QPersistentModelIndex idx)
-{
-    setVisible(idx.isValid());
-
-    // Cache the index
-    maneuver_idx = idx;
-    if (idx.isValid()) {
-        updateManeuverState();
-    }
-}
-
 void ManeuverGraphic::updateManeuverState()
 {
-    for (auto child : childItems()) {
-        HexTile* hex = static_cast<HexTile*>(child);
-        hex->setIsAvailable(maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Can_Be_Used).data().toBool());
-    }
-    setEnabled(maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Can_Be_Used).data().toBool());
+    // for (auto child : childItems()) {
+    //     HexTile* hex = static_cast<HexTile*>(child);
+    //     hex->setIsAvailable(maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Can_Be_Used).data().toBool());
+    // }
+    // setEnabled(maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Can_Be_Used).data().toBool());
 }
 
 void ManeuverGraphic::setSelected(bool selected)
@@ -118,26 +112,23 @@ void ManeuverGraphic::setSelected(bool selected)
     for (auto child : childItems()) {
         static_cast<HexTile*>(child)->setSelected(selected);
     }
+    qDebug() << maneuver_idx.data().toString();
 }
 
 void ManeuverGraphic::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
-    if (maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::IsEnabled).data().toBool()) {
-        setCursor(Qt::PointingHandCursor);
-        for (auto child : childItems()) {
-            static_cast<HexTile*>(child)->setHovered(true);
-        }
+    setCursor(Qt::PointingHandCursor);
+    for (auto child : childItems()) {
+        static_cast<HexTile*>(child)->setHovered(true);
     }
     QGraphicsItem::hoverEnterEvent(event);
 }
 
 void ManeuverGraphic::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
-    if (maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::IsEnabled).data().toBool()) {
-        setCursor(Qt::ArrowCursor);
-        for (auto child : childItems()) {
-            static_cast<HexTile*>(child)->setHovered(false);
-        }
+    setCursor(Qt::ArrowCursor);
+    for (auto child : childItems()) {
+        static_cast<HexTile*>(child)->setHovered(false);
     }
     QGraphicsItem::hoverLeaveEvent(event);
 }
@@ -170,8 +161,8 @@ void ManeuverGraphic::moveTile(HexTile *tile, Maneuver::Directions position)
 
 QString ManeuverGraphic::getID() const
 {
-    QString id = maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Maneuver_Name).data().toString();
-    if (!maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Can_Be_Repeated).data().toBool()) {
+    QString id = maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Name).data().toString();
+    if (!maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Can_Be_Repeated).data().toBool()) {
         id = QString("[%1]").arg(id);
     }
     return id;
@@ -179,22 +170,22 @@ QString ManeuverGraphic::getID() const
 
 QString ManeuverGraphic::getTolerances() const
 {
-    QStringList tolerances = {maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Climb_Value).data().toString(),
-                              maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Level_Value).data().toString(),
-                              maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Dive_Value).data().toString()};
+    QStringList tolerances = {maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Climb_Val).data().toString(),
+                              maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Level_Val).data().toString(),
+                              maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Dive_Val).data().toString()};
     return tolerances.join("/");
 }
 
 QString ManeuverGraphic::getAdditionalInfo() const
 {
     QString additional_info;
-    if (maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Causes_Spin_Check).data().toBool()) {
+    if (maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Force_Spin_Check).data().toBool()) {
         additional_info = "(Spin Check)";
     }
     else {
-        additional_info =  maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Observer_Can_Reload).data().toBool() ? black_square : QChar();
-        additional_info += maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Can_Reload).data().toBool() ? " R" : "";
-        additional_info += maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Can_Put_Out_Fires).data().toBool() ? " F" : "";
+        additional_info =  maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Observer_Can_Reload).data().toBool() ? black_square : "";
+        additional_info += maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Can_Reload).data().toBool() ? " R" : "";
+        additional_info += maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Put_Out_Fires_Bonus).data().toBool() ? " F" : "";
     }
     return additional_info.trimmed();
 }
