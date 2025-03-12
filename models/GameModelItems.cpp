@@ -11,6 +11,7 @@ PlaneItem::PlaneItem(QJsonObject plane_json, BaseItem* parent) : BaseItem(ItemTy
                        era_str == "Late War" ? PlaneEra::Era_Late_War : PlaneEra::Era_UNKNOWN;
     setData(Plane_Era,                      era);
     // setData(Plane_Points,                   plane_json["points"].toVariant());
+    setData(Plane_Current_Fuel,             plane_json["fuel"].toVariant());
     setData(Plane_Fuel_Cap,                 plane_json["fuel"].toVariant());
     setData(Plane_Engine_HP,                plane_json["engine_hp"].toVariant());
     setData(Plane_Engine_Critical,          plane_json["engine_critical"].toVariant());
@@ -118,6 +119,22 @@ PlaneArmamentsItem::PlaneArmamentsItem(QJsonObject plane_armaments_json, BaseIte
     setData(Plane_Armaments_Gun_Rotation_Range, QVariant::fromValue(rotation_range));
 }
 
+QVariant PlaneArmamentsItem::data(int column) const
+{
+    switch (column) {
+        case Plane_Armaments_Fire_Base_0:
+        case Plane_Armaments_Fire_Base_1:
+        case Plane_Armaments_Fire_Base_2:
+        case Plane_Armaments_Fire_Base_3: {
+            if (BaseItem::data(column).toInt() == 0) {
+                return BaseItem::data(Plane_Armaments_Gun_Is_Linked).toBool() ? 0 : "-";
+            }
+        }
+        default: break;
+    }
+    return BaseItem::data(column);
+}
+
 PlaneCrewItem::PlaneCrewItem(QJsonObject plane_crew_json, BaseItem *parent) : BaseItem(ItemType::Plane_Crew_Item_Type, parent)
 {
     int role = 0;
@@ -137,7 +154,72 @@ PlaneCrewItem::PlaneCrewItem(QJsonObject plane_crew_json, BaseItem *parent) : Ba
     setData(Plane_Crew_Can_Drop_Payloads, plane_crew_json["can_drop_bombs"].toBool());
 
     QJsonArray armaments = plane_crew_json.value("guns").toArray();
+    PlaneArmamentLinkItem* link_item = nullptr; // Initialize this if we find linked guns
     for (int i=0; i<armaments.size(); ++i) {
-        addChild(new PlaneArmamentsItem(armaments.at(i).toObject(), this));
+        if (armaments.at(i).toObject().value("is_linked").toBool()) {
+            if (link_item == nullptr) {
+                link_item = new PlaneArmamentLinkItem(this);
+                addChild(link_item);
+            }
+            link_item->addChild(new PlaneArmamentsItem(armaments.at(i).toObject(), link_item));
+        }
+        else {
+            addChild(new PlaneArmamentsItem(armaments.at(i).toObject(), this));
+        }
+    }
+}
+
+QVariant PlaneArmamentLinkItem::data(int column) const
+{
+    QList<BaseItem*> linked_guns;
+    for (int i=0; i<childCount(); ++i) {
+        if (!childAt(i)->data(PlaneArmamentsItem::Plane_Armaments_Gun_Destroyed).toBool()) {
+            linked_guns << childAt(i);
+        }
+    }
+    if (linked_guns.isEmpty()) {
+        return QVariant();
+    }
+    switch (column) {
+    case PlaneArmamentsItem::Plane_Armaments_Name: {
+        QStringList compound_name_components;
+        QMap<QString, int> multi_gun_count;
+        for (const auto &gun : linked_guns) {
+            QString gun_name = gun->data(column).toString();
+            multi_gun_count[gun_name] = multi_gun_count.contains(gun_name) ? multi_gun_count[gun_name] + 1 : 1;
+        }
+
+        for (QString gun_name : multi_gun_count.keys()) {
+            switch (multi_gun_count[gun_name]) {
+                case 2: gun_name.prepend("Twin "); break;
+                case 3: gun_name.prepend("Triple "); break;
+                case 4: gun_name.prepend("Quad "); break;
+                case 5: gun_name.prepend("Penta ");
+                case 6: gun_name.prepend("Hexa "); break;
+            }
+            compound_name_components << gun_name;
+        }
+
+        return compound_name_components.join(" + ");
+    }
+    case PlaneArmamentsItem::Plane_Armaments_Fire_Base_0:
+    case PlaneArmamentsItem::Plane_Armaments_Fire_Base_1:
+    case PlaneArmamentsItem::Plane_Armaments_Fire_Base_2:
+    case PlaneArmamentsItem::Plane_Armaments_Fire_Base_3: {
+        if (linked_guns.first()->data(column).toInt() == 0) {
+            return "-";
+        }
+        return linked_guns.first()->data(column).toInt() + 2*(linked_guns.size()-1);
+    }
+    default: {
+        for (auto gun : linked_guns) {
+            // If any guns are drum based, base the other columns off it as that will be the most restrictive
+            if (gun->data(PlaneArmamentsItem::Plane_Armaments_Ammo_Box_Count).toInt() > 1) {
+                return gun->data(column);
+            }
+        }
+        // Possible that they're all belt fed so just use the first one for all fields
+        return linked_guns.first()->data(column);
+    }
     }
 }

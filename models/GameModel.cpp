@@ -116,11 +116,11 @@ QModelIndex GameModel::currentTurn(int column) const
 
 void GameModel::applyActiveEffect(int effect, int duration, QString desc)
 {
-    QList effects = currentTurn(TurnItem::Turn_Active_Effects).data().toList();
-    TurnItem::Effect e = { effect, duration, desc };
+    QList effects = index(Planes_Root, PlaneItem::Plane_Active_Effects).data().toList();
+    PlaneItem::Effect e = { effect, duration, desc };
     effects.removeAll(QVariant::fromValue(e));
     effects << QVariant::fromValue(e);
-    setData(currentTurn(TurnItem::Turn_Active_Effects), effects);
+    setData(index(Planes_Root, PlaneItem::Plane_Active_Effects), effects);
 }
 
 FilterProxy::FilterProxy(QAbstractItemModel *src_model, QObject *parent) : QSortFilterProxyModel(parent)

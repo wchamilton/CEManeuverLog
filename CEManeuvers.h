@@ -86,7 +86,8 @@ public:
         Chit_Item_Type,
         Game_Item_Type,
         Turn_Item_Type,
-        Turn_Crew_Action_Item_Type,
+        Turn_Crew_Item_Type,
+        Turn_Armament_Item_Type
     };
 
     BaseItem(ItemType type, BaseItem* parent = nullptr) : type(type), parent(parent) {}

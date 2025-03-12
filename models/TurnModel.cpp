@@ -148,7 +148,7 @@ QVariant TurnModel::data(const QModelIndex &idx, int role) const
         }
         }
     }
-    else if (item->getType() == BaseItem::Turn_Crew_Action_Item_Type) {
+    else if (item->getType() == BaseItem::Turn_Crew_Item_Type) {
         switch (idx.column()) {
         case TurnCrewItem::Turn_Crew_Col: {
             if (role == Qt::UserRole) {

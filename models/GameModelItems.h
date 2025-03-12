@@ -13,6 +13,7 @@ public:
         Plane_Model = 0,
         Plane_Era,
         Plane_Points,
+        Plane_Current_Fuel,
         Plane_Fuel_Cap,
         Plane_Engine_HP,
         Plane_Engine_Critical,
@@ -26,13 +27,38 @@ public:
         Plane_Rated_Dive,
         Plane_Max_Altitude,
         Plane_Can_Return_To_Max_Alt,
-        Plane_Stability_Rating
+        Plane_Stability_Rating,
+        Plane_Active_Effects            ///< List<Effect> of currently active effects
     };
 
     enum PlaneEra {
         Era_UNKNOWN = -1,
         Era_Early_War,
         Era_Late_War
+    };
+
+    enum ActiveEffectIDs {
+        Effect_No_Restricted_Maneuvers = 0,
+        Effect_No_Speed_3_or_4,
+        Effect_Force_Slower_Maneuver,
+        Effect_Rudder_Jam_Left,
+        Effect_Rudder_Jam_Right,
+        Effect_Fuel_Tank_Hit_3,
+        Effect_Fuel_Tank_Hit_6
+    };
+
+    struct Effect {
+        int id;
+        int remaining_turns;
+        QString desc;
+
+        bool operator==(Effect &e) {
+            if ((id == Effect_Rudder_Jam_Left || id == Effect_Rudder_Jam_Right) &&
+                (e.id == Effect_Rudder_Jam_Left || e.id == Effect_Rudder_Jam_Right)) {
+                return true;
+            }
+            return id == e.id;
+        };
     };
 
     PlaneItem(BaseItem* parent = nullptr) : BaseItem(ItemType::Plane_Item_Type, parent) {}
@@ -92,6 +118,15 @@ public:
 
     PlaneArmamentsItem(BaseItem* parent = nullptr) : BaseItem(ItemType::Plane_Armaments_Item_Type, parent) {}
     PlaneArmamentsItem(QJsonObject plane_armaments_json, BaseItem* parent = nullptr);
+
+    QVariant data(int column) const override;
+};
+
+class PlaneArmamentLinkItem : public BaseItem
+{
+public:
+    PlaneArmamentLinkItem(BaseItem* parent = nullptr) : BaseItem(BaseItem::Plane_Armaments_Item_Type, parent) {}
+    QVariant data(int column) const override;
 };
 
 /**
@@ -143,77 +178,65 @@ class TurnItem : public BaseItem
 public:
     enum TurnItemCols {
         Turn_Number = 0,
-        Turn_Selected_Maneuver,     ///< QPersistentModelIndex of the selected maneuver for the turn
-        Turn_Elevation_Delta,       ///< If the plane climbed or dove and by how much
-        Turn_Maneuver_Direction,    ///< Left, Straight, Right (LSR)
-        Turn_Maneuver_Speed,        ///< Speed of the chosen maneuver
-        Turn_Fuel_Consumed,         ///< Amount of fuel consumed this turn
-        Turn_Damage_Taken_Engine,   ///< Amount of engine damage taken this turn
-        Turn_Damage_Taken_Wing,     ///< Amount of wing damage taken this turn
-        Turn_Damage_Taken_Fuse,     ///< Amount of fuselage damage taken this turn
-        Turn_Damage_Taken_Tail,     ///< Amount of tail damage taken this turn
-        Turn_Active_Effects         ///< List of currently active effects paired with their remaining duration
-    };
-
-    enum ActiveEffectIDs {
-        Effect_No_Restricted_Maneuvers = 0,
-        Effect_No_Speed_3_or_4,
-        Effect_Smoke,
-        Effect_Fire,
-        Effect_Force_Slower_Maneuver,
-        Effect_Rudder_Jam_Left,
-        Effect_Rudder_Jam_Right,
-        Effect_Fuel_Tank_Hit_3,
-        Effect_Fuel_Tank_Hit_6
-    };
-
-    struct Effect {
-        int id;
-        int remaining_turns;
-        QString desc;
-
-        bool operator==(Effect &e) {
-            if ((id == Effect_Rudder_Jam_Left || id == Effect_Rudder_Jam_Right) &&
-                (e.id == Effect_Rudder_Jam_Left || e.id == Effect_Rudder_Jam_Right)) {
-                return true;
-            }
-            return id == e.id;
-        };
+        Turn_Selected_Maneuver,         ///< QPersistentModelIndex of the selected maneuver for the turn
+        Turn_Elevation_Delta,           ///< If the plane climbed or dove and by how much
+        Turn_Maneuver_Direction,        ///< Left, Straight, Right (LSR)
+        Turn_Maneuver_Speed,            ///< Speed of the chosen maneuver
+        Turn_Plane_State_Fuel,          ///< Remaining fuel for the plane
+        Turn_Plane_State_Engine_HP,     ///< Current HP value for the engine
+        Turn_Plane_State_Wing_HP,       ///< Current HP value for the wings
+        Turn_Plane_State_Tail_HP,       ///< Current HP value for the tail
+        Turn_Plane_State_Active_Effects ///< List of effects actively applied to the plane
     };
 
     TurnItem(BaseItem* parent = nullptr) : BaseItem(ItemType::Turn_Item_Type, parent) {}
 };
 
 /**
- * @brief The TurnCrewActionItem class
+ * @brief The TurnCrewItem class
  */
-class TurnCrewActionItem : public BaseItem
+class TurnCrewItem : public BaseItem
 {
 public:
-    enum TurnCrewActionItemCols {
-        Turn_Crew_Action_Index = 0,     ///< QPersistentModelIndex linking to the crew member that performed this action
+    enum TurnCrewItemCols {
+        Turn_Crew_Index = 0,            ///< QPersistentModelIndex linking to the crew member that performed this action
         Turn_Crew_Action_Taken,         ///< Enum value of the taken action
-        Turn_Crew_Action_Gun_Position,  ///< New position of the assigned armament (will always be 1 for fixed weapons). Map<QPersistentModelIndex, int> is stored since multiple weapons can be assigned
-        Turn_Crew_Action_Extra_Data     ///< Extra data regarding a taken action
+        Turn_Crew_Action_Extra_Data,    ///< Extra data regarding a taken action
+        Turn_Crew_Wounds_Accrued,       ///< Current amount of wounds received
+        Turn_Crew_Total_Red_Hits,       ///< Current amount of red hits inflicted
+        Turn_Crew_Total_Kills           ///< Current amount of kills awarded
     };
 
     enum TurnCrewActionOptions {
         Action_None = 0,                ///< Extra Data: None? (Maybe a random funny string of the observer doing SOMETHING)
         Action_Shoot,                   ///< Extra Data: ShotProperties struct
-        Action_Reload,                  ///< Extra Data: None
+        Action_Reload,                  ///< Extra Data: QString saying which gun was reloaded
         Action_Unjam,                   ///< Extra Data: Bool (success/fail)
         Action_Drop_Payload,            ///< Extra Data: Bool (success/fail)
-        Action_Observe,                 ///< Extra Data: None
+        Action_Observe,                 ///< Extra Data: QString saying that an observation was made
         Action_Custom                   ///< Extra Data: QString of whatever the user input..
     };
 
     struct ShotProperties {
         int target_delta = 0;           ///< Specifies the altitude delta between this plane and the target
-        int burst_len = 0;              ///< The number of bullet units to consume, also modifies damage. Long burst can jam
+        int target_range = 0;           ///< Range at which the shot was taken. Important for range 3
+        int burst_len = 0;              ///< Number of bullet units consumed, also modifies damage. Long burst can jam
         bool caused_jam = false;        ///< Whether or not the shot caused a jam. Can only trigger on a long burst
     };
 
-    TurnCrewActionItem(BaseItem* parent = nullptr) : BaseItem(ItemType::Turn_Crew_Action_Item_Type, parent) {}
+    TurnCrewItem(BaseItem* parent = nullptr) : BaseItem(ItemType::Turn_Crew_Item_Type, parent) {}
+};
+
+class TurnArmamentItem : public BaseItem
+{
+    enum TurnArmamentItemCols {
+        Turn_Crew_Armament_Index = 0,       ///< QPersistentModelIndex linking to the armament item
+        Turn_Crew_Armament_Position,        ///< New position of the assigned armament (will always be 1 for fixed weapons)
+        Turn_Crew_Armament_Is_Destroyed,
+        Turn_Crew_Armament_Current_Box_Ammo,
+        Turn_Crew_Armament_Remaining_Ammo_Boxes,
+
+    };
 };
 
 #endif // GAMEMODELITEMS_H

@@ -129,15 +129,17 @@ void PlaneSelectionDialog::prepareCrewRows(QGridLayout* layout, QPersistentModel
         crew_proxy->setData(crew_idx, crew_name);
     });
 
-    // Ability 'Ignores Deflection' handling
-    QCheckBox* has_ignore_deflection = new QCheckBox("Ignores Deflection", layout->parentWidget());
-    layout->addWidget(has_ignore_deflection, row++, 1);
-    connect(has_ignore_deflection, &QCheckBox::clicked, this, [crew_idx, this](bool arg){
-        crew_proxy->setData(crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Ability_Ignores_Deflections), arg);
-    });
+    // Ability 'Ignores Deflection' handling. Only create if crew has a gun
+    if (crew_proxy->rowCount(crew_idx)) {
+        QCheckBox* has_ignore_deflection = new QCheckBox("Ignores Deflection", layout->parentWidget());
+        layout->addWidget(has_ignore_deflection, row++, 1);
+        connect(has_ignore_deflection, &QCheckBox::clicked, this, [crew_idx, this](bool arg){
+            crew_proxy->setData(crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Ability_Ignores_Deflections), arg);
+        });
+    }
 
-    // Ability 'Unrestricted Maneuvers' handling
-    if (crew_role == PlaneCrewItem::Pilot) {
+    // Ability 'Unrestricted Maneuvers' handling. Only create if crew is a pilot or co-pilot
+    if (crew_role == PlaneCrewItem::Pilot || crew_role == PlaneCrewItem::CoPilot) {
         QCheckBox* has_unrestricted_maneuvers = new QCheckBox("Unrestricted Maneuvers", layout->parentWidget());
         layout->addWidget(has_unrestricted_maneuvers, row++, 1);
         connect(has_unrestricted_maneuvers, &QCheckBox::clicked, this, [crew_idx, this](bool arg){
@@ -198,6 +200,6 @@ void PlaneSelectionDialog::prepareCrewRows(QGridLayout* layout, QPersistentModel
         grid->addWidget(label(gun_idx.sibling(i, PlaneArmamentsItem::Plane_Armaments_Fire_Base_0).data().toString(), gun_grp_box), r, c);
 
         // Add the firebase grid to the crew grid
-        layout->addWidget(gun_grp_box, row++, 0, 1, 3);
+        layout->addWidget(gun_grp_box, row++, 1, 1, 2);
     }
 }
