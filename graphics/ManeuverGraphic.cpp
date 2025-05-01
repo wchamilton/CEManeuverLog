@@ -112,7 +112,6 @@ void ManeuverGraphic::setSelected(bool selected)
     for (auto child : childItems()) {
         static_cast<HexTile*>(child)->setSelected(selected);
     }
-    qDebug() << maneuver_idx.data().toString();
 }
 
 void ManeuverGraphic::hoverEnterEvent(QGraphicsSceneHoverEvent *event)

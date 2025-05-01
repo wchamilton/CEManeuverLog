@@ -1,29 +1,31 @@
 #include "CrewControls.h"
 #include "ui_CrewControls.h"
-#include "models/PlaneModel.h"
-#include "models/TurnModel.h"
+#include "models/GameModel.h"
+#include "models/GameModelItems.h"
 
 #include <QDebug>
 #include <QMessageBox>
+#include <QPersistentModelIndex>
+#include <QStandardItemModel>
 
-CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_idx, TurnModel *turn_model, QWidget *parent) :
+CrewControls::CrewControls(const QPersistentModelIndex &crew_idx, QSharedPointer<FilterProxy> crew_proxy,
+                           QSharedPointer<FilterProxy> maneuver_proxy, QSharedPointer<FilterProxy> turn_proxy, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CrewControls),
-    model(model),
     crew_idx(crew_idx),
-    turn_model(turn_model)
+    crew_proxy(crew_proxy),
+    maneuver_proxy(maneuver_proxy),
+    turn_proxy(turn_proxy)
 {
     ui->setupUi(this);
 
-//    // Initialize the comboboxes with the model
-    for (int i=0; i<model->rowCount(crew_idx); ++i) {
-        QPersistentModelIndex child_idx = model->index(i, 0, crew_idx);
-        ui->gun_selection_shoot->addItem(child_idx.data().toString(), child_idx);
-        ui->gun_selection_reload->addItem(child_idx.data().toString(), child_idx);
-        ui->gun_selection_unjam->addItem(child_idx.data().toString(), child_idx);
+   // Initialize the comboboxes with the model
+    for (int i=0; i<crew_proxy->rowCount(crew_idx); ++i) {
+        QPersistentModelIndex gun_idx = crew_proxy->index(i, PlaneArmamentsItem::Plane_Armaments_Name, crew_idx);
+        ui->gun_selection_shoot->addItem(gun_idx.data().toString(), gun_idx);
+        ui->gun_selection_reload->addItem(gun_idx.data().toString(), gun_idx);
+        ui->gun_selection_unjam->addItem(gun_idx.data().toString(), gun_idx);
     }
-
-    connect(ui->gun_selection_shoot, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CrewControls::refreshGunWidgets);
 
     // Necessary to set the combobox to the correct index
     ui->gun_selection_shoot->setCurrentIndex(0);
@@ -33,15 +35,15 @@ CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_i
     refreshGunWidgets();
 
     // Set action as a property so we know what data to fetch, not setting one for shoot as that'll be handled specifically
-    ui->no_action_radio->setProperty("action_taken", TurnCrewItem::No_Action);
-    ui->shoot_radio->setProperty("action_taken", TurnCrewItem::Shot_Action);
-    ui->reload_radio->setProperty("action_taken", TurnCrewItem::Reload_Action);
-    ui->unjam_radio->setProperty("action_taken", TurnCrewItem::Unjam_Action);
-    ui->observe_radio->setProperty("action_taken", TurnCrewItem::Observe_Action);
-    ui->drop_bomb_radio->setProperty("action_taken", TurnCrewItem::Drop_Bomb_Action);
+    ui->no_action_radio->setProperty("action_taken", TurnCrewItem::Action_None);
+    ui->shoot_radio->setProperty("action_taken", TurnCrewItem::Action_Shoot);
+    ui->reload_radio->setProperty("action_taken", TurnCrewItem::Action_Reload);
+    ui->unjam_radio->setProperty("action_taken", TurnCrewItem::Action_Unjam);
+    ui->observe_radio->setProperty("action_taken", TurnCrewItem::Action_Observe);
+    ui->drop_bomb_radio->setProperty("action_taken", TurnCrewItem::Action_Drop_Payload);
 
     // Disable gun controls if no guns equipped for the crew member
-    if (model->rowCount(crew_idx) == 0) {
+    if (crew_proxy->rowCount(crew_idx) == 0) {
         ui->gun_selection_shoot->setDisabled(true);
         ui->gun_selection_reload->setDisabled(true);
         ui->gun_selection_unjam->setDisabled(true);
@@ -52,57 +54,7 @@ CrewControls::CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_i
     }
 
     updateBombState();
-
-    connect(ui->score_kill_btn, &QPushButton::pressed, this, [=]() { ui->kills_spin->setValue(ui->kills_spin->value()+1); });
-    connect(ui->score_red_btn, &QPushButton::pressed, this, [=]() { ui->reds_spin->setValue(ui->reds_spin->value()+1); });
-    connect(ui->add_wound_btn, &QPushButton::pressed, this, [=]() { ui->wounds->setValue(ui->wounds->value()+1); });
-    connect(ui->wounds, &QSlider::valueChanged, this, [=](int value){
-        QString colour;
-        switch (value) {
-            case WoundValues::None: colour = "blue"; break;
-            case WoundValues::Light: colour = "yellow"; break;
-            case WoundValues::Severe: colour = "red"; break;
-            case WoundValues::Dead: colour = "gray"; break;
-        }
-        setSliderStylesheet(colour);
-        applyCVCalcs();
-    });
-
-    connect(ui->long_burst_btn, &QPushButton::released, this, [=]() { ui->burst_len->setValue(2); });
-    connect(ui->med_burst_btn, &QPushButton::released, this, [=]() { ui->burst_len->setValue(1); });
-    connect(ui->short_burst_btn, &QPushButton::released, this, [=]() { ui->burst_len->setValue(0); });
-    connect(ui->burst_len, &QSlider::valueChanged, this, [=](int value) {
-        if (value >= ui->ammo_box->value()) {
-            ui->burst_len->setValue(ui->ammo_box->value()-1);
-            return;
-        }
-        switch (value) {
-            case 0: ui->short_burst_btn->setChecked(true); break;
-            case 1: ui->med_burst_btn->setChecked(true); break;
-            case 2: ui->long_burst_btn->setChecked(true); break;
-        }
-        applyCVCalcs();
-    });
-
-    connect(ui->target_above, &QPushButton::released, this, [=]() { ui->target_alt->setValue(2); });
-    connect(ui->target_level, &QPushButton::released, this, [=]() { ui->target_alt->setValue(1); });
-    connect(ui->target_below, &QPushButton::released, this, [=]() { ui->target_alt->setValue(0); });
-    connect(ui->target_alt, &QSlider::valueChanged, this, [=](int value) {
-        // In the future, maybe subclass QSlider to implement a custom function that "disables" certain ticks
-        // For now cycle down until shooting below, and then cycle back to the top (above)
-        switch (value) {
-            case 0: ui->target_below->isEnabled() ? ui->target_below->setChecked(true) : ui->target_alt->setValue(2); break;
-            case 1: ui->target_level->isEnabled() ? ui->target_level->setChecked(true) : ui->target_alt->setValue(0); break;
-            case 2: ui->target_above->isEnabled() ? ui->target_above->setChecked(true) : ui->target_alt->setValue(1); break;
-        }
-        applyCVCalcs();
-    });
-    connect(ui->hexRangeGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &CrewControls::applyCVCalcs);
-    connect(ui->tailed_target, &QCheckBox::clicked, this, &CrewControls::applyCVCalcs);
-    connect(ui->shot_at_target, &QCheckBox::clicked, this, &CrewControls::applyCVCalcs);
-    connect(ui->deflection, &QCheckBox::clicked, this, &CrewControls::applyCVCalcs);
-    connect(ui->target_spinning, &QCheckBox::clicked, this, &CrewControls::applyCVCalcs);
-    connect(ui->target_stalled, &QCheckBox::clicked, this, &CrewControls::applyCVCalcs);
+    initConnections();
 }
 
 CrewControls::~CrewControls()
@@ -110,133 +62,86 @@ CrewControls::~CrewControls()
     delete ui;
 }
 
-std::tuple<QPersistentModelIndex, int, QVariant> CrewControls::getChosenCrewAction()
+void CrewControls::populateTurnIdx(QPersistentModelIndex turn_crew_idx)
 {
-    // First, handle triggers of selection
-    if (ui->shoot_radio->isChecked()) {
-        QPersistentModelIndex idx = ui->gun_selection_shoot->currentData().toPersistentModelIndex();
-        model->setData(idx.sibling(idx.row(), GunItem::Shots_Fired), ui->burst_len->value()+1);
+    auto setData = [turn_crew_idx, this](int column, const QVariant &value) {
+        turn_proxy->setData(turn_crew_idx.sibling(turn_crew_idx.row(), column), value);
+    };
 
-        // Handle possible jam
-        if (ui->long_burst_btn->isChecked()) {
-            if (QMessageBox::question(this, "Jam Check", QString("%1 fired a long burst. Was it a jam?").arg(crew_idx.data().toString()), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-                model->setData(idx.sibling(idx.row(), GunItem::Gun_Jammed), true);
-            }
-        }
-    }
-    else if (ui->reload_radio->isChecked()) {
-        QPersistentModelIndex idx = ui->gun_selection_reload->currentData().toPersistentModelIndex();
-        model->setData(idx.sibling(idx.row(), GunItem::Ammo_In_Current_Box),
-                       idx.sibling(idx.row(), GunItem::Ammo_Box_Capacity).data().toInt());
+    setData(TurnCrewItem::Turn_Crew_Action_Taken, ui->actionGroup->checkedButton()->property("action_taken").toInt());
+    setData(TurnCrewItem::Turn_Crew_Action_Extra_Data, getActionExtraData());
+    setData(TurnCrewItem::Turn_Crew_Wounds_Accrued, ui->wounds->value());
+    setData(TurnCrewItem::Turn_Crew_Total_Red_Hits, ui->reds_spin->value());
+    setData(TurnCrewItem::Turn_Crew_Total_Kills, ui->kills_spin->value());
 
-        QModelIndex ammo_box_count_idx = idx.sibling(idx.row(), GunItem::Ammo_Box_Count);
-        model->setData(ammo_box_count_idx, ammo_box_count_idx.data().toInt()-1);
+    for (int i=0; i<turn_proxy->rowCount(turn_crew_idx); ++i) {
+        QModelIndex gun_idx = turn_proxy->index(i, 0, turn_crew_idx);
+        /// Determine how to populate the gun item for the turn
     }
-    else if (ui->unjam_radio->isChecked()) {
-        QPersistentModelIndex idx = ui->gun_selection_unjam->currentData().toPersistentModelIndex();
-        if (QMessageBox::question(this, "Unjam Check", QString("%1 attempted to unjam. Was it successful?").arg(crew_idx.data().toString()), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-            model->setData(idx.sibling(idx.row(), GunItem::Gun_Jammed), false);
-        }
-    }
-    else if (ui->drop_bomb_radio->isChecked()) {
-        QModelIndex plane_bombs_idx = crew_idx.parent().sibling(crew_idx.parent().row(), PlaneItemOld::Bombs_Carried);
-        if (plane_bombs_idx.data().toInt() > 0) {
-            model->setData(plane_bombs_idx, plane_bombs_idx.data().toInt() -1);
-            // Need to update the rest of the crew that a bomb was dropped
-            emit bombDropped();
-        }
-    }
-
-    // Second, package up the resulting turn information
-    int action = ui->actionGroup->checkedButton()->property("action_taken").toInt();
-    QVariant action_decorator;
-    if (action == TurnCrewItem::Shot_Action) {
-        int bitfield = 0;
-        // Burst len
-        bitfield |= ui->long_burst_btn->isChecked() ? TurnCrewItem::Long_Burst : ui->med_burst_btn->isChecked() ? TurnCrewItem::Medium_Burst : TurnCrewItem::Short_Burst;
-        // Angle
-        bitfield |= ui->target_level->isChecked() ? TurnCrewItem::Target_Level : ui->target_above->isChecked() ? TurnCrewItem::Target_Above : TurnCrewItem::Target_Below;
-        // Range
-        bitfield |= ui->range_0_btn->isChecked() ? TurnCrewItem::Range_0 : ui->range_1_btn->isChecked() ? TurnCrewItem::Range_1 : ui->range_2_btn->isChecked() ? TurnCrewItem::Range_2 : TurnCrewItem::Range_3;
-        action_decorator = bitfield;
-    }
-    else if (action == TurnCrewItem::Unjam_Action) {
-        // If an unjam attempt was made but failed
-        QPersistentModelIndex idx = ui->gun_selection_unjam->currentData().toPersistentModelIndex();
-        if (idx.sibling(idx.row(), GunItem::Gun_Jammed).data().toBool()) {
-            action = TurnCrewItem::Failed_Unjam_Action;
-        }
-    }
-    else if (action == TurnCrewItem::Drop_Bomb_Action) {
-        action_decorator = QString("Dropped bomb - %1").arg(QMessageBox::question(this, "Bomb drop", QString("%1 attempted to bomb target. Was it a successful hit?").arg(crew_idx.data().toString()), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes ? "Hit!" : "Miss!");
-    }
-    else if (action == TurnCrewItem::Custom_Action) {
-        action_decorator = ui->custom_input->text();
-    }
-    return {crew_idx, action, action_decorator};
 }
 
 void CrewControls::handleTurnEnd()
 {
     refreshGunWidgets();
 
-    QModelIndexList guns;
+    QStandardItemModel *shoot_cmb_model = qobject_cast<QStandardItemModel *>(ui->gun_selection_shoot->model());
+    QStandardItemModel *unjam_cmb_model = qobject_cast<QStandardItemModel *>(ui->gun_selection_unjam->model());
+    QStandardItemModel *reload_cmb_model = qobject_cast<QStandardItemModel *>(ui->gun_selection_reload->model());
+
+    // Only need to iterate over one of the comboboxes as all three should be in sync
     for (int i=0; i<ui->gun_selection_shoot->count(); ++i) {
-        guns << ui->gun_selection_shoot->itemData(i).toModelIndex();
+        QModelIndex gun_idx = ui->gun_selection_shoot->itemData(i).toModelIndex();
+
+        // Refresh the names for each of the items in case of gun destruction
+        ui->gun_selection_shoot->setItemText(i, gun_idx.data().toString());
+        ui->gun_selection_unjam->setItemText(i, gun_idx.data().toString());
+        ui->gun_selection_reload->setItemText(i, gun_idx.data().toString());
+
+        // If a gun has been fully destroyed, disable the respective item
+        if (gun_idx.sibling(i, PlaneArmamentsItem::Plane_Armaments_Gun_Destroyed).data().toBool()) {
+            QStandardItem* item = shoot_cmb_model->item(i);
+            item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+
+            item = unjam_cmb_model->item(i);
+            item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+
+            item = reload_cmb_model->item(i);
+            item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+        }
     }
 
-    ui->gun_selection_shoot->blockSignals(true);
-    ui->gun_selection_unjam->blockSignals(true);
-    ui->gun_selection_reload->blockSignals(true);
-
-    ui->gun_selection_shoot->clear();
-    ui->gun_selection_unjam->clear();
-    ui->gun_selection_reload->clear();
-
-    for (auto gun : guns) {
-        ui->gun_selection_shoot->addItem(gun.data().toString(), gun);
-        ui->gun_selection_unjam->addItem(gun.data().toString(), gun);
-        ui->gun_selection_reload->addItem(gun.data().toString(), gun);
-    }
-
-    ui->gun_selection_shoot->setCurrentIndex(0);
-    ui->gun_selection_reload->setCurrentIndex(0);
-    ui->gun_selection_unjam->setCurrentIndex(0);
-
-    ui->gun_selection_shoot->blockSignals(false);
-    ui->gun_selection_unjam->blockSignals(false);
-    ui->gun_selection_reload->blockSignals(false);
-
+    // Reset action selection to "No Action"
     ui->no_action_radio->setChecked(true);
 
+    // Reset maneuver selection to no selection
     selected_maneuver = QPersistentModelIndex();
 }
 
 void CrewControls::updateBombState()
 {
     // Bombs can only be dropped if the plane has any (left) on board
-    ui->drop_bomb_radio->setEnabled(model->index(crew_idx.parent().row(), PlaneItemOld::Bombs_Carried).data().toInt() > 0 &&
-                                    crew_idx.sibling(crew_idx.row(), CrewItem::Can_Drop_Bombs).data().toBool());
-    ui->remaining_bombs_lbl->setText(tr("%1 available").arg(model->index(crew_idx.parent().row(), PlaneItemOld::Bombs_Carried).data().toInt()));
+    ui->drop_bomb_radio->setEnabled(crew_proxy->index(crew_idx.parent().row(), PlaneItem::Plane_Payload_Count).data().toInt() > 0 &&
+                                    crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Can_Drop_Payloads).data().toBool());
+    ui->remaining_bombs_lbl->setText(tr("%1 available").arg(crew_proxy->index(crew_idx.parent().row(), PlaneItem::Plane_Payload_Count).data().toInt()));
 }
 
 void CrewControls::applyManeuverRestrictions(QPersistentModelIndex maneuver_idx)
-{  
+{
     auto determine_column = [](QPersistentModelIndex idx) {
         QPersistentModelIndex crew_idx = idx.parent();
-        QString gun_owner_role = crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString();
-        if (gun_owner_role == "Observer" || gun_owner_role == "Gunner") {
-            return ManeuverItem::Observer_Can_Reload;
+        int gun_owner_role = crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Role_ID).data().toInt();
+        if (gun_owner_role == PlaneCrewItem::Observer || gun_owner_role == PlaneCrewItem::Gunner) {
+            return PlaneManeuverItem::Plane_Maneuver_Observer_Can_Reload;
         }
         else {
-            return ManeuverItem::Can_Reload;
+            return PlaneManeuverItem::Plane_Maneuver_Can_Reload;
         }
     };
 
     // If the maneuver doesn't allow reloading, then disable the radio selection
     QPersistentModelIndex reload_idx = ui->gun_selection_reload->currentData().toPersistentModelIndex();
-    ui->reload_radio->setEnabled(reload_idx.sibling(reload_idx.row(), GunItem::Ammo_Box_Count).data().toInt() > 1 &&
-            reload_idx.sibling(reload_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt() == 0 &&
+    ui->reload_radio->setEnabled(reload_idx.sibling(reload_idx.row(), PlaneArmamentsItem::Plane_Armaments_Ammo_Box_Count).data().toInt() > 1 &&
+            reload_idx.sibling(reload_idx.row(), PlaneArmamentsItem::Plane_Armaments_Ammo_In_Current_Box).data().toInt() == 0 &&
             maneuver_idx.sibling(maneuver_idx.row(), determine_column(reload_idx)).data().toBool());
 
     // Similarly, if the maneuver doesn't allow reloading, then disable the unjam selection
@@ -302,15 +207,17 @@ void CrewControls::refreshGunWidgets()
 {
     QPersistentModelIndex shoot_idx = ui->gun_selection_shoot->currentData().toPersistentModelIndex();
 
-    ui->fire_base_3->setText(shoot_idx.sibling(shoot_idx.row(), GunItem::Fire_Base_3).data().toString());
-    ui->fire_base_2->setText(shoot_idx.sibling(shoot_idx.row(), GunItem::Fire_Base_2).data().toString());
-    ui->fire_base_1->setText(shoot_idx.sibling(shoot_idx.row(), GunItem::Fire_Base_1).data().toString());
-    ui->fire_base_0->setText(shoot_idx.sibling(shoot_idx.row(), GunItem::Fire_Base_0).data().toString());
+    // Update the firebase labels. Need to update every turn since multi-linked weapons might end up with a destroyed weapon
+    ui->fire_base_3->setText(shoot_idx.sibling(shoot_idx.row(), PlaneArmamentsItem::Plane_Armaments_Fire_Base_3).data().toString());
+    ui->fire_base_2->setText(shoot_idx.sibling(shoot_idx.row(), PlaneArmamentsItem::Plane_Armaments_Fire_Base_2).data().toString());
+    ui->fire_base_1->setText(shoot_idx.sibling(shoot_idx.row(), PlaneArmamentsItem::Plane_Armaments_Fire_Base_1).data().toString());
+    ui->fire_base_0->setText(shoot_idx.sibling(shoot_idx.row(), PlaneArmamentsItem::Plane_Armaments_Fire_Base_0).data().toString());
 
-    ui->ammo_box->setValue(shoot_idx.sibling(shoot_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt());
-    ui->ammo_box->setSuffix("/" + shoot_idx.sibling(shoot_idx.row(), GunItem::Ammo_Box_Capacity).data().toString());
-    ui->ammo_total->setValue(shoot_idx.sibling(shoot_idx.row(), GunItem::Total_Ammo_Remaining).data().toInt());
-    ui->ammo_total->setSuffix("/" + shoot_idx.sibling(shoot_idx.row(), GunItem::Total_Ammo).data().toString());
+    // Update the displayed ammo values
+    ui->ammo_box->setValue(shoot_idx.sibling(shoot_idx.row(), PlaneArmamentsItem::Plane_Armaments_Ammo_In_Current_Box).data().toInt());
+    ui->ammo_box->setSuffix("/" + shoot_idx.sibling(shoot_idx.row(), PlaneArmamentsItem::Plane_Armaments_Ammo_Box_Capacity).data().toString());
+    ui->ammo_total->setValue(shoot_idx.sibling(shoot_idx.row(), PlaneArmamentsItem::Plane_Armaments_Total_Ammo_Remaining).data().toInt());
+    ui->ammo_total->setSuffix("/" + shoot_idx.sibling(shoot_idx.row(), PlaneArmamentsItem::Plane_Armaments_Total_Ammo).data().toString());
 
     // Restrict burst length based on remaining ammo
     if (ui->ammo_box->value() < 3) {
@@ -330,17 +237,17 @@ void CrewControls::refreshGunWidgets()
     }
 
     // Only allow shooting if there's ammo in the current box
-    ui->shoot_radio->setEnabled(shoot_idx.sibling(shoot_idx.row(), GunItem::Ammo_In_Current_Box).data().toInt() > 0);
+    ui->shoot_radio->setEnabled(shoot_idx.sibling(shoot_idx.row(), PlaneArmamentsItem::Plane_Armaments_Ammo_In_Current_Box).data().toInt() > 0);
 
     // Only allow reloading if there's more than the current ammo box remaining and if all the current ammo has been expended
     QPersistentModelIndex reload_idx = ui->gun_selection_shoot->currentData().toPersistentModelIndex();
-    ui->reload_radio->setEnabled(reload_idx.sibling(reload_idx.row(), GunItem::Ammo_Box_Count).data().toInt() > 1 && !ui->shoot_radio->isEnabled());
+    ui->reload_radio->setEnabled(reload_idx.sibling(reload_idx.row(), PlaneArmamentsItem::Plane_Armaments_Ammo_Box_Count).data().toInt() > 1 && !ui->shoot_radio->isEnabled());
 
     // If jammed, only give the option to unjam
-    if (shoot_idx.sibling(shoot_idx.row(), GunItem::Gun_Jammed).data().toBool()) {
+    if (shoot_idx.sibling(shoot_idx.row(), PlaneArmamentsItem::Plane_Armaments_Gun_Jammed).data().toBool()) {
         ui->shoot_radio->setEnabled(false);
     }
-    if (reload_idx.sibling(reload_idx.row(), GunItem::Gun_Jammed).data().toBool()) {
+    if (reload_idx.sibling(reload_idx.row(), PlaneArmamentsItem::Plane_Armaments_Gun_Jammed).data().toBool()) {
         ui->reload_radio->setEnabled(false);
     }
 }
@@ -361,11 +268,11 @@ int CrewControls::calculateCV()
 
     // First part of the combat value is the fire base
     QPersistentModelIndex gun_idx = ui->gun_selection_shoot->currentData().toPersistentModelIndex();
-    int combat_value = gun_idx.sibling(gun_idx.row(), GunItem::Fire_Base_0 + hex_range).data().toInt();
+    int combat_value = gun_idx.sibling(gun_idx.row(), PlaneArmamentsItem::Plane_Armaments_Fire_Base_0 + hex_range).data().toInt();
     QString cv_tooltip = QString("Damage at range %1: %2").arg(hex_range).arg(combat_value);
 
     // Check if the crew has Ignore Deflection
-    bool ignores_deflection = crew_idx.sibling(crew_idx.row(), CrewItem::Has_Ignore_Deflection).data().toBool();
+    bool ignores_deflection = crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Ability_Ignores_Deflections).data().toBool();
 
     // DOUBLE CHECK THAT SPINNING TARGETS CANNOT ALSO BE STALLED
     switch (hex_range) {
@@ -399,8 +306,8 @@ int CrewControls::calculateCV()
         }
 
         if (ui->tailed_target->isChecked() &&
-                crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Observer" &&
-                crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Gunner") {
+                crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Role_ID).data().toInt() != PlaneCrewItem::Observer &&
+                crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Role_ID).data().toInt() != PlaneCrewItem::Gunner) {
             combat_value += 2;
             cv_tooltip += "\nTailed target (+2) -> " + QString::number(combat_value);
         }
@@ -408,11 +315,11 @@ int CrewControls::calculateCV()
             combat_value += 1;
             cv_tooltip += "\nShot at target (+1) -> " + QString::number(combat_value);
         }
-        if (ui->wounds->value() == 1) {
+        if (crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Wounds).data().toInt() == 1) {
             combat_value -= 1;
             cv_tooltip += "\nWounded (-1) -> " + QString::number(combat_value);
         }
-        else if (ui->wounds->value() == 2) {
+        else if (crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Wounds).data().toInt() == 2) {
             combat_value -= 3;
             cv_tooltip += "\nWounded (-3) -> " + QString::number(combat_value);
         }
@@ -454,18 +361,18 @@ int CrewControls::calculateCV()
             cv_tooltip += "\nTarget stalled (+3) -> " + QString::number(combat_value);
         }
         if (selected_maneuver.isValid()) {
-            if (selected_maneuver.sibling(selected_maneuver.row(), ManeuverItem::Is_Restricted).data().toBool()) {
+            if (selected_maneuver.sibling(selected_maneuver.row(), PlaneManeuverItem::Plane_Maneuver_Is_Restricted).data().toBool()) {
                 combat_value += -1;
                 cv_tooltip += "\nPerformed Restricted Maneuver (-1) -> " + QString::number(combat_value);
             }
-            if (selected_maneuver.sibling(selected_maneuver.row(), ManeuverItem::Speed).data().toInt() > 2) {
+            if (selected_maneuver.sibling(selected_maneuver.row(), PlaneManeuverItem::Plane_Maneuver_Speed).data().toInt() > 2) {
                 combat_value += -1;
                 cv_tooltip += "\nPerformed Speed 3+ Maneuver (-1) -> " + QString::number(combat_value);
             }
         }
         if (ui->tailed_target->isChecked() &&
-                crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Observer" &&
-                crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Gunner") {
+                crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Role_ID).data().toInt() != PlaneCrewItem::Observer &&
+                crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Role_ID).data().toInt() != PlaneCrewItem::Gunner) {
             combat_value += 2;
             cv_tooltip += "\nTailed target (+2) -> " + QString::number(combat_value);
         }
@@ -522,18 +429,18 @@ int CrewControls::calculateCV()
             cv_tooltip += "\nTarget stalled (+2) -> " + QString::number(combat_value);
         }
         if (selected_maneuver.isValid()) {
-            if (selected_maneuver.sibling(selected_maneuver.row(), ManeuverItem::Is_Restricted).data().toBool()) {
+            if (selected_maneuver.sibling(selected_maneuver.row(), PlaneManeuverItem::Plane_Maneuver_Is_Restricted).data().toBool()) {
                 combat_value += -2;
                 cv_tooltip += "\nPerformed Restricted Maneuver (-2) -> " + QString::number(combat_value);
             }
-            if (selected_maneuver.sibling(selected_maneuver.row(), ManeuverItem::Speed).data().toInt() > 2) {
+            if (selected_maneuver.sibling(selected_maneuver.row(), PlaneManeuverItem::Plane_Maneuver_Speed).data().toInt() > 2) {
                 combat_value += -2;
                 cv_tooltip += "\nPerformed Speed 3+ Maneuver (-2) -> " + QString::number(combat_value);
             }
         }
         if (ui->tailed_target->isChecked() &&
-                crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Observer" &&
-                crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Gunner") {
+                crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Role_ID).data().toInt() != PlaneCrewItem::Observer &&
+                crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Role_ID).data().toInt() != PlaneCrewItem::Gunner) {
             combat_value += 1;
             cv_tooltip += "\nTailed target (+1) -> " + QString::number(combat_value);
         }
@@ -588,18 +495,18 @@ int CrewControls::calculateCV()
             cv_tooltip += "\nTarget stalled (+2) -> " + QString::number(combat_value);
         }
         if (selected_maneuver.isValid()) {
-            if (selected_maneuver.sibling(selected_maneuver.row(), ManeuverItem::Is_Restricted).data().toBool()) {
+            if (selected_maneuver.sibling(selected_maneuver.row(), PlaneManeuverItem::Plane_Maneuver_Is_Restricted).data().toBool()) {
                 combat_value += -3;
                 cv_tooltip += "\nPerformed Restricted Maneuver (-3) -> " + QString::number(combat_value);
             }
-            if (selected_maneuver.sibling(selected_maneuver.row(), ManeuverItem::Speed).data().toInt() > 2) {
+            if (selected_maneuver.sibling(selected_maneuver.row(), PlaneManeuverItem::Plane_Maneuver_Speed).data().toInt() > 2) {
                 combat_value += -3;
                 cv_tooltip += "\nPerformed Speed 3+ Maneuver (-3) -> " + QString::number(combat_value);
             }
         }
         if (ui->tailed_target->isChecked() &&
-                crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Observer" &&
-                crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() != "Gunner") {
+                crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Role_ID).data().toInt() != PlaneCrewItem::Observer &&
+                crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Role_ID).data().toInt() != PlaneCrewItem::Gunner) {
             combat_value += 1;
             cv_tooltip += "\nTailed target (+1) -> " + QString::number(combat_value);
         }
@@ -616,4 +523,95 @@ int CrewControls::calculateCV()
     }
     ui->combat_value->setToolTip(cv_tooltip);
     return combat_value;
+}
+
+QVariant CrewControls::getActionExtraData()
+{
+    switch (ui->actionGroup->checkedButton()->property("action_taken").toInt()) {
+    case TurnCrewItem::Action_None: return QString();
+    case TurnCrewItem::Action_Shoot:{
+        TurnCrewItem::ShotProperties prop;
+        prop.target_delta = ui->target_alt->value()-1; // Offset the range to be -1 to 1
+        prop.target_range = ui->range_3_btn->isChecked() ? 3 : ui->range_2_btn->isChecked() ? 2 : ui->range_1_btn->isChecked() ? 1 : 0;
+        prop.burst_len = ui->burst_len->value();
+        if (prop.burst_len == 3 &&
+            QMessageBox::question(this, "Jam Check", QString("%1 fired a long burst. Was it a jam?").arg(crew_idx.data().toString()), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+            prop.caused_jam = true;
+        }
+        return QVariant::fromValue(prop);
+    }
+    case TurnCrewItem::Action_Reload: return QString("%1 was reloaded").arg(ui->gun_selection_reload->currentText());
+    case TurnCrewItem::Action_Unjam: {
+        QPersistentModelIndex idx = ui->gun_selection_unjam->currentData().toPersistentModelIndex();
+        if (QMessageBox::question(this, "Unjam Check", QString("%1 attempted to unjam. Was it successful?").arg(crew_idx.data().toString()), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+            crew_proxy->setData(idx.sibling(idx.row(), PlaneArmamentsItem::Plane_Armaments_Gun_Jammed), false);
+            return true;
+        }
+        return false;
+    }
+    case TurnCrewItem::Action_Drop_Payload: {
+        QModelIndex plane_bombs_idx = crew_idx.parent().sibling(crew_idx.parent().row(), PlaneItem::Plane_Payload_Count);
+        crew_proxy->setData(plane_bombs_idx, plane_bombs_idx.data().toInt() -1);
+        emit bombDropped();
+        return QMessageBox::question(this, "Bomb drop", QString("%1 attempted to bomb target. Was it a successful hit?").arg(crew_idx.data().toString()), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
+    }
+    case TurnCrewItem::Action_Observe: return QString("%1 made an observation").arg(crew_idx.data().toString());
+    case TurnCrewItem::Action_Custom: return ui->custom_input->text();
+    default: return QVariant();
+    }
+}
+
+void CrewControls::initConnections()
+{
+    connect(ui->gun_selection_shoot, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CrewControls::refreshGunWidgets);
+    connect(ui->score_kill_btn, &QPushButton::pressed, this, [=]() { ui->kills_spin->setValue(ui->kills_spin->value()+1); });
+    connect(ui->score_red_btn, &QPushButton::pressed, this, [=]() { ui->reds_spin->setValue(ui->reds_spin->value()+1); });
+    connect(ui->add_wound_btn, &QPushButton::pressed, this, [=]() { ui->wounds->setValue(ui->wounds->value()+1); });
+    connect(ui->wounds, &QSlider::valueChanged, this, [=](int value){
+        QString colour;
+        switch (value) {
+        case WoundValues::None: colour = "blue"; break;
+        case WoundValues::Light: colour = "yellow"; break;
+        case WoundValues::Severe: colour = "red"; break;
+        case WoundValues::Dead: colour = "gray"; break;
+        }
+        setSliderStylesheet(colour);
+        applyCVCalcs();
+    });
+
+    connect(ui->long_burst_btn, &QPushButton::released, this, [=]() { ui->burst_len->setValue(2); });
+    connect(ui->med_burst_btn, &QPushButton::released, this, [=]() { ui->burst_len->setValue(1); });
+    connect(ui->short_burst_btn, &QPushButton::released, this, [=]() { ui->burst_len->setValue(0); });
+    connect(ui->burst_len, &QSlider::valueChanged, this, [=](int value) {
+        if (value >= ui->ammo_box->value()) {
+            ui->burst_len->setValue(ui->ammo_box->value()-1);
+            return;
+        }
+        switch (value) {
+        case 0: ui->short_burst_btn->setChecked(true); break;
+        case 1: ui->med_burst_btn->setChecked(true); break;
+        case 2: ui->long_burst_btn->setChecked(true); break;
+        }
+        applyCVCalcs();
+    });
+
+    connect(ui->target_above, &QPushButton::released, this, [=]() { ui->target_alt->setValue(2); });
+    connect(ui->target_level, &QPushButton::released, this, [=]() { ui->target_alt->setValue(1); });
+    connect(ui->target_below, &QPushButton::released, this, [=]() { ui->target_alt->setValue(0); });
+    connect(ui->target_alt, &QSlider::valueChanged, this, [=](int value) {
+        // In the future, maybe subclass QSlider to implement a custom function that "disables" certain ticks
+        // For now cycle down until shooting below, and then cycle back to the top (above)
+        switch (value) {
+        case 0: ui->target_below->isEnabled() ? ui->target_below->setChecked(true) : ui->target_alt->setValue(2); break;
+        case 1: ui->target_level->isEnabled() ? ui->target_level->setChecked(true) : ui->target_alt->setValue(0); break;
+        case 2: ui->target_above->isEnabled() ? ui->target_above->setChecked(true) : ui->target_alt->setValue(1); break;
+        }
+        applyCVCalcs();
+    });
+    connect(ui->hexRangeGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &CrewControls::applyCVCalcs);
+    connect(ui->tailed_target, &QCheckBox::clicked, this, &CrewControls::applyCVCalcs);
+    connect(ui->shot_at_target, &QCheckBox::clicked, this, &CrewControls::applyCVCalcs);
+    connect(ui->deflection, &QCheckBox::clicked, this, &CrewControls::applyCVCalcs);
+    connect(ui->target_spinning, &QCheckBox::clicked, this, &CrewControls::applyCVCalcs);
+    connect(ui->target_stalled, &QCheckBox::clicked, this, &CrewControls::applyCVCalcs);
 }

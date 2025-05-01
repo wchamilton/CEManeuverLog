@@ -1,4 +1,7 @@
 #include "CEManeuvers.h"
+#include <QJsonObject>
+
+int Maneuver::current_id = 0;
 
 extern const QMap<QString, Maneuver> master_maneuver_map = {
     // Spin maneuver
@@ -15,7 +18,7 @@ extern const QMap<QString, Maneuver> master_maneuver_map = {
     {"6S1",  Maneuver("6S1",  Maneuver::Rot_North_West, { Maneuver::North      }, {247, 130})},
     {"2S1",  Maneuver("2S1",  Maneuver::Rot_North,      { Maneuver::North      }, {292, 130})},
     {"7S1",  Maneuver("7S1",  Maneuver::Rot_North_East, { Maneuver::North      }, {338, 130})},
-    {"8R1",  Maneuver("8R1",  Maneuver::Rot_North_East, { Maneuver::North_East }, {385, 133})},
+    {"8R1",  Maneuver("8R1",  Maneuver::Rot_North_East, { Maneuver::North_East }, {390, 133})},
     {"10R1", Maneuver("10R1", Maneuver::Rot_North,      { Maneuver::North_East }, {435, 148})},
 
     // Speed 2 maneuvers
@@ -89,4 +92,62 @@ QVariant BaseItem::data(int column) const
 void BaseItem::setData(int column, const QVariant &data)
 {
     column_data[column] = data;
+}
+
+QJsonObject BaseItem::toJSON()
+{
+    return QJsonObject();
+}
+
+BaseItem *BaseItem::childAt(int row) const
+{
+    return children.size() > row && row >= 0 ? children.at(row) : nullptr;
+}
+
+BaseItem *BaseItem::getParent() const
+{
+    return parent;
+}
+
+int BaseItem::childCount() const
+{
+    return children.size();
+}
+
+int BaseItem::childRow(const BaseItem *item) const
+{
+    return children.indexOf(item);
+}
+
+int BaseItem::columnCount() const
+{
+    return column_data.count();
+}
+
+int BaseItem::row() const
+{
+    return parent->childRow(this);
+}
+
+void BaseItem::addChild(BaseItem *item)
+{
+    children << item;
+}
+
+void BaseItem::removeChild(int row)
+{
+    if (row >= 0 && row < children.size()) {
+        delete children.takeAt(row);
+    }
+}
+
+void BaseItem::removeChildren()
+{
+    qDeleteAll(children);
+    children.clear();
+}
+
+BaseItem::ItemType BaseItem::getType()
+{
+    return type;
 }

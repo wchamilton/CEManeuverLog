@@ -8,7 +8,7 @@
 #include <QGraphicsScene>
 #include <QCheckBox>
 
-PlaneSelectionDialog::PlaneSelectionDialog(QSharedPointer<GameModel> game_model, QWidget *parent) :
+PlaneSelectionDialog::PlaneSelectionDialog(GameModel *game_model, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::PlaneSelectionDialog),
     game_model(game_model)
@@ -16,9 +16,9 @@ PlaneSelectionDialog::PlaneSelectionDialog(QSharedPointer<GameModel> game_model,
     ui->setupUi(this);
 
     // Populate tree widget with planes
-    QModelIndex planes_root = game_model->index(GameModel::Planes_Root, 0);
+    QModelIndex planes_root = game_model->planesRootIdx();
     for (int i=0; i<game_model->rowCount(planes_root); ++i) {
-        QPersistentModelIndex plane_idx = game_model->index(i, PlaneItem::Plane_Model, planes_root);
+        QPersistentModelIndex plane_idx = game_model->index(i, PlaneItem::Plane_Name, planes_root);
         QTreeWidgetItem* plane_tree_item = new QTreeWidgetItem();
         plane_tree_item->setData(0, Qt::DisplayRole, plane_idx.data().toString());
         plane_tree_item->setData(0, Qt::UserRole, plane_idx);
@@ -33,16 +33,21 @@ PlaneSelectionDialog::PlaneSelectionDialog(QSharedPointer<GameModel> game_model,
     ui->planes_tree->resizeColumnToContents(0);
 
     // Initialize proxy models
-    maneuver_proxy = QSharedPointer<FilterProxy>::create(game_model.data(), this);
+    maneuver_proxy = QSharedPointer<FilterProxy>::create(game_model, this);
     maneuver_proxy->setTypeFilter(BaseItem::Plane_Maneuver_Item_Type);
     maneuver_proxy->setRecursiveFilteringEnabled(true);
 
-    crew_proxy = QSharedPointer<FilterProxy>::create(game_model.data(), this);
+    crew_proxy = QSharedPointer<FilterProxy>::create(game_model, this);
     crew_proxy->setTypeFilter(BaseItem::Plane_Crew_Item_Type);
     crew_proxy->setRecursiveFilteringEnabled(true);
     crew_proxy->setAutoAcceptChildRows(true);
 
+    // We don't want to enable maneuver selection in this dialog
+    ui->maneuver_sched->setInteractive(false);
+
     connect(ui->planes_tree, &QTreeWidget::currentItemChanged, this, &PlaneSelectionDialog::planeSelected);
+    connect(ui->player_name, &QLineEdit::textEdited, this, &PlaneSelectionDialog::checkIfStartReady);
+    connect(ui->combat_name, &QLineEdit::textEdited, this, &PlaneSelectionDialog::checkIfStartReady);
 }
 
 PlaneSelectionDialog::~PlaneSelectionDialog()
@@ -50,22 +55,42 @@ PlaneSelectionDialog::~PlaneSelectionDialog()
     delete ui;
 }
 
+void PlaneSelectionDialog::accept()
+{
+    QPersistentModelIndex plane_idx = ui->planes_tree->currentItem()->data(0, Qt::UserRole).toPersistentModelIndex();
+    QModelIndex game_idx = game_model->gameRootIdx();
+    game_model->setData(game_idx.sibling(game_idx.row(), GameItem::Game_Plane_Selected), plane_idx);
+    game_model->setData(game_idx.sibling(game_idx.row(), GameItem::Game_Player), ui->player_name->text());
+    game_model->setData(game_idx.sibling(game_idx.row(), GameItem::Game_Conflict_Name), ui->combat_name->text());
+    game_model->setData(game_idx.sibling(game_idx.row(), GameItem::Game_Conflict_Date), ui->combat_date->date());
+    game_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Current_Speed), ui->starting_speed_spn->value());
+    game_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Current_Alt), ui->starting_alt_spn->value());
+
+    QDialog::accept();
+}
+
 void PlaneSelectionDialog::planeSelected(QTreeWidgetItem *current, QTreeWidgetItem *prev)
 {
-    if (current == prev || current == ui->planes_tree->topLevelItem(0) || current == ui->planes_tree->topLevelItem(1)) {
+    if (current == ui->planes_tree->topLevelItem(0) || current == ui->planes_tree->topLevelItem(1)) {
+        ui->start_button->setEnabled(false);
+        return;
+    }
+    if (current == prev) {
         return;
     }
     QPersistentModelIndex plane_idx = current->data(0, Qt::UserRole).toPersistentModelIndex();
 
     // Set up the plane's maneuver schedule
     if (!scene_map.contains(plane_idx.data().toString())) {
-        scene_map[plane_idx.data().toString()] = new ManeuverScene(maneuver_proxy->mapFromSource(plane_idx), this);
+        scene_map[plane_idx.data().toString()] = new ManeuverScene(maneuver_proxy.data(), maneuver_proxy->mapFromSource(plane_idx), this);
     }
     ui->maneuver_sched->setScene(scene_map[plane_idx.data().toString()]);
 
     auto plane_data = [plane_idx] (int col) {
         return plane_idx.sibling(plane_idx.row(), col).data();
     };
+
+    ui->starting_alt_spn->setMaximum(plane_data(PlaneItem::Plane_Max_Altitude).toInt());
 
     // Dump the plane metadata
     ui->plane_grpbox->setTitle(plane_idx.data().toString());
@@ -106,21 +131,17 @@ void PlaneSelectionDialog::planeSelected(QTreeWidgetItem *current, QTreeWidgetIt
     ui->crew_stacked_widget->setCurrentWidget(crew_widget_map[plane_idx.row()]);
 }
 
+void PlaneSelectionDialog::checkIfStartReady()
+{
+    ui->start_button->setDisabled(ui->player_name->text().isEmpty() || ui->combat_name->text().isEmpty());
+}
+
 void PlaneSelectionDialog::prepareCrewRows(QGridLayout* layout, QPersistentModelIndex crew_idx)
 {
-    auto role_text = [=](int role){
-        switch (role) {
-            case PlaneCrewItem::Pilot:   return "Pilot";
-            case PlaneCrewItem::CoPilot: return "Co-Pilot";
-            case PlaneCrewItem::Observer: return "Observer";
-            case PlaneCrewItem::Gunner: return "Gunner";
-            default: qWarning() << QString("Invalid crew role '%1' given").arg(role); return "ERROR";
-        }
-    };
-
-    int crew_role = crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Role).data().toInt();
+    int crew_role_id = crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Role_ID).data().toInt();
+    QString crew_role = crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Role).data().toString();
     int row = layout->rowCount();
-    layout->addWidget(new QLabel(role_text(crew_role), layout->parentWidget()), row, 0, 1, 1);
+    layout->addWidget(new QLabel(crew_role, layout->parentWidget()), row, 0, 1, 1);
 
     // Crew name input handling
     QLineEdit* crew_name_input = new QLineEdit(layout->parentWidget());
@@ -139,7 +160,7 @@ void PlaneSelectionDialog::prepareCrewRows(QGridLayout* layout, QPersistentModel
     }
 
     // Ability 'Unrestricted Maneuvers' handling. Only create if crew is a pilot or co-pilot
-    if (crew_role == PlaneCrewItem::Pilot || crew_role == PlaneCrewItem::CoPilot) {
+    if (crew_role_id == PlaneCrewItem::Pilot || crew_role_id == PlaneCrewItem::CoPilot) {
         QCheckBox* has_unrestricted_maneuvers = new QCheckBox("Unrestricted Maneuvers", layout->parentWidget());
         layout->addWidget(has_unrestricted_maneuvers, row++, 1);
         connect(has_unrestricted_maneuvers, &QCheckBox::clicked, this, [crew_idx, this](bool arg){

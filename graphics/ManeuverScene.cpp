@@ -6,33 +6,15 @@
 //#include <QtSvg/QGraphicsSvgItem>
 #include <QPersistentModelIndex>
 
-
-ManeuverScene::ManeuverScene(QPersistentModelIndex filtered_plane_idx, QObject *parent) :
-    QGraphicsScene(parent),
-    filtered_plane_idx(filtered_plane_idx)
+ManeuverScene::ManeuverScene(QAbstractItemModel* model, QPersistentModelIndex filtered_plane_idx, QObject *parent) :
+    QGraphicsScene(parent)
 {
     applyScheduleBG();
 
-    for (int i=0; i<filtered_plane_idx.model()->rowCount(filtered_plane_idx); ++i) {
-        QPersistentModelIndex maneuver_idx = filtered_plane_idx.model()->index(i, PlaneManeuverItem::Plane_Maneuver_Name, filtered_plane_idx);
-        Maneuver maneuver = master_maneuver_map[maneuver_idx.data().toString()];
-        ManeuverGraphic::ShiftText shift_val = ManeuverGraphic::Shift_None;
-        if (maneuver.name == "1L0" || maneuver.name == "9L2" || maneuver.name == "11L2" || maneuver.name == "28R1") {
-            shift_val = ManeuverGraphic::Shift_Left;
-        }
-        else if (maneuver.name == "1S0" || maneuver.name == "1R0"  || maneuver.name == "0S1" ||
-                 maneuver.name == "9R2" || maneuver.name == "11R2" || maneuver.name == "28L1" || maneuver.name == "27S2") {
-            shift_val = ManeuverGraphic::Shift_Right;
-        }
-        maneuver_map[maneuver.name] = new ManeuverGraphic(maneuver_idx, shift_val);
-        maneuver_map[maneuver.name]->setPos(maneuver.pos);
-        for (int i=0; i<maneuver.tile_movements.size()-1; ++i) {
-            maneuver_map[maneuver.name]->addHex(maneuver.tile_movements.at(i));
-        }
-        maneuver_map[maneuver.name]->addHex(maneuver.tile_movements.last(),
-                                            maneuver.name == "0S1" ? HexTile::Spin_Tile : HexTile::Plane_Icon_Tile,
-                                            maneuver.final_rotation);
-        addItem(maneuver_map[maneuver.name]);
+    // Add the maneuvers for the plane
+    for (int i=0; i<model->rowCount(filtered_plane_idx); ++i) {
+        QPersistentModelIndex maneuver_idx = model->index(i, PlaneManeuverItem::Plane_Maneuver_Name, filtered_plane_idx);
+        addManeuver(maneuver_idx);
     }
 
     connect(this, &ManeuverScene::focusItemChanged, this, &ManeuverScene::handleFocusChanges);
@@ -51,6 +33,37 @@ QPersistentModelIndex ManeuverScene::getSelectedManeuverIdx()
 QString ManeuverScene::getSelectedManeuver()
 {
     return selected_maneuver ? maneuver_map.key(selected_maneuver) : QString();
+}
+
+void ManeuverScene::addManeuver(QPersistentModelIndex maneuver_idx)
+{
+    Maneuver maneuver = master_maneuver_map[maneuver_idx.data().toString()];
+    ManeuverGraphic::ShiftText shift_val = ManeuverGraphic::Shift_None;
+    if (maneuver.name == "1L0" || maneuver.name == "9L2" || maneuver.name == "11L2" || maneuver.name == "28R1") {
+        shift_val = ManeuverGraphic::Shift_Left;
+    }
+    else if (maneuver.name == "1S0" || maneuver.name == "1R0"  || maneuver.name == "0S1" ||
+             maneuver.name == "9R2" || maneuver.name == "11R2" || maneuver.name == "28L1" || maneuver.name == "27S2") {
+        shift_val = ManeuverGraphic::Shift_Right;
+    }
+    maneuver_map[maneuver.name] = new ManeuverGraphic(maneuver_idx, shift_val);
+    maneuver_map[maneuver.name]->setPos(maneuver.pos);
+    for (int i=0; i<maneuver.tile_movements.size()-1; ++i) {
+        maneuver_map[maneuver.name]->addHex(maneuver.tile_movements.at(i));
+    }
+    maneuver_map[maneuver.name]->addHex(maneuver.tile_movements.last(),
+                                        maneuver.name == "0S1" ? HexTile::Spin_Tile : HexTile::Plane_Icon_Tile,
+                                        maneuver.final_rotation);
+    addItem(maneuver_map[maneuver.name]);
+}
+
+void ManeuverScene::removeManeuver(QPersistentModelIndex maneuver_idx)
+{
+    if (maneuver_map.contains(maneuver_idx.data().toString())) {
+        ManeuverGraphic* maneuver_item = maneuver_map.take(maneuver_idx.data().toString());
+        removeItem(maneuver_item);
+        delete maneuver_item;
+    }
 }
 
 void ManeuverScene::updateManeuver(QString id)
@@ -74,79 +87,12 @@ void ManeuverScene::clearSelection()
 void ManeuverScene::applyScheduleBG()
 {
     // Add the background as a pixmap
-//    QGraphicsSvgItem* background_item = new QGraphicsSvgItem(QString("../CEManeuverLog/graphics/Canvas_AircraftSheet.svg"));
-//    background_item->setZValue(-1);
-//    addItem(background_item);
-
-    background_item = addPixmap(QPixmap(GRAPHICS_LOCATION+"/background.png"));
+    //    QGraphicsSvgItem* background_item = new QGraphicsSvgItem(QString("../CEManeuverLog/graphics/Canvas_AircraftSheet.svg"));
+    //    background_item->setZValue(-1);
+    //    addItem(background_item);
+    background_item = addPixmap(QPixmap(GRAPHICS_LOCATION + "/background.png"));
     background_item->setFlag(QGraphicsItem::ItemIsFocusable);
     background_item->setZValue(-1);
-}
-
-void ManeuverScene::positionManeuvers()
-{
-    // maneuver_map["1L0"]->moveBy();
-    // maneuver_map["1S0"]->moveBy();
-    // maneuver_map["1R0"]->moveBy();
-    // maneuver_map["0S1"]->moveBy();
-    // maneuver_map["10L1"]->moveBy();
-    // maneuver_map["8L1"]->moveBy();
-    // maneuver_map["6S1"]->moveBy();
-    // maneuver_map["2S1"]->moveBy();
-    // maneuver_map["7S1"]->moveBy();
-    // maneuver_map["8R1"]->moveBy();
-    // maneuver_map["10R1"]->moveBy();
-    // maneuver_map["9L2"]->moveBy();
-    // maneuver_map["17L2"]->moveBy();
-    // maneuver_map["16L2"]->moveBy();
-    // maneuver_map["15L2"]->moveBy();
-    // maneuver_map["14L2"]->moveBy();
-    // maneuver_map["11L2"]->moveBy();
-    // maneuver_map["12S2"]->moveBy();
-    // maneuver_map["3S2"]->moveBy();
-    // maneuver_map["13S2"]->moveBy();
-    // maneuver_map["9R2"]->moveBy();
-    // maneuver_map["17R2"]->moveBy();
-    // maneuver_map["16R2"]->moveBy();
-    // maneuver_map["15R2"]->moveBy();
-    // maneuver_map["14R2"]->moveBy();
-    // maneuver_map["11R2"]->moveBy();
-    // maneuver_map["24L3"]->moveBy();
-    // maneuver_map["23L3"]->moveBy();
-    // maneuver_map["22L3"]->moveBy();
-    // maneuver_map["21L3"]->moveBy();
-    // maneuver_map["20L3"]->moveBy();
-    // maneuver_map["18S3"]->moveBy();
-    // maneuver_map["4S3"]->moveBy();
-    // maneuver_map["19S3"]->moveBy();
-    // maneuver_map["20R3"]->moveBy();
-    // maneuver_map["21R3"]->moveBy();
-    // maneuver_map["22R3"]->moveBy();
-    // maneuver_map["23R3"]->moveBy();
-    // maneuver_map["24R3"]->moveBy();
-    // maneuver_map["25S4"]->moveBy();
-    // maneuver_map["5S4"]->moveBy();
-    // maneuver_map["26S4"]->moveBy();
-
-    // // Restricted speed 1
-    // maneuver_map["28L1"]->moveBy();
-    // maneuver_map["28R1"]->moveBy();
-
-    // // Restricted speed 2
-    // maneuver_map["30L2"]->moveBy();
-    // maneuver_map["31L2"]->moveBy();
-    // maneuver_map["27S2"]->moveBy();
-    // maneuver_map["29S2"]->moveBy();
-    // maneuver_map["31R2"]->moveBy();
-    // maneuver_map["30R2"]->moveBy();
-
-    // // Restricted speed 3
-    // maneuver_map["36L3"]->moveBy();
-    // maneuver_map["34S3"]->moveBy();
-    // maneuver_map["32S3"]->moveBy();
-    // maneuver_map["33S3"]->moveBy();
-    // maneuver_map["35S3"]->moveBy();
-    // maneuver_map["36R3"]->moveBy();
 }
 
 void ManeuverScene::handleFocusChanges(QGraphicsItem *newFocusItem, QGraphicsItem *oldFocusItem, Qt::FocusReason reason)
@@ -155,17 +101,17 @@ void ManeuverScene::handleFocusChanges(QGraphicsItem *newFocusItem, QGraphicsIte
     Q_UNUSED(reason)
 
     ManeuverGraphic* new_maneuver = dynamic_cast<ManeuverGraphic*>(newFocusItem);
-    ManeuverGraphic* old_maneuver = dynamic_cast<ManeuverGraphic*>(newFocusItem);
+    ManeuverGraphic* old_maneuver = selected_maneuver;
     if (newFocusItem == background_item){
         return;
     }
     if (new_maneuver != nullptr) {
+        if (old_maneuver != nullptr) {
+            old_maneuver->setSelected(false);
+        }
         new_maneuver->setSelected(true);
         selected_maneuver = new_maneuver;
         emit maneuverClicked(new_maneuver->getIdx());
-    }
-    if (old_maneuver != nullptr) {
-        old_maneuver->setSelected(false);
     }
     update();
 }

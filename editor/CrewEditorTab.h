@@ -7,7 +7,7 @@ namespace Ui {
 class CrewEditorTab;
 }
 
-class CrewItem;
+class FilterProxy;
 class CrewEditorTab : public QWidget
 {
     Q_OBJECT
@@ -15,8 +15,8 @@ class CrewEditorTab : public QWidget
 public:
     explicit CrewEditorTab(QWidget *parent = nullptr);
     ~CrewEditorTab();
-    void populateCrewItem(CrewItem* crew);
-    void populateFromJSON(QJsonObject crew);
+    void populateCrewItem(FilterProxy *model, QPersistentModelIndex crew_idx);
+    void populateFromModel(FilterProxy* model, QPersistentModelIndex crew_idx);
 
 private:
     Ui::CrewEditorTab *ui;

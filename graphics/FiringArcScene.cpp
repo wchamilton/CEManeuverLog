@@ -5,7 +5,7 @@
 #include "FiringArc.h"
 #include "HexTile.h"
 #include "CEManeuvers.h"
-#include "models/PlaneModel.h"
+#include "models/GameModelItems.h"
 
 FiringArcScene::FiringArcScene(QObject *parent) : QGraphicsScene(parent)
 {
@@ -13,8 +13,8 @@ FiringArcScene::FiringArcScene(QObject *parent) : QGraphicsScene(parent)
 
 void FiringArcScene::setCurrentGun(QPersistentModelIndex idx)
 {
-    gun_idx = idx.sibling(idx.row(), GunItem::Gun_Position);
-    setFiringArc(gun_idx.sibling(gun_idx.row(), GunItem::Fire_Template).data().toInt());
+    gun_idx = idx.sibling(idx.row(), PlaneArmamentsItem::Plane_Armaments_Gun_Rotation_Current_Pos);
+    setFiringArc(gun_idx.sibling(gun_idx.row(), PlaneArmamentsItem::Plane_Armaments_Fire_Template).data().toInt());
     setGunRotation(gun_idx.data().toInt());
     update();
 }

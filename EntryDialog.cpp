@@ -1,14 +1,17 @@
 #include "EntryDialog.h"
-#include "models/GameModel.h"
 #include "ui_EntryDialog.h"
-#include "CEManeuvers.h"
+
+#include "models/GameModel.h"
 #include "editor/PlaneEditor.h"
+#include "editor/PlaneEditorSelector.h"
 #include "turn_logger/PlaneSelectionDialog.h"
+#include "turn_logger/TurnTrackerDialog.h"
 
 #include <QFileDialog>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QDebug>
+#include <QTreeView>
 
 EntryDialog::EntryDialog(QWidget *parent) :
     QDialog(parent),
@@ -45,28 +48,20 @@ EntryDialog::~EntryDialog()
 
 void EntryDialog::editPlaneAction()
 {
-    QFileDialog fileDlg(this, tr("Open File"), PLANES_LOCATION, tr("JSON files (*.json)"));
-    fileDlg.setOption(QFileDialog::DontUseNativeDialog, true);
-    fileDlg.setFileMode(QFileDialog::ExistingFile);
-    fileDlg.setViewMode(QFileDialog::Detail);
-
-    if (fileDlg.exec() && !fileDlg.selectedFiles().isEmpty()) {
-        QFile file(fileDlg.selectedFiles().constFirst());
-        if (!file.open(QIODevice::ReadOnly|QIODevice::Text)) {
-            qWarning() << "Could not open" << file.fileName();
-            return;
-        }
-        QJsonDocument planes_doc = QJsonDocument::fromJson(QString(file.readAll()).toUtf8());
-        file.close();
-        PlaneEditor(planes_doc.object(), this).exec();
+    GameModel game_model(this);
+    PlaneEditorSelector selector(this);
+    selector.setModel(&game_model, game_model.planesRootIdx());
+    if (selector.exec()) {
+        PlaneEditor(&game_model, selector.getSelectedPlane()).exec();
     }
 }
 
 void EntryDialog::newMatchAction()
 {
-    QSharedPointer<GameModel> game_model = QSharedPointer<GameModel>::create(new GameModel());
-    if (PlaneSelectionDialog(game_model, this).exec() == QDialog::Accepted) {
-        qDebug() << "yep";
+    GameModel game_model;
+    PlaneSelectionDialog selector(&game_model, this);
+    if (selector.exec() == QDialog::Accepted) {
+        TurnTrackerDialog(&game_model, this).exec();
     }
 }
 

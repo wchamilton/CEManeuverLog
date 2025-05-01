@@ -4,6 +4,9 @@
 #include <QCursor>
 #include <QDebug>
 #include <QGraphicsSceneHoverEvent>
+#include <QGuiApplication>
+#include <QStyleHints>
+#include <QGraphicsColorizeEffect>
 
 SelectionBox::SelectionBox(QGraphicsItem *parent) : QGraphicsItem(parent)
 {
@@ -57,6 +60,11 @@ void SelectionBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
         painter->drawPolygon(arrow.poly);
         painter->setPen(old_pen);
     };
+
+    // BG
+    QPainterPath path;
+    path.addRoundedRect(boundingRect(), 10, 10);
+    painter->fillPath(path, Qt::darkGray);
 
     drawArrowBtn(up_arrow);
     drawArrowBtn(down_arrow);

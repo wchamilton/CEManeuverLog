@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     EntryDialog.cpp \
+    editor/PlaneEditorSelector.cpp \
     graphics/AltCtrlScene.cpp \
     graphics/FiringArc.cpp \
     graphics/FiringArcScene.cpp \
@@ -41,11 +42,13 @@ SOURCES += \
     editor/CrewEditorTab.cpp \
     editor/GunEditorTab.cpp \
     turn_logger/PlaneSelectionDialog.cpp \
-    turn_logger/PreGamePrompt.cpp
+    turn_logger/PreGamePrompt.cpp \
+    turn_logger/TurnTrackerDialog.cpp
 
 HEADERS += \
     CEManeuvers.h \
     EntryDialog.h \
+    editor/PlaneEditorSelector.h \
     graphics/AltCtrlScene.h \
     graphics/FiringArc.h \
     graphics/FiringArcScene.h \
@@ -68,10 +71,12 @@ HEADERS += \
     editor/CrewEditorTab.h \
     editor/GunEditorTab.h \
     turn_logger/PlaneSelectionDialog.h \
-    turn_logger/PreGamePrompt.h
+    turn_logger/PreGamePrompt.h \
+    turn_logger/TurnTrackerDialog.h
 
 FORMS += \
     EntryDialog.ui \
+    editor/PlaneEditorSelector.ui \
     turn_logger/EffectsSelectionDialog.ui \
     turn_logger/MainWindow.ui \
     turn_logger/CrewControls.ui \
@@ -80,7 +85,8 @@ FORMS += \
     editor/CrewEditorTab.ui \
     editor/GunEditorTab.ui \
     turn_logger/PlaneSelectionDialog.ui \
-    turn_logger/PreGamePrompt.ui
+    turn_logger/PreGamePrompt.ui \
+    turn_logger/TurnTrackerDialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

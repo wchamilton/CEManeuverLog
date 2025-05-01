@@ -14,7 +14,6 @@ public:
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
-    void setTurnModel(TurnModel* model);
     void setCurrentManeuver(QPersistentModelIndex maneuver);
     int getCurrentAltitude() const;
     void setCurrentAltitude(int arg);
@@ -28,8 +27,8 @@ private:
 
     QMap<int, bool> available_altitudes;
     int selected_altitude = 0;
+    int prev_alt = 0;
     QPersistentModelIndex current_maneuver;
-    TurnModel* turn_model = nullptr;
 
     SelectionBox* digit_box = nullptr;
     QGraphicsSvgItem* plane_profile = nullptr;

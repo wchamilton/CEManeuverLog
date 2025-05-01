@@ -6,20 +6,27 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1095</width>
-    <height>951</height>
+    <width>1089</width>
+    <height>939</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Plane Creator</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_9" columnstretch="0,1">
-   <item row="0" column="0">
+  <layout class="QGridLayout" name="gridLayout_9" rowstretch="1,0,0" columnstretch="0,0,1">
+   <item row="0" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Plane</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_8" columnstretch="0,0">
+     <layout class="QGridLayout" name="gridLayout_8">
+      <item row="0" column="0" colspan="2">
+       <widget class="QLineEdit" name="plane_name">
+        <property name="placeholderText">
+         <string>Plane Name</string>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="0" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
@@ -31,6 +38,9 @@
            <bool>true</bool>
           </property>
           <property name="checked">
+           <bool>true</bool>
+          </property>
+          <property name="autoExclusive">
            <bool>true</bool>
           </property>
           <attribute name="buttonGroup">
@@ -46,6 +56,9 @@
           <property name="checkable">
            <bool>true</bool>
           </property>
+          <property name="autoExclusive">
+           <bool>true</bool>
+          </property>
           <attribute name="buttonGroup">
            <string notr="true">era_btn_grp</string>
           </attribute>
@@ -53,21 +66,24 @@
         </item>
        </layout>
       </item>
-      <item row="3" column="0" colspan="2">
-       <widget class="QTabWidget" name="crew_editor_tab">
-        <property name="tabsClosable">
-         <bool>true</bool>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Fuel Capacity:</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="0" colspan="2">
-       <layout class="QGridLayout" name="gridLayout_2">
+      <item row="3" column="1">
+       <widget class="QSpinBox" name="fuel_amt"/>
+      </item>
+      <item row="4" column="0" colspan="2">
+       <layout class="QGridLayout" name="gridLayout_2" columnstretch="1,1">
         <item row="0" column="0">
          <widget class="QGroupBox" name="groupBox_3">
           <property name="title">
            <string>Engine</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_4">
+          <layout class="QGridLayout" name="gridLayout_4" columnstretch="0,0">
            <property name="leftMargin">
             <number>5</number>
            </property>
@@ -83,6 +99,16 @@
            <property name="verticalSpacing">
             <number>0</number>
            </property>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="engine_critical_hp"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_15">
+             <property name="text">
+              <string>Critical HP:</string>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="0">
             <widget class="QLabel" name="label_7">
              <property name="text">
@@ -93,16 +119,6 @@
            <item row="0" column="1">
             <widget class="QSpinBox" name="engine_hp"/>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_15">
-             <property name="text">
-              <string>Critical HP:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QSpinBox" name="engine_critical_hp"/>
-           </item>
           </layout>
          </widget>
         </item>
@@ -111,7 +127,7 @@
           <property name="title">
            <string>Wing</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_5">
+          <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,1">
            <property name="leftMargin">
             <number>5</number>
            </property>
@@ -155,7 +171,7 @@
           <property name="title">
            <string>Fuselage</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_6">
+          <layout class="QGridLayout" name="gridLayout_6" columnstretch="0,0">
            <property name="leftMargin">
             <number>5</number>
            </property>
@@ -171,12 +187,8 @@
            <property name="verticalSpacing">
             <number>0</number>
            </property>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_9">
-             <property name="text">
-              <string>HP:</string>
-             </property>
-            </widget>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="fuselage_critical_hp"/>
            </item>
            <item row="0" column="1">
             <widget class="QSpinBox" name="fuselage_hp"/>
@@ -188,8 +200,12 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
-            <widget class="QSpinBox" name="fuselage_critical_hp"/>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_9">
+             <property name="text">
+              <string>HP:</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -199,7 +215,7 @@
           <property name="title">
            <string>Tail</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_7">
+          <layout class="QGridLayout" name="gridLayout_7" columnstretch="0,1">
            <property name="leftMargin">
             <number>5</number>
            </property>
@@ -240,222 +256,12 @@
         </item>
        </layout>
       </item>
-      <item row="8" column="0" colspan="2">
-       <widget class="QGroupBox" name="groupBox_2">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="title">
-         <string>Maneuver</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout" rowstretch="1,1,1,1,1,1,1,1,1,0">
-         <property name="leftMargin">
-          <number>5</number>
-         </property>
-         <property name="rightMargin">
-          <number>5</number>
-         </property>
-         <property name="bottomMargin">
-          <number>2</number>
-         </property>
-         <property name="verticalSpacing">
-          <number>1</number>
-         </property>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Level Value:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QComboBox" name="set_dive">
-           <property name="currentIndex">
-            <number>0</number>
-           </property>
-           <item>
-            <property name="text">
-             <string>-</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>D1</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>D</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item row="5" column="0" colspan="2">
-          <widget class="QCheckBox" name="set_obs_can_reload">
-           <property name="text">
-            <string>Observer can reload</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0" colspan="2">
-          <widget class="QComboBox" name="maneuver_selection"/>
-         </item>
-         <item row="1" column="1">
-          <widget class="QComboBox" name="set_climb">
-           <item>
-            <property name="text">
-             <string>-</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>C1</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>C</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item row="0" column="2" rowspan="9">
-          <widget class="QGraphicsView" name="maneuver_preview_gv">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>200</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarAlwaysOff</enum>
-           </property>
-           <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarAlwaysOff</enum>
-           </property>
-           <property name="interactive">
-            <bool>false</bool>
-           </property>
-           <property name="resizeAnchor">
-            <enum>QGraphicsView::AnchorViewCenter</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Climb Value:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Dive Value:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="0" colspan="2">
-          <widget class="QCheckBox" name="set_weight_restricted">
-           <property name="text">
-            <string>Weight restricted</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0" colspan="2">
-          <widget class="QCheckBox" name="set_can_reload">
-           <property name="text">
-            <string>Can reload</string>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="0" colspan="3">
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
-            <widget class="QPushButton" name="add_maneuver">
-             <property name="text">
-              <string>Add Maneuver</string>
-             </property>
-             <property name="icon">
-              <iconset>
-               <normaloff>C:/Users/Wesley/Downloads/icons8-add-48.png</normaloff>C:/Users/Wesley/Downloads/icons8-add-48.png</iconset>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="remove_maneuver">
-             <property name="text">
-              <string>Remove Maneuver</string>
-             </property>
-             <property name="icon">
-              <iconset>
-               <normaloff>C:/Users/Wesley/Downloads/icons8-minus-48.png</normaloff>C:/Users/Wesley/Downloads/icons8-minus-48.png</iconset>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="2" column="1">
-          <widget class="QComboBox" name="set_level">
-           <item>
-            <property name="text">
-             <string>-</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>X</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>L</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item row="6" column="0" colspan="2">
-          <widget class="QCheckBox" name="set_can_put_out_fires">
-           <property name="text">
-            <string>Extinguish fires bonus</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="0" colspan="2">
-          <widget class="QCheckBox" name="set_can_repeat">
-           <property name="text">
-            <string>Can be repeated</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Fuel Capacity:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0" colspan="2">
+      <item row="5" column="0" colspan="2">
        <widget class="QGroupBox" name="groupBox_7">
         <property name="title">
          <string>Ratings</string>
         </property>
-        <layout class="QGridLayout" name="gridLayout_3">
+        <layout class="QGridLayout" name="gridLayout_3" columnstretch="0,1,0,1">
          <property name="leftMargin">
           <number>5</number>
          </property>
@@ -514,31 +320,208 @@
         </layout>
        </widget>
       </item>
-      <item row="0" column="0" colspan="2">
-       <widget class="QLineEdit" name="plane_name">
-        <property name="placeholderText">
-         <string>Plane Name</string>
+      <item row="2" column="0" colspan="2">
+       <widget class="QTabWidget" name="crew_editor_tab">
+        <property name="tabsClosable">
+         <bool>true</bool>
         </property>
        </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QSpinBox" name="fuel_amt"/>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="0" column="2" rowspan="3">
+    <widget class="QGraphicsView" name="maneuver_schedule_gv">
+     <property name="renderHints">
+      <set>QPainter::RenderHint::Antialiasing|QPainter::RenderHint::TextAntialiasing</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
     <widget class="QPushButton" name="export_json">
+     <property name="font">
+      <font>
+       <pointsize>20</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>Export to JSON</string>
+     </property>
+     <property name="icon">
+      <iconset theme="QIcon::ThemeIcon::DocumentSaveAs"/>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
      </property>
      <property name="default">
       <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="0" column="1" rowspan="2">
-    <widget class="QGraphicsView" name="maneuver_schedule_gv"/>
+   <item row="1" column="0" colspan="2">
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Maneuver</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Climb Value:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="2">
+       <widget class="QCheckBox" name="set_obs_can_reload">
+        <property name="text">
+         <string>Observer can reload</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="2">
+       <widget class="QCheckBox" name="set_can_reload">
+        <property name="text">
+         <string>Can reload</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="set_climb">
+        <item>
+         <property name="text">
+          <string>-</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>C1</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>C</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Level Value:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0" colspan="2">
+       <widget class="QCheckBox" name="set_put_out_fires_bonus">
+        <property name="text">
+         <string>Extinguish fires bonus</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Dive Value:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="set_level">
+        <item>
+         <property name="text">
+          <string>-</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>X</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>L</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="6" column="0" colspan="2">
+       <widget class="QCheckBox" name="set_can_repeat">
+        <property name="text">
+         <string>Can be repeated</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0" colspan="2">
+       <widget class="QCheckBox" name="set_weight_restricted">
+        <property name="text">
+         <string>Weight restricted</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="set_dive">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>-</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>D1</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>D</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="0" column="2" rowspan="8">
+       <widget class="QListWidget" name="maneuver_list">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="contextMenuPolicy">
+         <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+        </property>
+        <property name="showDropIndicator" stdset="0">
+         <bool>false</bool>
+        </property>
+        <property name="defaultDropAction">
+         <enum>Qt::DropAction::IgnoreAction</enum>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>false</bool>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
   </layout>
  </widget>
@@ -560,17 +543,13 @@
   <tabstop>rated_dive</tabstop>
   <tabstop>max_alt</tabstop>
   <tabstop>stab_rating</tabstop>
-  <tabstop>maneuver_selection</tabstop>
-  <tabstop>set_climb</tabstop>
   <tabstop>set_level</tabstop>
   <tabstop>set_dive</tabstop>
   <tabstop>set_can_reload</tabstop>
   <tabstop>set_obs_can_reload</tabstop>
-  <tabstop>set_can_put_out_fires</tabstop>
+  <tabstop>set_put_out_fires_bonus</tabstop>
   <tabstop>set_can_repeat</tabstop>
   <tabstop>set_weight_restricted</tabstop>
-  <tabstop>add_maneuver</tabstop>
-  <tabstop>remove_maneuver</tabstop>
   <tabstop>export_json</tabstop>
   <tabstop>maneuver_schedule_gv</tabstop>
  </tabstops>

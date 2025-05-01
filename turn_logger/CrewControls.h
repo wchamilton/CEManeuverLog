@@ -8,9 +8,8 @@ namespace Ui {
 class CrewControls;
 }
 
-class PlaneFilterProxy;
+class FilterProxy;
 class QAbstractButton;
-class TurnModel;
 class CrewControls : public QWidget
 {
     Q_OBJECT
@@ -22,9 +21,12 @@ class CrewControls : public QWidget
     };
 
 public:
-    explicit CrewControls(PlaneFilterProxy *model, QPersistentModelIndex crew_idx, TurnModel* turn_model, QWidget *parent = nullptr);
+    explicit CrewControls(const QPersistentModelIndex &crew_idx, QSharedPointer<FilterProxy> crew_proxy,
+                          QSharedPointer<FilterProxy> maneuver_proxy, QSharedPointer<FilterProxy> turn_proxy, QWidget *parent = nullptr);
     ~CrewControls();
-    std::tuple<QPersistentModelIndex, int, QVariant> getChosenCrewAction();
+
+    // std::tuple<QPersistentModelIndex, int, QVariant> getChosenCrewAction();
+    void populateTurnIdx(QPersistentModelIndex turn_crew_idx);
     void handleTurnEnd();
 
 public slots:
@@ -41,12 +43,15 @@ private slots:
 
 private:
     int calculateCV();
-    Ui::CrewControls *ui;
+    QVariant getActionExtraData();
+    void initConnections();
 
-    PlaneFilterProxy *model = nullptr;
+    Ui::CrewControls *ui;
     QPersistentModelIndex crew_idx; // When this is passed in, it is assumed to be set to column Crew_Name
-    TurnModel* turn_model = nullptr;
     QPersistentModelIndex selected_maneuver;
+    QSharedPointer<FilterProxy> crew_proxy = nullptr;
+    QSharedPointer<FilterProxy> maneuver_proxy = nullptr;
+    QSharedPointer<FilterProxy> turn_proxy = nullptr;
 };
 
 #endif // CREWCONTROLS_H

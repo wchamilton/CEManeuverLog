@@ -28,7 +28,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->actionQuit->setShortcut(Qt::ControlModifier+Qt::Key_Q);
     ui->turn_log->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     // Init the models
@@ -60,12 +59,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Init the scene that contains the maneuver schedule
     // maneuver_scene = new ManeuverScene(maneuver_proxy_model, ui->graphicsView);
-    maneuver_scene->applyScheduleBG();
-    maneuver_scene->positionManeuvers();
+    // maneuver_scene->applyScheduleBG();
+    // maneuver_scene->positionManeuvers();
     ui->graphicsView->setScene(maneuver_scene);
 
     // Init the secondary control scenes which displays the alt and firing arcs
-    alt_ctrl_scene = new AltCtrlScene(ui->alt_control);
+    // alt_ctrl_scene = new AltCtrlScene(ui->alt_control);
     ui->alt_control->setScene(alt_ctrl_scene);
     firing_arc_scene = new FiringArcScene(ui->firing_arc_control);
     ui->firing_arc_control->setScene(firing_arc_scene);
@@ -79,16 +78,6 @@ MainWindow::MainWindow(QWidget *parent) :
     // Load the planes if a location has been already set
     autoLoadPlanes();
 
-    connect(ui->actionLoad_Planes, &QAction::triggered, this, [&]{
-        QString file_path = QFileDialog::getOpenFileName(this, tr("Open File"), PLANES_LOCATION, tr("JSON files (*.json)"));
-        loadJSON(file_path);
-        plane_action_group->actions().last()->trigger();
-    });
-
-    connect(ui->actionCreate_plane, &QAction::triggered, this, [&]{
-        PlaneEditor(this).exec();
-    });
-
     connect(ui->actionEdit_plane, &QAction::triggered, this, [&] {
         QString file_path = QFileDialog::getOpenFileName(this, tr("Open File"), PLANES_LOCATION, tr("JSON files (*.json)"));
         if (file_path != "") {
@@ -99,7 +88,7 @@ MainWindow::MainWindow(QWidget *parent) :
             }
             QJsonDocument planes_doc = QJsonDocument::fromJson(QString(file.readAll()).toUtf8());
             file.close();
-            PlaneEditor(planes_doc.object(), this).exec();
+            // PlaneEditor(planes_doc.object(), this).exec();
         }
     });
 
@@ -146,23 +135,23 @@ void MainWindow::setSelectedPlane()
     crew_names_dlg.exec();
 
     // maneuver_scene->setTurnModel(turn_model);
-    alt_ctrl_scene->setTurnModel(turn_model);
-    alt_ctrl_scene->setPlane(maneuver_proxy_model->mapFromSource(plane_idx));
+    // alt_ctrl_scene->setTurnModel(turn_model);
+    // alt_ctrl_scene->setPlane(maneuver_proxy_model->mapFromSource(plane_idx));
 
     ui->actionSet_up_Crew->setEnabled(true);
 
     // Iterate over the crew members
     for (int i=0; i<crew_proxy_model->rowCount(crew_proxy_model->mapFromSource(plane_idx)); ++i) {
         QPersistentModelIndex crew_idx = crew_proxy_model->index(i, CrewItem::Crew_Name, crew_proxy_model->mapFromSource(plane_idx));
-        CrewControls* cc = new CrewControls(crew_proxy_model, crew_idx, turn_model, ui->crew_tab);
-        ui->crew_tab->addTab(cc, crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() + " (" + crew_idx.data().toString() + ")");
-        crew_control_widgets.insert(crew_idx.row(), cc);
+        // CrewControls* cc = new CrewControls(crew_proxy_model, crew_idx, turn_model, ui->crew_tab);
+        // ui->crew_tab->addTab(cc, crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() + " (" + crew_idx.data().toString() + ")");
+        // crew_control_widgets.insert(crew_idx.row(), cc);
 
         if (crew_idx.sibling(crew_idx.row(), CrewItem::Crew_Role).data().toString() == "Pilot") {
             // maneuver_scene->setManeuversAvailable(crew_idx);
         }
 
-        connect(maneuver_scene, &ManeuverScene::maneuverClicked, cc, &CrewControls::applyManeuverRestrictions);
+        // connect(maneuver_scene, &ManeuverScene::maneuverClicked, cc, &CrewControls::applyManeuverRestrictions);
 
         // Add each of the guns to the firing arc combobox
         for (int i=0; i<crew_proxy_model->rowCount(crew_idx); ++i) {
@@ -237,15 +226,15 @@ void MainWindow::handleTurnEnd()
     QList<std::tuple<QPersistentModelIndex, int, QVariant>> crew_actions;
     QPersistentModelIndex pilot;
     for (auto control : crew_control_widgets) {
-        auto crew_action_tuple = control->getChosenCrewAction();
-        crew_actions << crew_action_tuple;
-        QPersistentModelIndex crew = std::get<0>(crew_action_tuple);
+        // auto crew_action_tuple = control->getChosenCrewAction();
+        // crew_actions << crew_action_tuple;
+        // QPersistentModelIndex crew = std::get<0>(crew_action_tuple);
         // Ensure the crew is a living pilot
-        if ((crew.sibling(crew.row(), CrewItem::Wounds).data().toInt() < 3 &&
-                crew.sibling(crew.row(), CrewItem::Crew_Role).data().toString() == "Pilot") ||
-                crew.sibling(crew.row(), CrewItem::Crew_Role).data().toString() == "Co-Pilot") {
-            pilot = crew;
-        }
+        // if ((crew.sibling(crew.row(), CrewItem::Wounds).data().toInt() < 3 &&
+        //         crew.sibling(crew.row(), CrewItem::Crew_Role).data().toString() == "Pilot") ||
+        //         crew.sibling(crew.row(), CrewItem::Crew_Role).data().toString() == "Co-Pilot") {
+        //     pilot = crew;
+        // }
         control->handleTurnEnd();
     }
 

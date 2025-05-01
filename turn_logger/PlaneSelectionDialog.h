@@ -17,17 +17,21 @@ class PlaneSelectionDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit PlaneSelectionDialog(QSharedPointer<GameModel> game_model, QWidget *parent = nullptr);
+    explicit PlaneSelectionDialog(GameModel* game_model, QWidget *parent = nullptr);
     ~PlaneSelectionDialog();
+
+public slots:
+    void accept();
 
 private slots:
     void planeSelected(QTreeWidgetItem* current, QTreeWidgetItem* prev);
+    void checkIfStartReady();
 
 private:
     void prepareCrewRows(QGridLayout *layout, QPersistentModelIndex crew_idx);
 
     Ui::PlaneSelectionDialog *ui;
-    QSharedPointer<GameModel> game_model;
+    GameModel* game_model = nullptr;
     QSharedPointer<FilterProxy> maneuver_proxy;
     QSharedPointer<FilterProxy> crew_proxy;
     QMap<QString, QGraphicsScene*> scene_map;

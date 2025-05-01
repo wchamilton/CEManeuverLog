@@ -2,39 +2,41 @@
 #define PLANEEDITOR_H
 
 #include <QDialog>
+#include <QPersistentModelIndex>
 
 namespace Ui {
 class PlaneEditor;
 }
 
-class PlaneModel;
-class PlaneFilterProxy;
+class QListWidgetItem;
+class GameModel;
+class FilterProxy;
 class ManeuverScene;
-class QDataWidgetMapper;
 class PlaneEditor : public QDialog
 {
     Q_OBJECT
 
 public:
     explicit PlaneEditor(QWidget *parent = nullptr);
-    PlaneEditor(const QJsonObject &plane_object, QWidget *parent = nullptr);
+    explicit PlaneEditor(GameModel *game_model, QPersistentModelIndex plane_idx, QWidget *parent = nullptr);
     ~PlaneEditor();
 
 private slots:
-    void updatePreview(int row);
+    void handleManeuverCheck(QListWidgetItem* item);
+    void handleManeuverListContextMenu(const QPoint &pos);
+    void handleManeuverPropertyChanges(const QVariant &arg);
     void exportJSON();
 
 private:
-    void initWidgets();
-    void setManeuverData(int column, QVariant data);
-    void addManeuverToSchedule(QPersistentModelIndex idx);
-    void removeManeuverFromSchedule(QPersistentModelIndex idx);
+    void init();
 
     Ui::PlaneEditor *ui;
-    PlaneModel* plane_model = nullptr;
-    PlaneFilterProxy* maneuver_proxy_model = nullptr;
-    ManeuverScene* maneuver_preview_scene = nullptr;
-    ManeuverScene* maneuver_schedule_scene = nullptr;
+    GameModel* game_model = nullptr;
+    FilterProxy* crew_proxy = nullptr;
+    FilterProxy* maneuver_proxy = nullptr;
+    ManeuverScene* maneuver_scene = nullptr;
+    QPersistentModelIndex plane_idx;
+    QMap<QString, QPersistentModelIndex> maneuver_idx_map;
 };
 
 #endif // PLANEEDITOR_H

@@ -1,7 +1,6 @@
 #ifndef CEMANEUVERS_H
 #define CEMANEUVERS_H
 
-#include <QList>
 #include <QMap>
 #include <QVariant>
 #include <QPointF>
@@ -12,11 +11,9 @@ Q_DECLARE_METATYPE(QList<int>)
 #if IS_RELEASE
 static QString GRAPHICS_LOCATION = "./graphics";
 static QString PLANES_LOCATION = "./Planes";
-static QString CHITS_LOCATION = "./chits";
 #else
-static QString GRAPHICS_LOCATION = "../../../CEManeuverLog/graphics";
-static QString PLANES_LOCATION = "../../../CEManeuverLog/Planes";
-static QString CHITS_LOCATION = "../../../CEManeuverLog/chits";
+static const QString GRAPHICS_LOCATION("../../../CEManeuverLog/graphics");
+static const QString PLANES_LOCATION("../../../CEManeuverLog/Planes");
 #endif
 
 struct Maneuver
@@ -40,27 +37,41 @@ struct Maneuver
         Rot_South_West = 240,
         Rot_North_West = 300
     };
+
     Maneuver() = default;
     Maneuver(QString name, QString tolerances, bool causes_spin_check,
              RotationAngle final_rotation, QList<Directions> tile_movements, QPointF pos) :
+        id(current_id++),
         name(name),
+        direction(name.right(2).left(1)),
         tolerances(tolerances),
         causes_spin_check(causes_spin_check),
         final_rotation(final_rotation),
         tile_movements(tile_movements),
         pos(pos)
-    {}
+    {
+    }
     Maneuver(QString name, RotationAngle final_rotation, QList<Directions> tile_movements, QPointF pos,
              bool is_restricted = false, bool is_climb_restricted = false) :
+        id(current_id++),
         name(name),
+        direction(name.right(2).left(1)),
         is_restricted(is_restricted),
         has_climb_condition(is_climb_restricted),
         final_rotation(final_rotation),
         tile_movements(tile_movements),
         pos(pos)
-    {}
+    {
+    }
 
+    bool operator < (const Maneuver & m) const {
+        return id < m.id;
+    }
+
+    static int current_id;
+    int id;
     QString name;
+    QString direction;
     QString tolerances = "-/-/-";
     bool is_restricted = false;
     bool has_climb_condition = false;
@@ -81,6 +92,7 @@ public:
         Plane_Item_Type,
         Plane_Maneuver_Item_Type,
         Plane_Armaments_Item_Type,
+        Plane_Armaments_Link_Item_Type,
         Plane_Crew_Item_Type,
         Active_Effect_Item_Type,
         Chit_Item_Type,
@@ -95,17 +107,18 @@ public:
 
     virtual QVariant data(int column) const;
     virtual void setData(int column, const QVariant &data);
+    virtual QJsonObject toJSON();
 
-    ItemType getType() { return type; }
-    BaseItem* childAt(int row) const { return children.size() > row && row >= 0 ? children.at(row) : nullptr; }
-    BaseItem* getParent() { return parent; }
-    int childCount() const { return children.size(); }
-    int childRow(const BaseItem* item) const { return children.indexOf(item); }
-    int columnCount() const { return column_data.count(); }
-    int row() const { return parent->childRow(this); }
-    void addChild(BaseItem* item) { children << item; }
-    void removeChild(int row) { if (row >= 0 && row < children.size()) delete children.takeAt(row); }
-    void removeChildren() { qDeleteAll(children); children.clear(); }
+    ItemType getType();
+    BaseItem* childAt(int row) const;
+    BaseItem* getParent() const;
+    int childCount() const;
+    int childRow(const BaseItem* item) const;
+    int columnCount() const;
+    int row() const;
+    void addChild(BaseItem* item);
+    void removeChild(int row);
+    void removeChildren();
 
 private:
     QMap<int, QVariant> column_data;

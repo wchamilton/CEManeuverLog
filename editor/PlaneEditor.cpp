@@ -1,101 +1,77 @@
 #include "PlaneEditor.h"
 #include "ui_PlaneEditor.h"
 
+#include "CEManeuvers.h"
+#include "CrewEditorTab.h"
+#include "models/GameModel.h"
+#include "models/GameModelItems.h"
+#include "graphics/ManeuverScene.h"
+
+#include <QStandardItem>
+#include <QMenu>
 #include <QToolButton>
 #include <QInputDialog>
-#include <QGraphicsItem>
-#include <QPersistentModelIndex>
-#include <QDataWidgetMapper>
-#include <QVariant>
 #include <QFileDialog>
-#include <QSettings>
 #include <QJsonDocument>
-#include <QJsonArray>
-#include <QTextStream>
-
-#include "CrewEditorTab.h"
-#include "models/PlaneModel.h"
-#include "graphics/ManeuverScene.h"
-#include "graphics/ManeuverGraphic.h"
+#include <QJsonObject>
 
 PlaneEditor::PlaneEditor(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::PlaneEditor)
 {
     ui->setupUi(this);
-    initWidgets();
 
-    // Add initial crew member to the tab and set the index accordingly
-    int pilot_index = ui->crew_editor_tab->addTab(new CrewEditorTab(ui->crew_editor_tab), "Pilot");
-    ui->crew_editor_tab->setCurrentIndex(pilot_index);
-    ui->crew_editor_tab->tabBar()->tabButton(pilot_index, QTabBar::RightSide)->resize(0, 0);
+    // Initialize a blank plane
+    init();
 }
 
-PlaneEditor::PlaneEditor(const QJsonObject &plane_object, QWidget *parent) :
+PlaneEditor::PlaneEditor(GameModel* game_model, QPersistentModelIndex plane_idx, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::PlaneEditor)
+    ui(new Ui::PlaneEditor),
+    game_model(game_model),
+    plane_idx(plane_idx)
 {
     ui->setupUi(this);
-    initWidgets();
 
-    // Because this UI already has a plane model with a custom setup for maneuvers, we'll just populate the widgets
-    ui->plane_name->setText(plane_object["name"].toString());
-    if (plane_object["plane_era"].toString() == "Late War") {
+    // Populate the maneuvers from the given plane
+    init();
+
+    // Populate the rest of the fields with data from the plane
+    ui->plane_name->setText(plane_idx.data().toString());
+    if (plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Era).data().toInt() == PlaneItem::Era_Late_War) {
         ui->late_war_btn->setChecked(true);
     }
-    ui->fuel_amt->setValue(plane_object["fuel"].toInt());
-    ui->engine_hp->setValue(plane_object["engine_hp"].toInt());
-    ui->engine_critical_hp->setValue(plane_object["engine_critical"].toInt());
-    ui->wing_hp->setValue(plane_object["wing_hp"].toInt());
-    ui->wing_critical_hp->setValue(plane_object["wing_critical"].toInt());
-    ui->fuselage_hp->setValue(plane_object["fuselage_hp"].toInt());
-    ui->fuselage_critical_hp->setValue(plane_object["fuselage_critical"].toInt());
-    ui->tail_hp->setValue(plane_object["tail_hp"].toInt());
-    ui->tail_critical_hp->setValue(plane_object["tail_critical"].toInt());
-    ui->rated_climb->setValue(plane_object["rated_climb"].toInt());
-    ui->rated_dive->setValue(plane_object["rated_dive"].toInt());
-    ui->max_alt->setText(plane_object["max_alt"].toString());
-    ui->stab_rating->setText(plane_object["stability"].toString());
+    else {
+        ui->early_war_btn->setChecked(true);
+    }
 
-    // Populate the crew
-    QJsonArray crew = plane_object["crew"].toArray();
-    for (int i=0; i<crew.size(); ++i) {
-        QJsonObject crew_item = crew.at(i).toObject();
+    QPersistentModelIndex filtered_plane_idx = crew_proxy->mapFromSource(plane_idx);
+
+    // Populate the pilot. Use widget at index 1 because index 0 is used by the '+' tab
+    QPersistentModelIndex pilot_idx = crew_proxy->index(0, 0, filtered_plane_idx);
+    static_cast<CrewEditorTab*>(ui->crew_editor_tab->widget(1))->populateFromModel(crew_proxy, pilot_idx);
+
+    // Populate any crew after the pilot
+    for (int i=1; i<crew_proxy->rowCount(filtered_plane_idx); ++i) {
         CrewEditorTab* tab = new CrewEditorTab(ui->crew_editor_tab);
-        tab->populateFromJSON(crew_item);
-        ui->crew_editor_tab->addTab(tab, crew_item["role"].toString());
+        tab->populateFromModel(crew_proxy, crew_proxy->index(i, 0, filtered_plane_idx));
+        ui->crew_editor_tab->addTab(tab, QString("Crew %1").arg(i));
     }
 
-    // We'll always have had at least the pilot so we can safely do this
-    ui->crew_editor_tab->setCurrentIndex(1);
-    ui->crew_editor_tab->tabBar()->tabButton(1, QTabBar::RightSide)->resize(0, 0);
-
-    // Update the template model with what was saved to file
-    QJsonArray maneuvers = plane_object["maneuvers"].toArray();
-    QModelIndex plane_idx = maneuver_proxy_model->index(0,0);
-    for (int i=0; i<maneuvers.size(); ++i) {
-        QJsonObject maneuver = maneuvers.at(i).toObject();
-        QPersistentModelIndex idx(maneuver_proxy_model->index(ui->maneuver_selection->findText(maneuver["name"].toString()),
-                                                              ManeuverItem::Maneuver_Name, plane_idx));
-        auto setData = [&](int column, QVariant data) {
-            maneuver_proxy_model->setData(idx.sibling(idx.row(), column), data);
-        };
-
-        QStringList tolerances = maneuver.value("tolerances").toString().split("/");
-        setData(ManeuverItem::Climb_Value,          tolerances.at(0));
-        setData(ManeuverItem::Level_Value,          tolerances.at(1));
-        setData(ManeuverItem::Dive_Value,           tolerances.at(2));
-        setData(ManeuverItem::Can_Be_Repeated,      maneuver.value("can_be_repeated").toVariant());
-        setData(ManeuverItem::Can_Reload,           maneuver.value("can_reload").toVariant());
-        setData(ManeuverItem::Can_Put_Out_Fires,    maneuver.value("can_put_out_fires").toVariant());
-        setData(ManeuverItem::Observer_Can_Reload,  maneuver.value("observer_can_reload").toVariant());
-        setData(ManeuverItem::Is_Restricted,        maneuver.value("is_restricted").toVariant());
-        setData(ManeuverItem::Is_Weight_Restricted, maneuver.value("is_weight_restricted").toVariant());
-        setData(ManeuverItem::Is_Climb_Restricted,  maneuver.value("is_climb_restricted").toVariant());
-        setData(ManeuverItem::Causes_Spin_Check,    maneuver.value("causes_spin_check").toVariant());
-
-        addManeuverToSchedule(idx);
-    }
+    // Populate the plane's attributes
+    ui->fuel_amt->setValue(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Fuel_Cap).data().toInt());
+    ui->engine_hp->setValue(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Engine_HP).data().toInt());
+    ui->engine_critical_hp->setValue(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Engine_Critical).data().toInt());
+    ui->wing_hp->setValue(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Wing_HP).data().toInt());
+    ui->wing_critical_hp->setValue(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Wing_Critical).data().toInt());
+    ui->fuselage_hp->setValue(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Fuselage_HP).data().toInt());
+    ui->fuselage_critical_hp->setValue(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Fuselage_Critical).data().toInt());
+    ui->tail_hp->setValue(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Tail_HP).data().toInt());
+    ui->tail_critical_hp->setValue(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Tail_Critical).data().toInt());
+    ui->rated_climb->setValue(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Rated_Climb).data().toInt());
+    ui->rated_dive->setValue(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Rated_Dive).data().toInt());
+    ui->max_alt->setText(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Max_Altitude).data().toString());
+    ui->stab_rating->setText(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Stability_Rating).data().toString());
 }
 
 PlaneEditor::~PlaneEditor()
@@ -103,49 +79,72 @@ PlaneEditor::~PlaneEditor()
     delete ui;
 }
 
-void PlaneEditor::updatePreview(int row)
+void PlaneEditor::handleManeuverCheck(QListWidgetItem* item)
 {
-    QPersistentModelIndex idx(maneuver_proxy_model->index(row, ManeuverItem::Maneuver_Name, ui->maneuver_selection->rootModelIndex()));
+    Maneuver m = item->data(Qt::UserRole).value<Maneuver>();
+    if (item->checkState() == Qt::Checked) {
+        maneuver_idx_map[m.name] = game_model->addManeuver(m, plane_idx);
+        maneuver_scene->addManeuver(maneuver_idx_map[m.name]);
+    }
+    else {
+        maneuver_scene->removeManeuver(maneuver_idx_map[m.name]);
+        game_model->removeManeuver(maneuver_idx_map.take(m.name));
+    }
+}
 
-    // Set the widgets with index contents
-    ui->set_climb->setCurrentText(idx.sibling(row, ManeuverItem::Climb_Value).data().toString());
-    ui->set_level->setCurrentText(idx.sibling(row, ManeuverItem::Level_Value).data().toString());
-    ui->set_dive->setCurrentText(idx.sibling(row, ManeuverItem::Dive_Value).data().toString());
-    ui->set_can_reload->setChecked(idx.sibling(row, ManeuverItem::Can_Reload).data().toBool());
-    ui->set_obs_can_reload->setChecked(idx.sibling(row, ManeuverItem::Observer_Can_Reload).data().toBool());
-    ui->set_can_put_out_fires->setChecked(idx.sibling(row, ManeuverItem::Can_Put_Out_Fires).data().toBool());
-    ui->set_can_repeat->setChecked(idx.sibling(row, ManeuverItem::Can_Be_Repeated).data().toBool());
-    ui->set_weight_restricted->setChecked(idx.sibling(row, ManeuverItem::Is_Weight_Restricted).data().toBool());
+void PlaneEditor::handleManeuverListContextMenu(const QPoint &pos)
+{
+    // Handle global position
+    QPoint globalPos = ui->maneuver_list->mapToGlobal(pos);
 
-    // maneuver_preview_scene->setManeuver(idx);
-    ui->maneuver_preview_gv->fitInView(maneuver_preview_scene->getManeuver(idx.data().toString()), Qt::KeepAspectRatio);
+    // Create menu with checkstate controls
+    QMenu menu;
+    menu.addAction("Add selected maneuvers", this, [=](){
+        for (auto item : ui->maneuver_list->selectedItems()) {
+            item->setCheckState(Qt::Checked);
+        }
+    });
+    menu.addAction("Remove selected maneuvers", this, [=](){
+        for (auto item : ui->maneuver_list->selectedItems()) {
+            item->setCheckState(Qt::Unchecked);
+        }
+    });
+    menu.exec(globalPos);
+}
+
+void PlaneEditor::handleManeuverPropertyChanges(const QVariant &arg)
+{
+    for (auto item : ui->maneuver_list->selectedItems()) {
+        Maneuver m = item->data(Qt::UserRole).value<Maneuver>();
+        game_model->setData(maneuver_idx_map[m.name].sibling(maneuver_idx_map[m.name].row(), sender()->property("col").toInt()), arg);
+    }
+    maneuver_scene->update();
 }
 
 void PlaneEditor::exportJSON()
 {
-    PlaneItemOld* plane = static_cast<PlaneItemOld*>(plane_model->index(0,0).internalPointer());
+    game_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Name), ui->plane_name->text().simplified());
+    game_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Era), ui->early_war_btn->isChecked() ? PlaneItem::Era_Early_War : PlaneItem::Era_Late_War);
+    game_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Fuel_Cap), ui->fuel_amt->value());
+    game_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Engine_HP), ui->engine_hp->value());
+    game_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Engine_Critical), ui->engine_critical_hp->value());
+    game_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Wing_HP), ui->wing_hp->value());
+    game_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Wing_Critical), ui->wing_critical_hp->value());
+    game_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Fuselage_HP), ui->fuselage_hp->value());
+    game_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Fuselage_Critical), ui->fuselage_critical_hp->value());
+    game_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Tail_HP), ui->tail_hp->value());
+    game_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Tail_Critical), ui->tail_critical_hp->value());
+    game_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Rated_Climb), ui->rated_climb->value());
+    game_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Rated_Dive), ui->rated_dive->value());
+    game_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Max_Altitude), ui->max_alt->text().simplified());
+    game_model->setData(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Stability_Rating), ui->stab_rating->text().simplified());
 
-    plane->setData(PlaneItemOld::Plane_Name, ui->plane_name->text().simplified());
-    plane->setData(PlaneItemOld::Plane_Era, ui->early_war_btn->isChecked() ? "Early War" : "Late War");
-    plane->setData(PlaneItemOld::Fuel, ui->fuel_amt->value());
-    plane->setData(PlaneItemOld::Engine_HP, ui->engine_hp->value());
-    plane->setData(PlaneItemOld::Engine_Critical, ui->engine_critical_hp->value());
-    plane->setData(PlaneItemOld::Wing_HP, ui->wing_hp->value());
-    plane->setData(PlaneItemOld::Wing_Critical, ui->wing_critical_hp->value());
-    plane->setData(PlaneItemOld::Fuselage_HP, ui->fuselage_hp->value());
-    plane->setData(PlaneItemOld::Fuselage_Critical, ui->fuselage_critical_hp->value());
-    plane->setData(PlaneItemOld::Tail_HP, ui->tail_hp->value());
-    plane->setData(PlaneItemOld::Tail_Critical, ui->tail_critical_hp->value());
-    plane->setData(PlaneItemOld::Rated_Climb, ui->rated_climb->value());
-    plane->setData(PlaneItemOld::Rated_Dive, ui->rated_dive->value());
-    plane->setData(PlaneItemOld::Max_Altitude, ui->max_alt->text().simplified());
-    plane->setData(PlaneItemOld::Stability, ui->stab_rating->text().simplified());
+    QModelIndex filtered_plane_idx = crew_proxy->mapFromSource(plane_idx);
 
     // Start at 1 since index 0 is used by the [+] tab
     for (int i=1; i<ui->crew_editor_tab->count(); ++i) {
-        CrewItem* item = new CrewItem(plane);
-        static_cast<CrewEditorTab*>(ui->crew_editor_tab->widget(i))->populateCrewItem(item);
-        plane->addChild(item);
+        QModelIndex crew_idx = crew_proxy->index(i-1, 0, filtered_plane_idx);
+        static_cast<CrewEditorTab*>(ui->crew_editor_tab->widget(i))->populateCrewItem(crew_proxy, crew_idx);
     }
 
     QString file_path = QFileDialog::getSaveFileName(this, tr("Save Plane"), PLANES_LOCATION + QDir::separator() + ui->plane_name->text(), tr("JSON files (*.json)"));
@@ -159,7 +158,7 @@ void PlaneEditor::exportJSON()
         if (file.open(QIODevice::WriteOnly|QIODevice::Text)) {
             // Ensure that if there are any unicode characters, they're preserved properly
             QTextStream out(&file);
-            QString configDoc = QJsonDocument(plane_model->dumpPlaneToJSON(plane_model->index(0,0))).toJson();
+            QString configDoc = QJsonDocument(game_model->dumpPlaneToJson(plane_idx)).toJson();
 
             out << configDoc;
             out.flush();
@@ -167,21 +166,36 @@ void PlaneEditor::exportJSON()
         }
     }
 
-    // Clean up
-    int child_row = 0;
-    while (child_row < plane->childCount()) {
-        if (plane->childAt(child_row)->getType() == BaseItem::Plane_Crew_Item_Type) {
-            plane->removeChild(child_row);
-        }
-        else {
-            ++child_row;
-        }
+    // Clean up crew to avoid creating duplicate/extra entries
+    for (int i=0; i<crew_proxy->rowCount(filtered_plane_idx); ++i) {
+        game_model->removeChild(i, crew_proxy->mapToSource(filtered_plane_idx));
     }
 }
 
-void PlaneEditor::initWidgets()
+void PlaneEditor::init()
 {
-    // Create button to be placed in tabs row
+    // If we're creating a new plane, need to create a new instance of the game model
+    if (game_model == nullptr) {
+        game_model = new GameModel(this);
+    }
+
+    // Initialize a couple proxy models to isolate crew and maneuvers
+    crew_proxy = new FilterProxy(game_model, this); // Init a proxy to filter for crew
+    crew_proxy->setTypeFilter({BaseItem::Plane_Item_Type, BaseItem::Plane_Crew_Item_Type, BaseItem::Plane_Armaments_Link_Item_Type, BaseItem::Plane_Armaments_Item_Type});
+    maneuver_proxy = new FilterProxy(game_model, this); // Init a proxy to filter for maneuvers
+    maneuver_proxy->setTypeFilter({BaseItem::Plane_Item_Type, BaseItem::Plane_Maneuver_Item_Type});
+
+    // If we're creating a new plane, add it to the model and return the index
+    if (!plane_idx.isValid()) {
+        plane_idx = game_model->addPlane(); // Create empty plane to populate
+    }
+
+    // Convert the plane index from the base model to the maneuver proxy model and set that to the scene
+    QPersistentModelIndex filtered_plane_idx = maneuver_proxy->mapFromSource(plane_idx);
+    maneuver_scene = new ManeuverScene(maneuver_proxy, filtered_plane_idx, ui->maneuver_schedule_gv);
+    ui->maneuver_schedule_gv->setScene(maneuver_scene);
+
+    // Init controls to add more crew
     QToolButton *tb = new QToolButton(ui->crew_editor_tab);
     tb->setAutoRaise(true);
     tb->setText("+");
@@ -193,64 +207,58 @@ void PlaneEditor::initWidgets()
     // Add tab button to current tab. Button will be enabled, but tab -- not
     ui->crew_editor_tab->tabBar()->setTabButton(0, QTabBar::RightSide, tb);
 
-    // Initialize the model and assign it to the components that are driven by it
-    plane_model = new PlaneModel(this);
-    plane_model->prepareTemplateModel();
-    maneuver_proxy_model = new PlaneFilterProxy(plane_model, this);
-    maneuver_proxy_model->expandFilter(BaseItem::Maneuver_Item_Type);
+    // Manually add the spin maneuver to the schedule
+    Maneuver spin_man = master_maneuver_map["0S1"];
+    spin_man.tolerances = "-/-/D1";
+    maneuver_idx_map[spin_man.name] = maneuver_proxy->mapFromSource(game_model->addManeuver(spin_man, plane_idx));
+    maneuver_scene->addManeuver(maneuver_idx_map[spin_man.name]);
 
-    ui->maneuver_selection->setModel(maneuver_proxy_model);
-    ui->maneuver_selection->setRootModelIndex(maneuver_proxy_model->index(0,0)); // There's only one plane in this model
-    ui->maneuver_selection->setCurrentIndex(-1);
-    maneuver_proxy_model->sort(ManeuverItem::Speed);
+    // Add initial crew member to the tab and set the index accordingly
+    int pilot_index = ui->crew_editor_tab->addTab(new CrewEditorTab(ui->crew_editor_tab), "Pilot");
+    ui->crew_editor_tab->setCurrentIndex(pilot_index);
+    ui->crew_editor_tab->tabBar()->tabButton(pilot_index, QTabBar::RightSide)->resize(0, 0);
 
-    // Initialize the scenes and apply them to the graphics views
-    // maneuver_preview_scene = new ManeuverScene(maneuver_proxy_model, ui->maneuver_preview_gv);
-    // maneuver_schedule_scene = new ManeuverScene(maneuver_proxy_model, ui->maneuver_schedule_gv);
-    maneuver_schedule_scene->applyScheduleBG();
-    maneuver_schedule_scene->positionManeuvers();
-    ui->maneuver_preview_gv->setScene(maneuver_preview_scene);
-    ui->maneuver_schedule_gv->setScene(maneuver_schedule_scene);
-    ui->maneuver_preview_gv->setRenderHints(QPainter::Antialiasing);
-    ui->maneuver_schedule_gv->setRenderHints(QPainter::Antialiasing);
+    // Fetch the maneuvers from the master list so that they can be added to the list widget, sorted in the desired way (speed followed by restricted)
+    QList<Maneuver> maneuvers = master_maneuver_map.values();
+    std::sort(maneuvers.begin(), maneuvers.end()); // Convert the map to a list so that we can sort the maneuvers by speed
 
-    // Add and lock 0S1 since all planes need it
-    int cmb_row = ui->maneuver_selection->findText("0S1");
-    QPersistentModelIndex idx_0S1(maneuver_proxy_model->index(cmb_row, ManeuverItem::Maneuver_Name, ui->maneuver_selection->rootModelIndex()));
-    maneuver_proxy_model->setData(idx_0S1.sibling(cmb_row, ManeuverItem::IsEnabled), false);
-    addManeuverToSchedule(idx_0S1);
-
-    // Setup maneuver selection connections
-    connect(ui->set_climb, &QComboBox::currentTextChanged, this, [&](QString text) { setManeuverData(ManeuverItem::Climb_Value, text); });
-    connect(ui->set_level, &QComboBox::currentTextChanged, this, [&](QString text) { setManeuverData(ManeuverItem::Level_Value, text); });
-    connect(ui->set_dive, &QComboBox::currentTextChanged, this, [&](QString text) { setManeuverData(ManeuverItem::Dive_Value, text); });
-    connect(ui->set_can_reload, &QCheckBox::toggled, this, [&](bool checked) { setManeuverData(ManeuverItem::Can_Reload, checked); });
-    connect(ui->set_obs_can_reload, &QCheckBox::toggled, this, [&](bool checked) { setManeuverData(ManeuverItem::Observer_Can_Reload, checked); });
-    connect(ui->set_can_put_out_fires, &QCheckBox::toggled, this, [&](bool checked) { setManeuverData(ManeuverItem::Can_Put_Out_Fires, checked); });
-    connect(ui->set_can_repeat, &QCheckBox::toggled, this, [&](bool checked) { setManeuverData(ManeuverItem::Can_Be_Repeated, checked); });
-    connect(ui->set_weight_restricted, &QCheckBox::toggled, this, [&](bool checked) {
-        setManeuverData(ManeuverItem::Is_Weight_Restricted, checked);
-        maneuver_preview_scene->updateManeuver(ui->maneuver_selection->currentText());
-        maneuver_schedule_scene->updateManeuver(ui->maneuver_selection->currentText());
-    });
-
-    connect(ui->add_maneuver, &QPushButton::pressed, this, [&]() {
-        QPersistentModelIndex idx(maneuver_proxy_model->index(ui->maneuver_selection->currentIndex(), ManeuverItem::Maneuver_Name, ui->maneuver_selection->rootModelIndex()));
-        if (idx.isValid()) {
-            addManeuverToSchedule(idx);
+    // Iterate over the maneuvers, adding all to the list widget and any existing to the scene if a plane was loaded
+    for (const Maneuver &m : maneuvers) {
+        if (m.name == "0S1") {
+            continue; // No point in adding 0S1 (spin) as an option; it's always mandatory to have
         }
-    });
 
-    connect(ui->remove_maneuver, &QPushButton::pressed, this, [&]() {
-        QPersistentModelIndex idx(maneuver_proxy_model->index(ui->maneuver_selection->currentIndex(), ManeuverItem::Maneuver_Name, ui->maneuver_selection->rootModelIndex()));
-        if (idx.isValid()) {
-            removeManeuverFromSchedule(idx);
+        // Initialize the list widget entry
+        QListWidgetItem* item = new QListWidgetItem(m.name);
+
+        // In the case of editing a plane, we should set the checkstate correctly for maneuvers already present
+        bool already_added = false;
+        for (int i=0; i<maneuver_proxy->rowCount(filtered_plane_idx); ++i) {
+            QPersistentModelIndex filtered_maneuver_idx = maneuver_proxy->index(i, PlaneManeuverItem::Plane_Maneuver_Name, filtered_plane_idx);
+            if (m.name == filtered_maneuver_idx.data().toString()) {
+                already_added = true;
+                maneuver_idx_map[m.name] = maneuver_proxy->mapToSource(filtered_maneuver_idx);
+                break;
+            }
         }
-    });
 
-    connect(ui->export_json, &QPushButton::pressed, this, &PlaneEditor::exportJSON);
+        // Apply all data as configured above (checkstate and maneuver struct)
+        item->setCheckState(already_added ? Qt::Checked : Qt::Unchecked);
+        item->setData(Qt::UserRole, QVariant::fromValue(m));
+        ui->maneuver_list->addItem(item);
+    }
 
-    connect(ui->maneuver_selection, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &PlaneEditor::updatePreview);
+    ui->set_climb->setProperty("col", PlaneManeuverItem::Plane_Maneuver_Climb_Val);
+    ui->set_level->setProperty("col", PlaneManeuverItem::Plane_Maneuver_Level_Val);
+    ui->set_dive->setProperty("col", PlaneManeuverItem::Plane_Maneuver_Dive_Val);
+    ui->set_can_reload->setProperty("col", PlaneManeuverItem::Plane_Maneuver_Can_Reload);
+    ui->set_obs_can_reload->setProperty("col", PlaneManeuverItem::Plane_Maneuver_Observer_Can_Reload);
+    ui->set_put_out_fires_bonus->setProperty("col", PlaneManeuverItem::Plane_Maneuver_Put_Out_Fires_Bonus);
+    ui->set_can_repeat->setProperty("col", PlaneManeuverItem::Plane_Maneuver_Can_Be_Repeated);
+    ui->set_weight_restricted->setProperty("col", PlaneManeuverItem::Plane_Maneuver_Has_Weight_Restriction);
+
+    connect(ui->maneuver_list, &QListWidget::itemChanged, this, &PlaneEditor::handleManeuverCheck);
+    connect(ui->maneuver_list, &QListWidget::customContextMenuRequested, this, &PlaneEditor::handleManeuverListContextMenu);
     connect(ui->crew_editor_tab, &QTabWidget::tabCloseRequested, this, [&](int index) { ui->crew_editor_tab->removeTab(index); });
     connect(tb, &QToolButton::clicked, this, [&]() {
         int crew_count = ui->crew_editor_tab->tabBar()->count()-1; // subtract one for the button
@@ -268,29 +276,13 @@ void PlaneEditor::initWidgets()
             ui->crew_editor_tab->setTabText(index, new_text);
         }
     });
-
-    connect(maneuver_schedule_scene, &ManeuverScene::selectionChanged, this, [=] {
-        if (!maneuver_schedule_scene->selectedItems().isEmpty()) {
-            ui->maneuver_selection->setCurrentIndex(ui->maneuver_selection->findText(maneuver_schedule_scene->getSelectedManeuver()));
-        }
-    });
-}
-
-void PlaneEditor::setManeuverData(int column, QVariant data)
-{
-    maneuver_proxy_model->setData(maneuver_proxy_model->index(ui->maneuver_selection->currentIndex(), column, ui->maneuver_selection->rootModelIndex()), data);
-    maneuver_preview_scene->update();
-    maneuver_schedule_scene->update();
-}
-
-void PlaneEditor::addManeuverToSchedule(QPersistentModelIndex idx)
-{
-    // maneuver_schedule_scene->addManeuver(idx);
-    maneuver_proxy_model->setData(idx.sibling(idx.row(), ManeuverItem::Added_To_Schedule), true);
-}
-
-void PlaneEditor::removeManeuverFromSchedule(QPersistentModelIndex idx)
-{
-    // maneuver_schedule_scene->removeManeuver(idx);
-    maneuver_proxy_model->setData(idx.sibling(idx.row(), ManeuverItem::Added_To_Schedule), false);
+    connect(ui->set_climb, &QComboBox::currentTextChanged, this, &PlaneEditor::handleManeuverPropertyChanges);
+    connect(ui->set_level, &QComboBox::currentTextChanged, this, &PlaneEditor::handleManeuverPropertyChanges);
+    connect(ui->set_dive, &QComboBox::currentTextChanged, this, &PlaneEditor::handleManeuverPropertyChanges);
+    connect(ui->set_can_reload, &QCheckBox::checkStateChanged, this, &PlaneEditor::handleManeuverPropertyChanges);
+    connect(ui->set_obs_can_reload, &QCheckBox::checkStateChanged, this, &PlaneEditor::handleManeuverPropertyChanges);
+    connect(ui->set_put_out_fires_bonus, &QCheckBox::checkStateChanged, this, &PlaneEditor::handleManeuverPropertyChanges);
+    connect(ui->set_can_repeat, &QCheckBox::checkStateChanged, this, &PlaneEditor::handleManeuverPropertyChanges);
+    connect(ui->set_weight_restricted, &QCheckBox::checkStateChanged, this, &PlaneEditor::handleManeuverPropertyChanges);
+    connect(ui->export_json, &QPushButton::pressed, this, &PlaneEditor::exportJSON);
 }

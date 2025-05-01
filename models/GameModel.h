@@ -4,6 +4,7 @@
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
 
+struct Maneuver;
 class BaseItem;
 class GameModel : public QAbstractItemModel
 {
@@ -17,6 +18,7 @@ public:
     };
 
     explicit GameModel(QObject *parent = nullptr);
+    ~GameModel();
 
     // Basic functionality:
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
@@ -27,8 +29,19 @@ public:
 
     QVariant data(const QModelIndex &idx, int role = Qt::DisplayRole) const override;
     bool setData(const QModelIndex &idx, const QVariant &value, int role = Qt::EditRole) override;
+    QPersistentModelIndex addPlane();
+    QPersistentModelIndex addManeuver(const Maneuver &m, const QModelIndex &parent_plane_idx);
+    QPersistentModelIndex addCrew(const QModelIndex &parent_plane_idx);
+    QPersistentModelIndex addGun(const QModelIndex &parent_crew_idx);
+    void removeManeuver(const QModelIndex &idx);
+    void removeChild(int row, const QModelIndex &parent);
+    void removeChildren(const QModelIndex &parent);
+    QJsonObject dumpPlaneToJson(const QModelIndex &plane_idx);
 
     // Convenience functions
+    QModelIndex gameRootIdx() const;
+    QModelIndex planesRootIdx() const;
+    QModelIndex turnsRootIdx() const;
     QModelIndex currentTurn(int column = 0) const;
     void applyActiveEffect(int effect, int duration, QString desc);
 

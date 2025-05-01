@@ -7,7 +7,7 @@ namespace Ui {
 class GunEditorTab;
 }
 
-class GunItem;
+class FilterProxy;
 class GunEditorTab : public QWidget
 {
     Q_OBJECT
@@ -15,8 +15,8 @@ class GunEditorTab : public QWidget
 public:
     explicit GunEditorTab(QWidget *parent = nullptr);
     ~GunEditorTab();
-    void populateGunItem(GunItem* gun_item);
-    void populateFromJSON(QJsonObject gun);
+    void populateGunItem(FilterProxy *model, QPersistentModelIndex gun_item);
+    void populateFromModel(QPersistentModelIndex gun_idx);
 
 private:
     Ui::GunEditorTab *ui;

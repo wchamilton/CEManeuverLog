@@ -2,11 +2,13 @@
 
 #include <QPainter>
 #include <QGraphicsSvgItem>
+#include <QGuiApplication>
+#include <QStyleHints>
+#include <QGraphicsColorizeEffect>
 #include <QDebug>
 
 #include "SelectionBox.h"
-#include "models/PlaneItems.h"
-#include "models/TurnModel.h"
+#include "models/GameModelItems.h"
 
 ManeuverModifiers::ManeuverModifiers(QGraphicsItem *parent) : QGraphicsItem(parent)
 {
@@ -16,10 +18,17 @@ ManeuverModifiers::ManeuverModifiers(QGraphicsItem *parent) : QGraphicsItem(pare
     digit_box = new SelectionBox(this);
     digit_box->setPos(10, 10); // -3 to account for the border
 
-    plane_profile = new QGraphicsSvgItem(GRAPHICS_LOCATION+"/plane_profile.svg", this);
+    plane_profile = new QGraphicsSvgItem(GRAPHICS_LOCATION + "/plane_profile.svg", this);
     plane_profile->setScale(0.15);
     plane_profile->setPos(-160, -110);
     plane_profile->setTransformOriginPoint(plane_profile->boundingRect().width()/2, plane_profile->boundingRect().height()/2);
+
+    if (QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark) {
+        QGraphicsColorizeEffect* effect = new QGraphicsColorizeEffect(plane_profile);
+        effect->setColor(Qt::darkGray);
+        plane_profile->setGraphicsEffect(effect);
+    }
+
 }
 
 QRectF ManeuverModifiers::boundingRect() const
@@ -29,8 +38,14 @@ QRectF ManeuverModifiers::boundingRect() const
 
 void ManeuverModifiers::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
+
     QPen pen;
     pen.setWidth(3);
+    if (QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark) {
+        pen.setColor(Qt::darkGray);
+    }
     painter->setPen(pen);
     painter->drawRoundedRect(boundingRect(), 10, 10);
 
@@ -38,19 +53,12 @@ void ManeuverModifiers::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     font.setPixelSize(24);
     painter->setFont(font);
 
-    if (!turn_model || !current_maneuver.isValid()) {
+    if (!current_maneuver.isValid()) {
         painter->drawText(boundingRect(), Qt::AlignCenter, QString("Select a\nmaneuver"));
     }
     else {
-        QFontMetrics metrics(font);
         painter->drawText(70, boundingRect().height()-20, constructManeuverText());
     }
-}
-
-void ManeuverModifiers::setTurnModel(TurnModel *model)
-{
-    turn_model = model;
-    setCurrentAltitude(model->getStartingAlt());
 }
 
 void ManeuverModifiers::setCurrentManeuver(QPersistentModelIndex maneuver)
@@ -68,6 +76,7 @@ int ManeuverModifiers::getCurrentAltitude() const
 
 void ManeuverModifiers::setCurrentAltitude(int arg)
 {
+    prev_alt = selected_altitude;
     selected_altitude = arg;
     digit_box->setSelectedDigit(arg);
 }
@@ -90,24 +99,22 @@ void ManeuverModifiers::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 QString ManeuverModifiers::constructManeuverText()
 {
-    QString maneuver_name = current_maneuver.sibling(current_maneuver.row(), ManeuverItem::Maneuver_Name).data().toString();
-    QModelIndex prev_turn_idx = turn_model->lastIndex(TurnItem::Turn_Altitude_Col);
-    int prev_alt = prev_turn_idx.isValid() ? prev_turn_idx.data(Qt::UserRole).toInt() : turn_model->getStartingAlt();
+    QString maneuver_name = current_maneuver.sibling(current_maneuver.row(), PlaneManeuverItem::Plane_Maneuver_Name).data().toString();
 
     auto getDirectionTag = [=](int column){
         return current_maneuver.sibling(current_maneuver.row(), column).data().toString();
     };
     QString direction_tag;
     if (prev_alt > selected_altitude) {
-        direction_tag = getDirectionTag(ManeuverItem::Dive_Value);
+        direction_tag = getDirectionTag(PlaneManeuverItem::Plane_Maneuver_Dive_Val);
         plane_profile->setRotation(prev_alt - selected_altitude > 1 ? 45 : 26);
     }
     else if (prev_alt < selected_altitude) {
-        direction_tag = getDirectionTag(ManeuverItem::Climb_Value);
+        direction_tag = getDirectionTag(PlaneManeuverItem::Plane_Maneuver_Climb_Val);
         plane_profile->setRotation(selected_altitude - prev_alt > 1 ? -45 : -26);
     }
     else {
-        direction_tag = getDirectionTag(ManeuverItem::Level_Value);
+        direction_tag = getDirectionTag(PlaneManeuverItem::Plane_Maneuver_Level_Val);
         plane_profile->setRotation(0);
     }
     return maneuver_name + "-" + direction_tag;

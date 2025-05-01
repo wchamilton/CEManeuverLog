@@ -10,25 +10,29 @@ class PlaneItem : public BaseItem
 {
 public:
     enum PlaneItemCols {
-        Plane_Model = 0,
-        Plane_Era,
-        Plane_Points,
-        Plane_Current_Fuel,
-        Plane_Fuel_Cap,
-        Plane_Engine_HP,
-        Plane_Engine_Critical,
-        Plane_Wing_HP,
-        Plane_Wing_Critical,
-        Plane_Fuselage_HP,
-        Plane_Fuselage_Critical,
-        Plane_Tail_HP,
-        Plane_Tail_Critical,
-        Plane_Rated_Climb,
-        Plane_Rated_Dive,
-        Plane_Max_Altitude,
-        Plane_Can_Return_To_Max_Alt,
-        Plane_Stability_Rating,
-        Plane_Active_Effects            ///< List<Effect> of currently active effects
+        Plane_Name = 0,                 ///< Name of the plane
+        Plane_Era,                      ///< Point during the war that this plane (or version of it) was used in
+        Plane_Points,                   ///< Point value indicating the relative "power" of the plane
+        Plane_Current_Fuel,             ///< Amount of fuel the plane currently has
+        Plane_Fuel_Cap,                 ///< Amount of fuel the plane started with
+        Plane_Engine_HP,                ///< Total HP for the engine
+        Plane_Engine_Critical,          ///< HP threshold before the engine is considered in critical range
+        Plane_Wing_HP,                  ///< Total HP for the wing
+        Plane_Wing_Critical,            ///< HP threshold before the wing is considered in critical range
+        Plane_Fuselage_HP,              ///< Total HP for the fuse
+        Plane_Fuselage_Critical,        ///< HP threshold before the fuse is considered in critical range
+        Plane_Tail_HP,                  ///< Total HP for the tail
+        Plane_Tail_Critical,            ///< HP threshold before the tail is considered in critical range
+        Plane_Rated_Climb,              ///< Amount the plane can climb in one turn
+        Plane_Rated_Dive,               ///< Amount the plane can dive in one turn before risking a tear
+        Plane_Max_Altitude,             ///< Maximum altitude the plane could reach. Normally planes cannot return to it
+        Plane_Can_Return_To_Max_Alt,    ///< true/false if plane can return to the max altitude (indicated by a +)
+        Plane_Current_Alt,              ///< Current altitude value for the plane
+        Plane_Current_Speed,            ///< Current speed value the plane has been going
+        Plane_Stability_Rating,         ///< Character value A, B, or C. C rated planes can alternate L+R without needing S
+        Plane_Payload_Count,            ///< Amount of bombs/payloads the plane can drop
+        Plane_Active_Effects,           ///< List<Effect> of currently active effects
+        PLANE_COL_COUNT
     };
 
     enum PlaneEra {
@@ -63,6 +67,8 @@ public:
 
     PlaneItem(BaseItem* parent = nullptr) : BaseItem(ItemType::Plane_Item_Type, parent) {}
     PlaneItem(QJsonObject plane_json, BaseItem* parent = nullptr);
+
+    QJsonObject toJSON() override;
 };
 
 /**
@@ -88,11 +94,14 @@ public:
         Plane_Maneuver_Can_Be_Repeated,
         Plane_Maneuver_Force_Spin_Check,
         Plane_Maneuver_Tile_Movements,
-        Plane_Maneuver_Final_Rotation
+        Plane_Maneuver_Final_Rotation,
+        PLANE_MANEUVER_COL_COUNT
     };
 
     PlaneManeuverItem(Maneuver maneuver, BaseItem* parent = nullptr);
     PlaneManeuverItem(QJsonObject plane_maneuver_json, BaseItem* parent = nullptr);
+
+    QJsonObject toJSON() override;
 };
 
 /**
@@ -104,28 +113,36 @@ public:
     enum PlaneArmamentsItemCols {
         Plane_Armaments_Name = 0,
         Plane_Armaments_Gun_Destroyed,
+        Plane_Armaments_Gun_Jammed,
         Plane_Armaments_Gun_Is_Linked,
         Plane_Armaments_Fire_Template,
         Plane_Armaments_Fire_Base_3,
         Plane_Armaments_Fire_Base_2,
         Plane_Armaments_Fire_Base_1,
         Plane_Armaments_Fire_Base_0,
+        Plane_Armaments_Shots_Fired,
+        Plane_Armaments_Ammo_In_Current_Box,
         Plane_Armaments_Ammo_Box_Capacity,
         Plane_Armaments_Ammo_Box_Count,
+        Plane_Armaments_Total_Ammo_Remaining,
         Plane_Armaments_Total_Ammo,
-        Plane_Armaments_Gun_Rotation_Range
+        Plane_Armaments_Gun_Rotation_Current_Pos,
+        Plane_Armaments_Gun_Rotation_Last_Turn,
+        Plane_Armaments_Gun_Rotation_Range,
+        PLANE_ARMAMENTS_COL_COUNT
     };
 
     PlaneArmamentsItem(BaseItem* parent = nullptr) : BaseItem(ItemType::Plane_Armaments_Item_Type, parent) {}
     PlaneArmamentsItem(QJsonObject plane_armaments_json, BaseItem* parent = nullptr);
 
     QVariant data(int column) const override;
+    QJsonObject toJSON() override;
 };
 
 class PlaneArmamentLinkItem : public BaseItem
 {
 public:
-    PlaneArmamentLinkItem(BaseItem* parent = nullptr) : BaseItem(BaseItem::Plane_Armaments_Item_Type, parent) {}
+    PlaneArmamentLinkItem(BaseItem* parent = nullptr) : BaseItem(BaseItem::Plane_Armaments_Link_Item_Type, parent) {}
     QVariant data(int column) const override;
 };
 
@@ -137,10 +154,15 @@ class PlaneCrewItem : public BaseItem
 public:
     enum PlaneCrewItemCols {
         Plane_Crew_Name = 0,
+        Plane_Crew_Role_ID,
         Plane_Crew_Role,
         Plane_Crew_Ability_Unrestricted_Maneuvers,
         Plane_Crew_Ability_Ignores_Deflections,
-        Plane_Crew_Can_Drop_Payloads
+        Plane_Crew_Can_Drop_Payloads,
+        Plane_Crew_Wounds,
+        Plane_Crew_Reds,
+        Plane_Crew_Kills,
+        PLANE_CREW_COLS
     };
 
     enum CrewRoles {
@@ -152,6 +174,8 @@ public:
 
     PlaneCrewItem(BaseItem* parent = nullptr): BaseItem(ItemType::Plane_Crew_Item_Type, parent) {}
     PlaneCrewItem(QJsonObject plane_crew_json, BaseItem* parent = nullptr);
+
+    QJsonObject toJSON() override;
 };
 
 /**
@@ -164,10 +188,12 @@ public:
         Game_Player = 0,        ///< Player Name. Can pull the player's computer username
         Game_Plane_Selected,    ///< Plane QPersistentModelIndex
         Game_Conflict_Name,     ///< Designated name of the conflict
-        Game_Conflict_Date      ///< Date at which the conflict supposedly took place
+        Game_Conflict_Date,     ///< Date at which the conflict supposedly took place
+        GAME_ITEM_COLS
     };
 
     GameItem(BaseItem* parent = nullptr) : BaseItem(ItemType::Game_Item_Type, parent) {}
+    QJsonObject toJSON() override;
 };
 
 /**
@@ -178,18 +204,22 @@ class TurnItem : public BaseItem
 public:
     enum TurnItemCols {
         Turn_Number = 0,
-        Turn_Selected_Maneuver,         ///< QPersistentModelIndex of the selected maneuver for the turn
-        Turn_Elevation_Delta,           ///< If the plane climbed or dove and by how much
-        Turn_Maneuver_Direction,        ///< Left, Straight, Right (LSR)
-        Turn_Maneuver_Speed,            ///< Speed of the chosen maneuver
-        Turn_Plane_State_Fuel,          ///< Remaining fuel for the plane
-        Turn_Plane_State_Engine_HP,     ///< Current HP value for the engine
-        Turn_Plane_State_Wing_HP,       ///< Current HP value for the wings
-        Turn_Plane_State_Tail_HP,       ///< Current HP value for the tail
-        Turn_Plane_State_Active_Effects ///< List of effects actively applied to the plane
+        Turn_Selected_Maneuver,             ///< Name of the selected maneuver
+        Turn_Maneuver_Direction,            ///< Left, Straight, Right (LSR)
+        Turn_Maneuver_Speed,                ///< Speed of the chosen maneuver
+        Turn_Plane_Speed_Last_Turn,         ///< Speed the plane went last turn (or started at for turn 1)
+        Turn_Plane_Alt_Last_Turn,           ///< Altitude of the plane last turn (or started at for turn 1)
+        Turn_Plane_State_Fuel,              ///< Remaining fuel for the plane
+        Turn_Plane_State_Engine_HP,         ///< Current HP value for the engine
+        Turn_Plane_State_Wing_HP,           ///< Current HP value for the wings
+        Turn_Plane_State_Fuse_HP,           ///< Current HP value for the fuse
+        Turn_Plane_State_Tail_HP,           ///< Current HP value for the tail
+        Turn_Plane_State_Active_Effects,    ///< List of effects actively applied to the plane
+        TURN_PLANE_COL_COUNT
     };
 
     TurnItem(BaseItem* parent = nullptr) : BaseItem(ItemType::Turn_Item_Type, parent) {}
+    QJsonObject toJSON() override;
 };
 
 /**
@@ -204,7 +234,8 @@ public:
         Turn_Crew_Action_Extra_Data,    ///< Extra data regarding a taken action
         Turn_Crew_Wounds_Accrued,       ///< Current amount of wounds received
         Turn_Crew_Total_Red_Hits,       ///< Current amount of red hits inflicted
-        Turn_Crew_Total_Kills           ///< Current amount of kills awarded
+        Turn_Crew_Total_Kills,          ///< Current amount of kills awarded
+        TURN_CREW_COL_COUNT
     };
 
     enum TurnCrewActionOptions {
@@ -225,18 +256,27 @@ public:
     };
 
     TurnCrewItem(BaseItem* parent = nullptr) : BaseItem(ItemType::Turn_Crew_Item_Type, parent) {}
+    QJsonObject toJSON() override;
 };
 
+/**
+ * @brief The TurnArmamentItem class
+ */
 class TurnArmamentItem : public BaseItem
 {
+public:
     enum TurnArmamentItemCols {
-        Turn_Crew_Armament_Index = 0,       ///< QPersistentModelIndex linking to the armament item
-        Turn_Crew_Armament_Position,        ///< New position of the assigned armament (will always be 1 for fixed weapons)
-        Turn_Crew_Armament_Is_Destroyed,
-        Turn_Crew_Armament_Current_Box_Ammo,
-        Turn_Crew_Armament_Remaining_Ammo_Boxes,
-
+        Turn_Crew_Armament_Index = 0,               ///< QPersistentModelIndex linking to the armament item
+        Turn_Crew_Armament_Position,                ///< Current position of the armament (will always be 1 for fixed weapons)
+        Turn_Crew_Armament_Is_Destroyed,            ///< Is the gun destroyed (true/false
+        Turn_Crew_Armament_IsJammed,                ///< Is the gun jammed (true/false)
+        Turn_Crew_Armament_Current_Box_Ammo,        ///< Amount of ammo remaining in the current box
+        Turn_Crew_Armament_Remaining_Ammo_Boxes,    ///< Number of remaining ammo boxes
+        TURN_CREW_ARMAMENT_COL_COUNT
     };
+
+    TurnArmamentItem(BaseItem* parent = nullptr) : BaseItem(ItemType::Turn_Armament_Item_Type, parent) {}
+    QJsonObject toJSON() override;
 };
 
 #endif // GAMEMODELITEMS_H
