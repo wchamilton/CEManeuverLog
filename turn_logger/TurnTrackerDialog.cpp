@@ -49,16 +49,18 @@ TurnTrackerDialog::TurnTrackerDialog(GameModel* game_model, QWidget *parent) :
 
     firing_arc_scene = new FiringArcScene(ui->firing_arc_gv);
     ui->firing_arc_gv->setScene(firing_arc_scene);
+    firing_arc_scene->setCurrentGun(ui->gun_select_rot_cb->currentData().toPersistentModelIndex());
 
-    // Iterate over the crew members
+    // Iterate over the crew members and populate their controls
     QPersistentModelIndex plane_filtered_idx = crew_proxy->mapFromSource(plane_idx);
     for (int crew_row=0; crew_row<crew_proxy->rowCount(plane_filtered_idx); ++crew_row) {
         QPersistentModelIndex crew_idx = crew_proxy->index(crew_row, PlaneCrewItem::Plane_Crew_Name, plane_filtered_idx);
         CrewControls* cc = new CrewControls(crew_idx, crew_proxy, maneuver_proxy, turn_proxy, ui->crew_tab);
         ui->crew_tab->addTab(cc, crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Role).data().toString() + " (" + crew_idx.data().toString() + ")");
 
+        // If the current crew member is also the pilot, store that so we can later check for movement capabilities/restrictions
         if (crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Role_ID).data().toInt() == PlaneCrewItem::Pilot) {
-            // maneuver_scene->setManeuversAvailable(crew_idx);
+            pilot_idx = crew_idx;
         }
 
         connect(maneuver_scene, &ManeuverScene::maneuverClicked, cc, &CrewControls::applyManeuverRestrictions);
@@ -70,7 +72,6 @@ TurnTrackerDialog::TurnTrackerDialog(GameModel* game_model, QWidget *parent) :
         }
     }
 
-    firing_arc_scene->setCurrentGun(ui->gun_select_rot_cb->currentData().toPersistentModelIndex());
     connect(ui->gun_select_rot_cb, &QComboBox::currentIndexChanged, this, [&](){
         QPersistentModelIndex gun_idx = ui->gun_select_rot_cb->currentData().toPersistentModelIndex();
         firing_arc_scene->setCurrentGun(gun_idx);
@@ -78,33 +79,7 @@ TurnTrackerDialog::TurnTrackerDialog(GameModel* game_model, QWidget *parent) :
     });
     connect(ui->gun_rot_left_btn, &QPushButton::clicked, this, [&]{ rotateGun(-1); });
     connect(ui->gun_rot_right_btn, &QPushButton::clicked, this, [&]{ rotateGun(1); });
-
-    connect(maneuver_scene, &ManeuverScene::maneuverClicked, this, [&](QPersistentModelIndex maneuver_idx){
-        int current_alt = plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Current_Alt).data().toInt();
-        int climb_range = plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Rated_Climb).data().toInt();
-        int dive_range = plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Rated_Climb).data().toInt();
-        QString maneuver_climb_val = maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Climb_Val).data().toString();
-        QString maneuver_dive_val = maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Dive_Val).data().toString();
-        if (maneuver_climb_val == "-") {
-            climb_range = 0;
-        }
-        else if (maneuver_climb_val.right(1) == "1") {
-            climb_range = 1;
-        }
-        if (maneuver_dive_val == "-") {
-            dive_range = 0;
-        }
-        else if (maneuver_dive_val.right(1) == "1") {
-            dive_range = 0;
-        }
-
-        int lowest = std::max(0, current_alt-dive_range);
-        int highest = current_alt+climb_range;
-        QList<int> alts(highest - lowest + 1);
-        std::iota(alts.begin(), alts.end(), lowest);
-        alt_ctrl_scene->updateAltitudes(alts, current_alt);
-        alt_ctrl_scene->setManeuver(maneuver_idx);
-    });
+    connect(maneuver_scene, &ManeuverScene::maneuverClicked, this, &TurnTrackerDialog::handleManeuverSelection);
 }
 
 TurnTrackerDialog::~TurnTrackerDialog()
@@ -116,8 +91,36 @@ void TurnTrackerDialog::handleTurnEnd()
 {
     for (int i=0; i<ui->crew_tab->count(); ++i) {
         // Trigger widget refreshes for each of the crew
-        static_cast<CrewControls*>(ui->crew_tab->widget(i))->handleTurnEnd();
+        static_cast<CrewControls*>(ui->crew_tab->widget(i))->saveCrewData();
     }
+}
+
+void TurnTrackerDialog::handleManeuverSelection(QModelIndex maneuver_idx)
+{
+    int current_alt = plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Current_Alt).data().toInt();
+    int climb_range = plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Rated_Climb).data().toInt();
+    int dive_range = plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Rated_Climb).data().toInt();
+    QString maneuver_climb_val = maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Climb_Val).data().toString();
+    QString maneuver_dive_val = maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Dive_Val).data().toString();
+    if (maneuver_climb_val == "-") {
+        climb_range = 0;
+    }
+    else if (maneuver_climb_val.right(1) == "1") {
+        climb_range = 1;
+    }
+    if (maneuver_dive_val == "-") {
+        dive_range = 0;
+    }
+    else if (maneuver_dive_val.right(1) == "1") {
+        dive_range = 0;
+    }
+
+    int lowest = std::max(0, current_alt-dive_range);
+    int highest = current_alt+climb_range;
+    QList<int> alts(highest - lowest + 1);
+    std::iota(alts.begin(), alts.end(), lowest);
+    alt_ctrl_scene->updateAltitudes(alts, current_alt);
+    alt_ctrl_scene->setManeuver(maneuver_idx);
 }
 
 void TurnTrackerDialog::updateAvailableAltitudes()

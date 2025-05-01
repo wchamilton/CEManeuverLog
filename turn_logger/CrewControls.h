@@ -27,7 +27,7 @@ public:
 
     // std::tuple<QPersistentModelIndex, int, QVariant> getChosenCrewAction();
     void populateTurnIdx(QPersistentModelIndex turn_crew_idx);
-    void handleTurnEnd();
+    void saveCrewData();
 
 public slots:
     void updateBombState();

@@ -24,6 +24,7 @@ public:
 
 private slots:
     void handleTurnEnd();
+    void handleManeuverSelection(QModelIndex maneuver_idx);
     void updateAvailableAltitudes();
     void refreshCrew();
     void rotateGun(const int delta);
@@ -38,6 +39,7 @@ private:
     AltCtrlScene* alt_ctrl_scene = nullptr;
     FiringArcScene* firing_arc_scene = nullptr;
     QPersistentModelIndex plane_idx;
+    QPersistentModelIndex pilot_idx;
 };
 
 #endif // TURNTRACKERDIALOG_H

@@ -205,7 +205,8 @@ QVariant PlaneArmamentsItem::data(int column) const
             }
             break;
         }
-        case Plane_Armaments_Total_Ammo_Remaining: return data(Plane_Armaments_Total_Ammo).toInt() - data(Plane_Armaments_Shots_Fired).toInt();
+        case Plane_Armaments_Total_Ammo_Remaining:
+            return BaseItem::data(Plane_Armaments_Total_Ammo).toInt() - BaseItem::data(Plane_Armaments_Shots_Fired).toInt();
         default: break;
     }
     return BaseItem::data(column);

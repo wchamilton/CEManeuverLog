@@ -68,6 +68,7 @@ void CrewControls::populateTurnIdx(QPersistentModelIndex turn_crew_idx)
         turn_proxy->setData(turn_crew_idx.sibling(turn_crew_idx.row(), column), value);
     };
 
+    // scrap this concept. we should be saving information to the crew here only. there should be no concept of turns in this class
     setData(TurnCrewItem::Turn_Crew_Action_Taken, ui->actionGroup->checkedButton()->property("action_taken").toInt());
     setData(TurnCrewItem::Turn_Crew_Action_Extra_Data, getActionExtraData());
     setData(TurnCrewItem::Turn_Crew_Wounds_Accrued, ui->wounds->value());
@@ -80,41 +81,66 @@ void CrewControls::populateTurnIdx(QPersistentModelIndex turn_crew_idx)
     }
 }
 
-void CrewControls::handleTurnEnd()
+void CrewControls::saveCrewData()
 {
-    refreshGunWidgets();
+    // Save any end-of-turn data to the crew item. Turn state persistence will happen after
+    crew_proxy->setData(crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Wounds), ui->wounds->value());
+    crew_proxy->setData(crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Reds), ui->reds_spin->value());
+    crew_proxy->setData(crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Kills), ui->kills_spin->value());
 
-    QStandardItemModel *shoot_cmb_model = qobject_cast<QStandardItemModel *>(ui->gun_selection_shoot->model());
-    QStandardItemModel *unjam_cmb_model = qobject_cast<QStandardItemModel *>(ui->gun_selection_unjam->model());
-    QStandardItemModel *reload_cmb_model = qobject_cast<QStandardItemModel *>(ui->gun_selection_reload->model());
-
-    // Only need to iterate over one of the comboboxes as all three should be in sync
-    for (int i=0; i<ui->gun_selection_shoot->count(); ++i) {
+    // Similarly, save all temporary gun information
+    for (int i=0; i < ui->gun_selection_shoot->count(); ++i) {
+        // Extract the index for the gun at the given row
         QModelIndex gun_idx = ui->gun_selection_shoot->itemData(i).toModelIndex();
 
-        // Refresh the names for each of the items in case of gun destruction
-        ui->gun_selection_shoot->setItemText(i, gun_idx.data().toString());
-        ui->gun_selection_unjam->setItemText(i, gun_idx.data().toString());
-        ui->gun_selection_reload->setItemText(i, gun_idx.data().toString());
+        int total_shots_fired = gun_idx.sibling(gun_idx.row(), PlaneArmamentsItem::Plane_Armaments_Shots_Fired).data().toInt();
+        total_shots_fired += ui->burst_len->value() + 1; // +1 needed here since it's a 0 based index
+        crew_proxy->setData(gun_idx.sibling(gun_idx.row(), PlaneArmamentsItem::Plane_Armaments_Shots_Fired), total_shots_fired);
 
-        // If a gun has been fully destroyed, disable the respective item
-        if (gun_idx.sibling(i, PlaneArmamentsItem::Plane_Armaments_Gun_Destroyed).data().toBool()) {
-            QStandardItem* item = shoot_cmb_model->item(i);
-            item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
-
-            item = unjam_cmb_model->item(i);
-            item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
-
-            item = reload_cmb_model->item(i);
-            item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+        if (ui->burst_len->value() == 2 &&
+            QMessageBox::question(this, "Jam Check", QString("%1 fired a long burst. Was it a jam?").arg(crew_idx.data().toString()), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+            crew_proxy->setData(gun_idx.sibling(gun_idx.row(), PlaneArmamentsItem::Plane_Armaments_Gun_Jammed), true);
+        }
+        else if (ui->actionGroup->checkedButton() == ui->unjam_radio &&
+                   QMessageBox::question(this, "Unjam Check", QString("%1 attempted to unjam. Was it successful?").arg(crew_idx.data().toString()), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+            crew_proxy->setData(gun_idx.sibling(gun_idx.row(), PlaneArmamentsItem::Plane_Armaments_Gun_Jammed), false);
         }
     }
 
-    // Reset action selection to "No Action"
-    ui->no_action_radio->setChecked(true);
+    // // Refresh UI widgets
+    // refreshGunWidgets();
 
-    // Reset maneuver selection to no selection
-    selected_maneuver = QPersistentModelIndex();
+    // QStandardItemModel *shoot_cmb_model = qobject_cast<QStandardItemModel *>(ui->gun_selection_shoot->model());
+    // QStandardItemModel *unjam_cmb_model = qobject_cast<QStandardItemModel *>(ui->gun_selection_unjam->model());
+    // QStandardItemModel *reload_cmb_model = qobject_cast<QStandardItemModel *>(ui->gun_selection_reload->model());
+
+    // // Only need to iterate over one of the comboboxes as all three should be in sync
+    // for (int i=0; i<ui->gun_selection_shoot->count(); ++i) {
+    //     QModelIndex gun_idx = ui->gun_selection_shoot->itemData(i).toModelIndex();
+
+    //     // Refresh the names for each of the items in case of gun destruction
+    //     ui->gun_selection_shoot->setItemText(i, gun_idx.data().toString());
+    //     ui->gun_selection_unjam->setItemText(i, gun_idx.data().toString());
+    //     ui->gun_selection_reload->setItemText(i, gun_idx.data().toString());
+
+    //     // If a gun has been fully destroyed, disable the respective item
+    //     if (gun_idx.sibling(i, PlaneArmamentsItem::Plane_Armaments_Gun_Destroyed).data().toBool()) {
+    //         QStandardItem* item = shoot_cmb_model->item(i);
+    //         item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+
+    //         item = unjam_cmb_model->item(i);
+    //         item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+
+    //         item = reload_cmb_model->item(i);
+    //         item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+    //     }
+    // }
+
+    // // Reset action selection to "No Action"
+    // ui->no_action_radio->setChecked(true);
+
+    // // Reset maneuver selection to no selection
+    // selected_maneuver = QPersistentModelIndex();
 }
 
 void CrewControls::updateBombState()
@@ -269,6 +295,7 @@ int CrewControls::calculateCV()
     // First part of the combat value is the fire base
     QPersistentModelIndex gun_idx = ui->gun_selection_shoot->currentData().toPersistentModelIndex();
     int combat_value = gun_idx.sibling(gun_idx.row(), PlaneArmamentsItem::Plane_Armaments_Fire_Base_0 + hex_range).data().toInt();
+    int wounds_accrued = crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Wounds).data().toInt();
     QString cv_tooltip = QString("Damage at range %1: %2").arg(hex_range).arg(combat_value);
 
     // Check if the crew has Ignore Deflection
@@ -315,11 +342,11 @@ int CrewControls::calculateCV()
             combat_value += 1;
             cv_tooltip += "\nShot at target (+1) -> " + QString::number(combat_value);
         }
-        if (crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Wounds).data().toInt() == 1) {
+        if (wounds_accrued == 1) {
             combat_value -= 1;
             cv_tooltip += "\nWounded (-1) -> " + QString::number(combat_value);
         }
-        else if (crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Wounds).data().toInt() == 2) {
+        else if (wounds_accrued > 1) {
             combat_value -= 3;
             cv_tooltip += "\nWounded (-3) -> " + QString::number(combat_value);
         }
@@ -380,11 +407,11 @@ int CrewControls::calculateCV()
             combat_value += 1;
             cv_tooltip += "\nShot at target (+1) -> " + QString::number(combat_value);
         }
-        if (ui->wounds->value() == 1) {
+        if (wounds_accrued == 1) {
             combat_value -= 1;
             cv_tooltip += "\nWounded (-1) -> " + QString::number(combat_value);
         }
-        else if (ui->wounds->value() == 2) {
+        else if (wounds_accrued > 1) {
             combat_value -= 3;
             cv_tooltip += "\nWounded (-3) -> " + QString::number(combat_value);
         }
@@ -448,11 +475,11 @@ int CrewControls::calculateCV()
             combat_value += 1;
             cv_tooltip += "\nShot at target (+1) -> " + QString::number(combat_value);
         }
-        if (ui->wounds->value() == 1) {
+        if (wounds_accrued == 1) {
             combat_value -= 1;
             cv_tooltip += "\nWounded (-1) -> " + QString::number(combat_value);
         }
-        else if (ui->wounds->value() == 2) {
+        else if (wounds_accrued > 1) {
             combat_value -= 3;
             cv_tooltip += "\nWounded (-3) -> " + QString::number(combat_value);
         }
@@ -510,11 +537,11 @@ int CrewControls::calculateCV()
             combat_value += 1;
             cv_tooltip += "\nTailed target (+1) -> " + QString::number(combat_value);
         }
-        if (ui->wounds->value() == 1) {
+        if (wounds_accrued == 1) {
             combat_value -= 1;
             cv_tooltip += "\nWounded (-1) -> " + QString::number(combat_value);
         }
-        else if (ui->wounds->value() == 2) {
+        else if (wounds_accrued > 1) {
             combat_value -= 3;
             cv_tooltip += "\nWounded (-3) -> " + QString::number(combat_value);
         }
