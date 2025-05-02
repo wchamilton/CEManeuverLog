@@ -160,13 +160,6 @@ void MainWindow::setSelectedPlane()
         }
     }
 
-    // Link all the crew widgets to each other in regards to when a bomb drops, to update their bomb count
-    for (auto source : crew_control_widgets) {
-        for (auto dest : crew_control_widgets) {
-            connect(source, &CrewControls::bombDropped, dest, &CrewControls::updateBombState);
-        }
-    }
-
     connect(ui->firing_arc_selection, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=]() {
         QPersistentModelIndex gun_idx = ui->firing_arc_selection->currentData().toPersistentModelIndex();
         firing_arc_scene->setCurrentGun(gun_idx);

@@ -162,6 +162,8 @@ public:
         Plane_Crew_Wounds,
         Plane_Crew_Reds,
         Plane_Crew_Kills,
+        Plane_Crew_Action_Taken,         ///< Enum value of the taken action
+        Plane_Crew_Action_Extra_Data,    ///< Extra data regarding a taken action
         PLANE_CREW_COLS
     };
 
@@ -170,6 +172,24 @@ public:
         CoPilot,
         Observer,
         Gunner
+    };
+
+    enum CrewActions {
+        Action_None = 0,                ///< Extra Data: None? (Maybe a random funny string of the observer doing SOMETHING)
+        Action_Shoot,                   ///< Extra Data: ShotProperties struct
+        Action_Reload,                  ///< Extra Data: QString saying which gun was reloaded
+        Action_Unjam,                   ///< Extra Data: Bool (success/fail)
+        Action_Drop_Payload,            ///< Extra Data: Bool (success/fail)
+        Action_Observe,                 ///< Extra Data: QString saying that an observation was made
+        Action_Custom                   ///< Extra Data: QString of whatever the user input..
+    };
+
+    // Should this be a model object of it's own?
+    struct ShotProperties {
+        int target_delta = 0;           ///< Specifies the altitude delta between this plane and the target
+        int target_range = 0;           ///< Range at which the shot was taken. Important for range 3
+        int burst_len = 0;              ///< Number of bullet units consumed, also modifies damage. Long burst can jam
+        bool caused_jam = false;        ///< Whether or not the shot caused a jam. Can only trigger on a long burst
     };
 
     PlaneCrewItem(BaseItem* parent = nullptr): BaseItem(ItemType::Plane_Crew_Item_Type, parent) {}
@@ -236,23 +256,6 @@ public:
         Turn_Crew_Total_Red_Hits,       ///< Current amount of red hits inflicted
         Turn_Crew_Total_Kills,          ///< Current amount of kills awarded
         TURN_CREW_COL_COUNT
-    };
-
-    enum TurnCrewActionOptions {
-        Action_None = 0,                ///< Extra Data: None? (Maybe a random funny string of the observer doing SOMETHING)
-        Action_Shoot,                   ///< Extra Data: ShotProperties struct
-        Action_Reload,                  ///< Extra Data: QString saying which gun was reloaded
-        Action_Unjam,                   ///< Extra Data: Bool (success/fail)
-        Action_Drop_Payload,            ///< Extra Data: Bool (success/fail)
-        Action_Observe,                 ///< Extra Data: QString saying that an observation was made
-        Action_Custom                   ///< Extra Data: QString of whatever the user input..
-    };
-
-    struct ShotProperties {
-        int target_delta = 0;           ///< Specifies the altitude delta between this plane and the target
-        int target_range = 0;           ///< Range at which the shot was taken. Important for range 3
-        int burst_len = 0;              ///< Number of bullet units consumed, also modifies damage. Long burst can jam
-        bool caused_jam = false;        ///< Whether or not the shot caused a jam. Can only trigger on a long burst
     };
 
     TurnCrewItem(BaseItem* parent = nullptr) : BaseItem(ItemType::Turn_Crew_Item_Type, parent) {}

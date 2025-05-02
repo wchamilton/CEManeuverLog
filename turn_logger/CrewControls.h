@@ -13,6 +13,7 @@ class QAbstractButton;
 class CrewControls : public QWidget
 {
     Q_OBJECT
+public:
     enum WoundValues {
         None = 0,
         Light,
@@ -20,22 +21,18 @@ class CrewControls : public QWidget
         Dead
     };
 
-public:
     explicit CrewControls(const QPersistentModelIndex &crew_idx, QSharedPointer<FilterProxy> crew_proxy,
-                          QSharedPointer<FilterProxy> maneuver_proxy, QSharedPointer<FilterProxy> turn_proxy, QWidget *parent = nullptr);
+                          QSharedPointer<FilterProxy> maneuver_proxy, QWidget *parent = nullptr);
     ~CrewControls();
 
     // std::tuple<QPersistentModelIndex, int, QVariant> getChosenCrewAction();
-    void populateTurnIdx(QPersistentModelIndex turn_crew_idx);
+    // void populateTurnIdx(QPersistentModelIndex turn_crew_idx);
     void saveCrewData();
 
 public slots:
     void updateBombState();
     void applyManeuverRestrictions(QPersistentModelIndex maneuver_idx);
     void refreshGunWidgets();
-
-signals:
-    void bombDropped();
 
 private slots:
     void setSliderStylesheet(QString colour);
@@ -51,7 +48,6 @@ private:
     QPersistentModelIndex selected_maneuver;
     QSharedPointer<FilterProxy> crew_proxy = nullptr;
     QSharedPointer<FilterProxy> maneuver_proxy = nullptr;
-    QSharedPointer<FilterProxy> turn_proxy = nullptr;
 };
 
 #endif // CREWCONTROLS_H

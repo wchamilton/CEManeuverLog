@@ -9,13 +9,12 @@
 #include <QStandardItemModel>
 
 CrewControls::CrewControls(const QPersistentModelIndex &crew_idx, QSharedPointer<FilterProxy> crew_proxy,
-                           QSharedPointer<FilterProxy> maneuver_proxy, QSharedPointer<FilterProxy> turn_proxy, QWidget *parent) :
+                           QSharedPointer<FilterProxy> maneuver_proxy, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CrewControls),
     crew_idx(crew_idx),
     crew_proxy(crew_proxy),
-    maneuver_proxy(maneuver_proxy),
-    turn_proxy(turn_proxy)
+    maneuver_proxy(maneuver_proxy)
 {
     ui->setupUi(this);
 
@@ -33,14 +32,7 @@ CrewControls::CrewControls(const QPersistentModelIndex &crew_idx, QSharedPointer
     ui->gun_selection_unjam->setCurrentIndex(0);
 
     refreshGunWidgets();
-
-    // Set action as a property so we know what data to fetch, not setting one for shoot as that'll be handled specifically
-    ui->no_action_radio->setProperty("action_taken", TurnCrewItem::Action_None);
-    ui->shoot_radio->setProperty("action_taken", TurnCrewItem::Action_Shoot);
-    ui->reload_radio->setProperty("action_taken", TurnCrewItem::Action_Reload);
-    ui->unjam_radio->setProperty("action_taken", TurnCrewItem::Action_Unjam);
-    ui->observe_radio->setProperty("action_taken", TurnCrewItem::Action_Observe);
-    ui->drop_bomb_radio->setProperty("action_taken", TurnCrewItem::Action_Drop_Payload);
+    updateBombState();
 
     // Disable gun controls if no guns equipped for the crew member
     if (crew_proxy->rowCount(crew_idx) == 0) {
@@ -53,7 +45,14 @@ CrewControls::CrewControls(const QPersistentModelIndex &crew_idx, QSharedPointer
         ui->unjam_radio->setDisabled(true);
     }
 
-    updateBombState();
+    // Set action as a property so we know what data to fetch, not setting one for shoot as that'll be handled specifically
+    ui->no_action_radio->setProperty("action_taken", PlaneCrewItem::Action_None);
+    ui->shoot_radio->setProperty("action_taken", PlaneCrewItem::Action_Shoot);
+    ui->reload_radio->setProperty("action_taken", PlaneCrewItem::Action_Reload);
+    ui->unjam_radio->setProperty("action_taken", PlaneCrewItem::Action_Unjam);
+    ui->observe_radio->setProperty("action_taken", PlaneCrewItem::Action_Observe);
+    ui->drop_bomb_radio->setProperty("action_taken", PlaneCrewItem::Action_Drop_Payload);
+
     initConnections();
 }
 
@@ -62,31 +61,19 @@ CrewControls::~CrewControls()
     delete ui;
 }
 
-void CrewControls::populateTurnIdx(QPersistentModelIndex turn_crew_idx)
-{
-    auto setData = [turn_crew_idx, this](int column, const QVariant &value) {
-        turn_proxy->setData(turn_crew_idx.sibling(turn_crew_idx.row(), column), value);
-    };
-
-    // scrap this concept. we should be saving information to the crew here only. there should be no concept of turns in this class
-    setData(TurnCrewItem::Turn_Crew_Action_Taken, ui->actionGroup->checkedButton()->property("action_taken").toInt());
-    setData(TurnCrewItem::Turn_Crew_Action_Extra_Data, getActionExtraData());
-    setData(TurnCrewItem::Turn_Crew_Wounds_Accrued, ui->wounds->value());
-    setData(TurnCrewItem::Turn_Crew_Total_Red_Hits, ui->reds_spin->value());
-    setData(TurnCrewItem::Turn_Crew_Total_Kills, ui->kills_spin->value());
-
-    for (int i=0; i<turn_proxy->rowCount(turn_crew_idx); ++i) {
-        QModelIndex gun_idx = turn_proxy->index(i, 0, turn_crew_idx);
-        /// Determine how to populate the gun item for the turn
-    }
-}
-
 void CrewControls::saveCrewData()
 {
     // Save any end-of-turn data to the crew item. Turn state persistence will happen after
     crew_proxy->setData(crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Wounds), ui->wounds->value());
     crew_proxy->setData(crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Reds), ui->reds_spin->value());
     crew_proxy->setData(crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Kills), ui->kills_spin->value());
+
+    // Refresh UI widgets
+    refreshGunWidgets();
+
+    QStandardItemModel *shoot_cmb_model = qobject_cast<QStandardItemModel *>(ui->gun_selection_shoot->model());
+    QStandardItemModel *unjam_cmb_model = qobject_cast<QStandardItemModel *>(ui->gun_selection_unjam->model());
+    QStandardItemModel *reload_cmb_model = qobject_cast<QStandardItemModel *>(ui->gun_selection_reload->model());
 
     // Similarly, save all temporary gun information
     for (int i=0; i < ui->gun_selection_shoot->count(); ++i) {
@@ -102,39 +89,28 @@ void CrewControls::saveCrewData()
             crew_proxy->setData(gun_idx.sibling(gun_idx.row(), PlaneArmamentsItem::Plane_Armaments_Gun_Jammed), true);
         }
         else if (ui->actionGroup->checkedButton() == ui->unjam_radio &&
-                   QMessageBox::question(this, "Unjam Check", QString("%1 attempted to unjam. Was it successful?").arg(crew_idx.data().toString()), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+                QMessageBox::question(this, "Unjam Check", QString("%1 attempted to unjam. Was it successful?").arg(crew_idx.data().toString()), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
             crew_proxy->setData(gun_idx.sibling(gun_idx.row(), PlaneArmamentsItem::Plane_Armaments_Gun_Jammed), false);
         }
+
+        // While iterating over the guns, update their state
+        // Refresh the names for each of the items in case of gun destruction
+        ui->gun_selection_shoot->setItemText(i, gun_idx.data().toString());
+        ui->gun_selection_unjam->setItemText(i, gun_idx.data().toString());
+        ui->gun_selection_reload->setItemText(i, gun_idx.data().toString());
+
+        // If a gun has been fully destroyed, disable the respective item
+        if (gun_idx.sibling(i, PlaneArmamentsItem::Plane_Armaments_Gun_Destroyed).data().toBool()) {
+            QStandardItem* item = shoot_cmb_model->item(i);
+            item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+
+            item = unjam_cmb_model->item(i);
+            item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+
+            item = reload_cmb_model->item(i);
+            item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+        }
     }
-
-    // // Refresh UI widgets
-    // refreshGunWidgets();
-
-    // QStandardItemModel *shoot_cmb_model = qobject_cast<QStandardItemModel *>(ui->gun_selection_shoot->model());
-    // QStandardItemModel *unjam_cmb_model = qobject_cast<QStandardItemModel *>(ui->gun_selection_unjam->model());
-    // QStandardItemModel *reload_cmb_model = qobject_cast<QStandardItemModel *>(ui->gun_selection_reload->model());
-
-    // // Only need to iterate over one of the comboboxes as all three should be in sync
-    // for (int i=0; i<ui->gun_selection_shoot->count(); ++i) {
-    //     QModelIndex gun_idx = ui->gun_selection_shoot->itemData(i).toModelIndex();
-
-    //     // Refresh the names for each of the items in case of gun destruction
-    //     ui->gun_selection_shoot->setItemText(i, gun_idx.data().toString());
-    //     ui->gun_selection_unjam->setItemText(i, gun_idx.data().toString());
-    //     ui->gun_selection_reload->setItemText(i, gun_idx.data().toString());
-
-    //     // If a gun has been fully destroyed, disable the respective item
-    //     if (gun_idx.sibling(i, PlaneArmamentsItem::Plane_Armaments_Gun_Destroyed).data().toBool()) {
-    //         QStandardItem* item = shoot_cmb_model->item(i);
-    //         item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
-
-    //         item = unjam_cmb_model->item(i);
-    //         item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
-
-    //         item = reload_cmb_model->item(i);
-    //         item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
-    //     }
-    // }
 
     // // Reset action selection to "No Action"
     // ui->no_action_radio->setChecked(true);
@@ -555,9 +531,9 @@ int CrewControls::calculateCV()
 QVariant CrewControls::getActionExtraData()
 {
     switch (ui->actionGroup->checkedButton()->property("action_taken").toInt()) {
-    case TurnCrewItem::Action_None: return QString();
-    case TurnCrewItem::Action_Shoot:{
-        TurnCrewItem::ShotProperties prop;
+    case PlaneCrewItem::Action_None: return QString();
+    case PlaneCrewItem::Action_Shoot:{
+        PlaneCrewItem::ShotProperties prop;
         prop.target_delta = ui->target_alt->value()-1; // Offset the range to be -1 to 1
         prop.target_range = ui->range_3_btn->isChecked() ? 3 : ui->range_2_btn->isChecked() ? 2 : ui->range_1_btn->isChecked() ? 1 : 0;
         prop.burst_len = ui->burst_len->value();
@@ -567,8 +543,8 @@ QVariant CrewControls::getActionExtraData()
         }
         return QVariant::fromValue(prop);
     }
-    case TurnCrewItem::Action_Reload: return QString("%1 was reloaded").arg(ui->gun_selection_reload->currentText());
-    case TurnCrewItem::Action_Unjam: {
+    case PlaneCrewItem::Action_Reload: return QString("%1 was reloaded").arg(ui->gun_selection_reload->currentText());
+    case PlaneCrewItem::Action_Unjam: {
         QPersistentModelIndex idx = ui->gun_selection_unjam->currentData().toPersistentModelIndex();
         if (QMessageBox::question(this, "Unjam Check", QString("%1 attempted to unjam. Was it successful?").arg(crew_idx.data().toString()), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
             crew_proxy->setData(idx.sibling(idx.row(), PlaneArmamentsItem::Plane_Armaments_Gun_Jammed), false);
@@ -576,14 +552,13 @@ QVariant CrewControls::getActionExtraData()
         }
         return false;
     }
-    case TurnCrewItem::Action_Drop_Payload: {
+    case PlaneCrewItem::Action_Drop_Payload: {
         QModelIndex plane_bombs_idx = crew_idx.parent().sibling(crew_idx.parent().row(), PlaneItem::Plane_Payload_Count);
         crew_proxy->setData(plane_bombs_idx, plane_bombs_idx.data().toInt() -1);
-        emit bombDropped();
         return QMessageBox::question(this, "Bomb drop", QString("%1 attempted to bomb target. Was it a successful hit?").arg(crew_idx.data().toString()), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
     }
-    case TurnCrewItem::Action_Observe: return QString("%1 made an observation").arg(crew_idx.data().toString());
-    case TurnCrewItem::Action_Custom: return ui->custom_input->text();
+    case PlaneCrewItem::Action_Observe: return QString("%1 made an observation").arg(crew_idx.data().toString());
+    case PlaneCrewItem::Action_Custom: return ui->custom_input->text();
     default: return QVariant();
     }
 }
