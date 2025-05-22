@@ -40,7 +40,7 @@ private slots:
 
 private:
     int calculateCV();
-    QVariant getActionExtraData();
+    QVariant getActionExtraData(int action_taken);
     void initConnections();
 
     Ui::CrewControls *ui;
