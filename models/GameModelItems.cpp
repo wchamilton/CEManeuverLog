@@ -397,9 +397,9 @@ QJsonObject TurnCrewItem::toJSON()
 
     // Need to determine which datatype to export to json for the extra data
     switch (action_id) {
-    case Action_None:           json["action_extra_data"] = data(Turn_Crew_Action_Extra_Data).toString(); break;
-    case Action_Shoot: {
-        ShotProperties shot_properties = data(Turn_Crew_Action_Extra_Data).value<ShotProperties>();
+    case PlaneCrewItem::Action_None:           json["action_extra_data"] = data(Turn_Crew_Action_Extra_Data).toString(); break;
+    case PlaneCrewItem::Action_Shoot: {
+        PlaneCrewItem::ShotProperties shot_properties = data(Turn_Crew_Action_Extra_Data).value<PlaneCrewItem::ShotProperties>();
         QJsonObject shot_properties_json;
         shot_properties_json["target_delta"] = shot_properties.target_delta;
         shot_properties_json["target_range"] = shot_properties.target_range;
@@ -408,11 +408,11 @@ QJsonObject TurnCrewItem::toJSON()
         json["action_extra_data"] = shot_properties_json;
         break;
     }
-    case Action_Reload:         json["action_extra_data"] = data(Turn_Crew_Action_Extra_Data).toString(); break;
-    case Action_Unjam:          json["action_extra_data"] = data(Turn_Crew_Action_Extra_Data).toBool(); break;
-    case Action_Drop_Payload:   json["action_extra_data"] = data(Turn_Crew_Action_Extra_Data).toBool(); break;
-    case Action_Observe:        json["action_extra_data"] = data(Turn_Crew_Action_Extra_Data).toString(); break;
-    case Action_Custom:         json["action_extra_data"] = data(Turn_Crew_Action_Extra_Data).toString(); break;
+    case PlaneCrewItem::Action_Reload:         json["action_extra_data"] = data(Turn_Crew_Action_Extra_Data).toString(); break;
+    case PlaneCrewItem::Action_Unjam:          json["action_extra_data"] = data(Turn_Crew_Action_Extra_Data).toBool(); break;
+    case PlaneCrewItem::Action_Drop_Payload:   json["action_extra_data"] = data(Turn_Crew_Action_Extra_Data).toBool(); break;
+    case PlaneCrewItem::Action_Observe:        json["action_extra_data"] = data(Turn_Crew_Action_Extra_Data).toString(); break;
+    case PlaneCrewItem::Action_Custom:         json["action_extra_data"] = data(Turn_Crew_Action_Extra_Data).toString(); break;
     }
 
     json["current_wounds"] = data(Turn_Crew_Wounds_Accrued).toInt();

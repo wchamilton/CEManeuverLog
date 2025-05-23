@@ -30,6 +30,7 @@ SOURCES += \
     models/TurnItems.cpp \
     models/TurnModel.cpp \
     turn_logger/EffectsSelectionDialog.cpp \
+    turn_logger/GunRotationControl.cpp \
     turn_logger/MainWindow.cpp \
     turn_logger/CrewControls.cpp \
     turn_logger/PlanePartDamageTracker.cpp \
@@ -59,6 +60,7 @@ HEADERS += \
     models/TurnItems.h \
     models/TurnModel.h \
     turn_logger/EffectsSelectionDialog.h \
+    turn_logger/GunRotationControl.h \
     turn_logger/MainWindow.h \
     turn_logger/CrewControls.h \
     turn_logger/PlanePartDamageTracker.h \
@@ -78,6 +80,7 @@ FORMS += \
     EntryDialog.ui \
     editor/PlaneEditorSelector.ui \
     turn_logger/EffectsSelectionDialog.ui \
+    turn_logger/GunRotationControl.ui \
     turn_logger/MainWindow.ui \
     turn_logger/CrewControls.ui \
     turn_logger/PlanePartDamageTracker.ui \

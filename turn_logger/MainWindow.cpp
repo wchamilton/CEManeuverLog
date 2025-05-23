@@ -218,7 +218,7 @@ void MainWindow::handleTurnEnd()
 {
     QList<std::tuple<QPersistentModelIndex, int, QVariant>> crew_actions;
     QPersistentModelIndex pilot;
-    for (auto control : crew_control_widgets) {
+    // for (auto control : crew_control_widgets) {
         // auto crew_action_tuple = control->getChosenCrewAction();
         // crew_actions << crew_action_tuple;
         // QPersistentModelIndex crew = std::get<0>(crew_action_tuple);
@@ -228,8 +228,8 @@ void MainWindow::handleTurnEnd()
         //         crew.sibling(crew.row(), CrewItem::Crew_Role).data().toString() == "Co-Pilot") {
         //     pilot = crew;
         // }
-        control->handleTurnEnd();
-    }
+        // control->handleTurnEnd();
+    // }
 
     for (int i=0; i<ui->firing_arc_selection->count(); ++i){
         QModelIndex gun_idx = ui->firing_arc_selection->itemData(i).toPersistentModelIndex();

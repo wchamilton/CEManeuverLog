@@ -24,10 +24,8 @@ public:
     explicit CrewControls(const QPersistentModelIndex &crew_idx, QSharedPointer<FilterProxy> crew_proxy,
                           QSharedPointer<FilterProxy> maneuver_proxy, QWidget *parent = nullptr);
     ~CrewControls();
-
-    // std::tuple<QPersistentModelIndex, int, QVariant> getChosenCrewAction();
-    // void populateTurnIdx(QPersistentModelIndex turn_crew_idx);
     void saveCrewData();
+    QPersistentModelIndex getCrewIdx() const { return crew_idx; }
 
 public slots:
     void updateBombState();

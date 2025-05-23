@@ -13,8 +13,8 @@
   <property name="windowTitle">
    <string>Turn Tracker</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_4" columnstretch="0,1,1">
-   <item row="0" column="0" rowspan="4">
+  <layout class="QGridLayout" name="gridLayout_3" rowstretch="1,0,0,0,2,0">
+   <item row="0" column="0" rowspan="6">
     <widget class="QGraphicsView" name="maneuver_gv">
      <property name="minimumSize">
       <size>
@@ -27,100 +27,17 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1" rowspan="4">
-    <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,0,1,0,2">
-     <item row="0" column="0" rowspan="3">
-      <widget class="QGraphicsView" name="alt_ctrl_gv">
-       <property name="renderHints">
-        <set>QPainter::RenderHint::Antialiasing|QPainter::RenderHint::TextAntialiasing</set>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1" colspan="3">
-      <widget class="QComboBox" name="gun_select_rot_cb"/>
-     </item>
-     <item row="1" column="1">
-      <widget class="QPushButton" name="gun_rot_left_btn">
-       <property name="focusPolicy">
-        <enum>Qt::FocusPolicy::NoFocus</enum>
-       </property>
-       <property name="text">
-        <string>Rotate Left</string>
-       </property>
-       <property name="icon">
-        <iconset theme="QIcon::ThemeIcon::ViewRestore"/>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QSpinBox" name="gun_pos_sb">
-       <property name="alignment">
-        <set>Qt::AlignmentFlag::AlignCenter</set>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
-       </property>
-       <property name="correctionMode">
-        <enum>QAbstractSpinBox::CorrectionMode::CorrectToNearestValue</enum>
-       </property>
-       <property name="prefix">
-        <string>Gun Pos </string>
-       </property>
-       <property name="minimum">
-        <number>1</number>
-       </property>
-       <property name="maximum">
-        <number>6</number>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="3">
-      <widget class="QPushButton" name="gun_rot_right_btn">
-       <property name="focusPolicy">
-        <enum>Qt::FocusPolicy::NoFocus</enum>
-       </property>
-       <property name="layoutDirection">
-        <enum>Qt::LayoutDirection::RightToLeft</enum>
-       </property>
-       <property name="text">
-        <string>Rotate Right</string>
-       </property>
-       <property name="icon">
-        <iconset theme="QIcon::ThemeIcon::ViewRefresh"/>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1" colspan="3">
-      <widget class="QGraphicsView" name="firing_arc_gv">
-       <property name="renderHints">
-        <set>QPainter::RenderHint::Antialiasing|QPainter::RenderHint::TextAntialiasing</set>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0" colspan="4">
-      <widget class="QPushButton" name="lock_movement_btn">
-       <property name="font">
-        <font>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Lock Movement</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0" colspan="4">
-      <widget class="QTabWidget" name="crew_tab"/>
-     </item>
-    </layout>
+   <item row="0" column="1" rowspan="3">
+    <widget class="QGraphicsView" name="alt_ctrl_gv">
+     <property name="renderHints">
+      <set>QPainter::RenderHint::Antialiasing|QPainter::RenderHint::TextAntialiasing</set>
+     </property>
+    </widget>
    </item>
-   <item row="0" column="2">
+   <item row="0" column="2" rowspan="3">
+    <widget class="QTabWidget" name="gun_rotation_tab"/>
+   </item>
+   <item row="0" column="3">
     <layout class="QGridLayout" name="gridLayout">
      <item row="1" column="1">
       <widget class="PlanePartDamageTracker" name="wing_grp" native="true"/>
@@ -136,7 +53,7 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="2">
+   <item row="1" column="3">
     <widget class="QPushButton" name="pushButton">
      <property name="font">
       <font>
@@ -148,7 +65,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="2">
+   <item row="2" column="3" rowspan="3">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Log</string>
@@ -174,7 +91,25 @@
      </layout>
     </widget>
    </item>
-   <item row="3" column="2">
+   <item row="3" column="1" colspan="2">
+    <widget class="QPushButton" name="lock_movement_btn">
+     <property name="font">
+      <font>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Lock Movement</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1" rowspan="2" colspan="2">
+    <widget class="QTabWidget" name="crew_tab"/>
+   </item>
+   <item row="5" column="3">
     <widget class="QPushButton" name="pushButton_2">
      <property name="font">
       <font>
