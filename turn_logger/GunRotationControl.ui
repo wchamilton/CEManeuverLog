@@ -82,6 +82,12 @@
    </item>
    <item row="1" column="0" colspan="3">
     <widget class="QGraphicsView" name="firing_arc_gv">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>255</height>
+      </size>
+     </property>
      <property name="renderHints">
       <set>QPainter::RenderHint::Antialiasing|QPainter::RenderHint::TextAntialiasing</set>
      </property>

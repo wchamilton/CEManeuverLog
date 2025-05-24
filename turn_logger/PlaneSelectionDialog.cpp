@@ -46,8 +46,9 @@ PlaneSelectionDialog::PlaneSelectionDialog(GameModel *game_model, QWidget *paren
     ui->maneuver_sched->setInteractive(false);
 
     connect(ui->planes_tree, &QTreeWidget::currentItemChanged, this, &PlaneSelectionDialog::planeSelected);
-    connect(ui->player_name, &QLineEdit::textEdited, this, &PlaneSelectionDialog::checkIfStartReady);
-    connect(ui->combat_name, &QLineEdit::textEdited, this, &PlaneSelectionDialog::checkIfStartReady);
+    // Uncomment when dev finished
+    // connect(ui->player_name, &QLineEdit::textEdited, this, &PlaneSelectionDialog::checkIfStartReady);
+    // connect(ui->combat_name, &QLineEdit::textEdited, this, &PlaneSelectionDialog::checkIfStartReady);
 }
 
 PlaneSelectionDialog::~PlaneSelectionDialog()

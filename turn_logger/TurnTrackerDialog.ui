@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>1450</width>
-    <height>950</height>
+    <height>951</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Turn Tracker</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_3" rowstretch="1,0,0,0,2,0">
+  <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0,0,0,1,0">
    <item row="0" column="0" rowspan="6">
     <widget class="QGraphicsView" name="maneuver_gv">
      <property name="minimumSize">
@@ -28,10 +28,34 @@
     </widget>
    </item>
    <item row="0" column="1" rowspan="3">
-    <widget class="QGraphicsView" name="alt_ctrl_gv">
-     <property name="renderHints">
-      <set>QPainter::RenderHint::Antialiasing|QPainter::RenderHint::TextAntialiasing</set>
+    <widget class="QGroupBox" name="alt_ctrl_grp_box">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+       <bold>true</bold>
+      </font>
      </property>
+     <property name="title">
+      <string>&lt;plane name&gt; - &lt;turn number&gt;</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <property name="leftMargin">
+       <number>1</number>
+      </property>
+      <property name="rightMargin">
+       <number>1</number>
+      </property>
+      <property name="bottomMargin">
+       <number>1</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QGraphicsView" name="alt_ctrl_gv">
+        <property name="renderHints">
+         <set>QPainter::RenderHint::Antialiasing|QPainter::RenderHint::TextAntialiasing</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item row="0" column="2" rowspan="3">
@@ -54,7 +78,7 @@
     </layout>
    </item>
    <item row="1" column="3">
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="openStatusViewerBtn">
      <property name="font">
       <font>
        <bold>true</bold>

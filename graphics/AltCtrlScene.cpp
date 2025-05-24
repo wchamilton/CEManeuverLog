@@ -17,7 +17,6 @@ AltCtrlScene::AltCtrlScene(QPersistentModelIndex plane_idx, QObject* parent) :
     setManeuver(QModelIndex());
 
     // Assign the plane and initialize the text
-    plane_name = addText(plane_idx.data().toString());
     plane_tolerances = addText(QString("Dive:\t %1\nClimb:\t %2\nAltitude:\t %3%4\nStability:\t %5")
                                    .arg(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Rated_Dive).data().toString(),
                                         plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Rated_Climb).data().toString(),
@@ -25,31 +24,22 @@ AltCtrlScene::AltCtrlScene(QPersistentModelIndex plane_idx, QObject* parent) :
                                         plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Can_Return_To_Max_Alt).data().toBool() ? "+" : "",
                                         plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Stability_Rating).data().toString()));
 
-    plane_name->setY(panel->boundingRect().bottom() + 50);
-    plane_name->setTextWidth(panel->boundingRect().width());
-    plane_tolerances->setY(plane_name->y() + plane_name->boundingRect().height() + 5);
-
-    // Set up the plane name display
-    QFont font = plane_name->font();
-
-    font.setPixelSize(16);
-    font.setBold(true);
-    font.setUnderline(true);
-    plane_name->setFont(font);
+    plane_tolerances->setY(panel->boundingRect().bottom() + 50);
 
     // Set up the tolerances display
+    QFont font = plane_tolerances->font();
     font.setPixelSize(14);
+    font.setBold(true);
+    font.setUnderline(true);
     plane_tolerances->setFont(font);
 
     // Set up the turns display
     turn_display = addText("Turn 1");
     font.setPixelSize(18);
-    font.setBold(true);
     font.setUnderline(false);
     turn_display->setFont(font);
 
     if (QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark) {
-        plane_name->setDefaultTextColor(Qt::lightGray);
         plane_tolerances->setDefaultTextColor(Qt::lightGray);
         turn_display->setDefaultTextColor(Qt::lightGray);
     }

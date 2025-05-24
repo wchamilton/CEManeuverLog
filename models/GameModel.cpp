@@ -223,16 +223,6 @@ QModelIndex GameModel::currentTurn(int column) const
     return index(rowCount(turns_root)-1, column, turns_root);
 }
 
-void GameModel::applyActiveEffect(int effect, int duration, QString desc)
-{
-    QModelIndex plane_effects_idx = index(Planes_Root, PlaneItem::Plane_Active_Effects);
-    QList effects = plane_effects_idx.data().toList();
-    PlaneItem::Effect e = { effect, duration, desc };
-    effects.removeAll(QVariant::fromValue(e));
-    effects << QVariant::fromValue(e);
-    setData(plane_effects_idx, effects);
-}
-
 FilterProxy::FilterProxy(QAbstractItemModel *src_model, QObject *parent) : QSortFilterProxyModel(parent)
 {
     setSourceModel(src_model);

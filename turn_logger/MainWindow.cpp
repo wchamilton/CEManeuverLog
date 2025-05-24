@@ -168,10 +168,10 @@ void MainWindow::setSelectedPlane()
     ui->firing_arc_selection->currentIndexChanged(0);
 
     // Set the module HP indexes
-    ui->engine_grp->setModelIndexes(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Engine_HP), plane_idx.sibling(plane_idx.row(), PlaneItemOld::Engine_Critical));
-    ui->wing_grp->setModelIndexes(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Wing_HP), plane_idx.sibling(plane_idx.row(), PlaneItemOld::Wing_Critical));
-    ui->fuselage_grp->setModelIndexes(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Fuselage_HP), plane_idx.sibling(plane_idx.row(), PlaneItemOld::Fuselage_Critical));
-    ui->tail_grp->setModelIndexes(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Tail_HP), plane_idx.sibling(plane_idx.row(), PlaneItemOld::Tail_Critical));
+    // ui->engine_grp->setHPValues(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Engine_HP), plane_idx.sibling(plane_idx.row(), PlaneItemOld::Engine_Critical));
+    // ui->wing_grp->setHPValues(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Wing_HP), plane_idx.sibling(plane_idx.row(), PlaneItemOld::Wing_Critical));
+    // ui->fuselage_grp->setHPValues(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Fuselage_HP), plane_idx.sibling(plane_idx.row(), PlaneItemOld::Fuselage_Critical));
+    // ui->tail_grp->setHPValues(plane_idx.sibling(plane_idx.row(), PlaneItemOld::Tail_HP), plane_idx.sibling(plane_idx.row(), PlaneItemOld::Tail_Critical));
 
     setTurnState(Start_Of_Turn);
 }

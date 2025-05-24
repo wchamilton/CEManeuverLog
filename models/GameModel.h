@@ -43,7 +43,6 @@ public:
     QModelIndex planesRootIdx() const;
     QModelIndex turnsRootIdx() const;
     QModelIndex currentTurn(int column = 0) const;
-    void applyActiveEffect(int effect, int duration, QString desc);
 
 private:
     BaseItem* root = nullptr;   ///< Base root for all items in the tree

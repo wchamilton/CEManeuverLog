@@ -15,12 +15,12 @@ class PlanePartDamageTracker : public QGroupBox
 public:
     explicit PlanePartDamageTracker(QWidget *parent = nullptr);
     ~PlanePartDamageTracker();
-    void setModelIndexes(QPersistentModelIndex hp, QPersistentModelIndex critical_hp);
+    void setHPValues(const int &hp, const int &critical_hp);
     void clear();
 
 private slots:
     void takeDamage();
-    void setBorderColour(int value);
+    void updateBorderColour(int value);
 
 private:
     Ui::PlanePartDamageTracker *ui;

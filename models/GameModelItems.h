@@ -54,6 +54,7 @@ public:
     struct Effect {
         int id;
         int remaining_turns;
+        QString name;
         QString desc;
 
         bool operator==(Effect &e) {

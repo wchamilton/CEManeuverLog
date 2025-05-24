@@ -4,6 +4,7 @@
 #include "CEManeuvers.h"
 #include "CrewControls.h"
 #include "GunRotationControl.h"
+#include "StatusViewerDlg.h"
 #include "models/GameModel.h"
 #include "models/GameModelItems.h"
 #include "graphics/ManeuverScene.h"
@@ -30,15 +31,26 @@ TurnTrackerDialog::TurnTrackerDialog(GameModel* game_model, QWidget *parent) :
     turn_proxy->setRecursiveFilteringEnabled(true);
     turn_proxy->setAutoAcceptChildRows(true);
 
+    // Extract the selected plane index
+    QModelIndex game_idx = game_model->gameRootIdx();
+    plane_idx = game_idx.sibling(game_idx.row(), GameItem::Game_Plane_Selected).data().toPersistentModelIndex();
+
+    ui->alt_ctrl_grp_box->setTitle(plane_idx.data().toString());
+
     // Set up the damage trackers
     ui->engine_grp->setTitle("Engine");
     ui->wing_grp->setTitle("Wing");
     ui->fuselage_grp->setTitle("Fuselage");
     ui->tail_grp->setTitle("Tail");
 
-    // Extract the selected plane index
-    QModelIndex game_idx = game_model->gameRootIdx();
-    plane_idx = game_idx.sibling(game_idx.row(), GameItem::Game_Plane_Selected).data().toPersistentModelIndex();
+    ui->engine_grp->setHPValues(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Engine_HP).data().toInt(),
+                                plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Engine_Critical).data().toInt());
+    ui->wing_grp->setHPValues(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Wing_HP).data().toInt(),
+                                plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Wing_Critical).data().toInt());
+    ui->fuselage_grp->setHPValues(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Fuselage_HP).data().toInt(),
+                                plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Fuselage_Critical).data().toInt());
+    ui->tail_grp->setHPValues(plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Tail_HP).data().toInt(),
+                                plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Tail_Critical).data().toInt());
 
     // Init and assign the graphics scenes
     maneuver_scene = new ManeuverScene(maneuver_proxy.data(), maneuver_proxy->mapFromSource(plane_idx), ui->maneuver_gv);
@@ -69,6 +81,10 @@ TurnTrackerDialog::TurnTrackerDialog(GameModel* game_model, QWidget *parent) :
     }
 
     connect(maneuver_scene, &ManeuverScene::maneuverClicked, this, &TurnTrackerDialog::handleManeuverSelection);
+    connect(ui->openStatusViewerBtn, &QPushButton::clicked, this, [&](){
+        StatusViewerDlg dlg(crew_proxy, crew_proxy->mapFromSource(plane_idx));
+        dlg.exec();
+    });
 }
 
 TurnTrackerDialog::~TurnTrackerDialog()

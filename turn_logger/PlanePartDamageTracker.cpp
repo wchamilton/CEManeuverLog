@@ -7,7 +7,7 @@ PlanePartDamageTracker::PlanePartDamageTracker(QWidget *parent) :
 {
     ui->setupUi(this);
     connect(ui->damage_btn, &QPushButton::pressed, this, &PlanePartDamageTracker::takeDamage);
-    connect(ui->current_hp, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &PlanePartDamageTracker::setBorderColour);
+    connect(ui->current_hp, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &PlanePartDamageTracker::updateBorderColour);
 }
 
 PlanePartDamageTracker::~PlanePartDamageTracker()
@@ -15,13 +15,13 @@ PlanePartDamageTracker::~PlanePartDamageTracker()
     delete ui;
 }
 
-void PlanePartDamageTracker::setModelIndexes(QPersistentModelIndex hp, QPersistentModelIndex critical_hp)
+void PlanePartDamageTracker::setHPValues(const int &hp, const int &critical_hp)
 {
-    this->critical_hp = critical_hp.data().toInt();
+    this->critical_hp = critical_hp;
 
-    ui->current_hp->setValue(hp.data().toInt());
-    ui->current_hp->setMaximum(hp.data().toInt());
-    ui->current_hp->setSuffix(QString("/%1").arg(hp.data().toInt()));
+    ui->current_hp->setValue(hp);
+    ui->current_hp->setMaximum(hp);
+    ui->current_hp->setSuffix(QString("/%1").arg(hp));
     setEnabled(true);
     setStyleSheet("border-color:green");
 }
@@ -39,7 +39,7 @@ void PlanePartDamageTracker::takeDamage()
     ui->current_hp->setValue(ui->current_hp->value()-1);
 }
 
-void PlanePartDamageTracker::setBorderColour(int value)
+void PlanePartDamageTracker::updateBorderColour(int value)
 {
     if (value == 0) {
         setStyleSheet("border-color:gray");
