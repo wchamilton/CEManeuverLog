@@ -9,8 +9,8 @@ Q_DECLARE_METATYPE(QList<int>)
 #define IS_RELEASE false
 
 #if IS_RELEASE
-static QString GRAPHICS_LOCATION = "./graphics";
-static QString PLANES_LOCATION = "./Planes";
+static const QString GRAPHICS_LOCATION = "./graphics";
+static const QString PLANES_LOCATION = "./Planes";
 #else
 static const QString GRAPHICS_LOCATION("../../../CEManeuverLog/graphics");
 static const QString PLANES_LOCATION("../../../CEManeuverLog/Planes");

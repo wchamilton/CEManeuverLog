@@ -48,7 +48,8 @@ public:
         Effect_Rudder_Jam_Left,
         Effect_Rudder_Jam_Right,
         Effect_Fuel_Tank_Hit_3,
-        Effect_Fuel_Tank_Hit_6
+        Effect_Fuel_Tank_Hit_6,
+        Effect_Gun_Destroyed
     };
 
     struct Effect {
@@ -57,10 +58,16 @@ public:
         QString name;
         QString desc;
 
-        bool operator==(Effect &e) {
+        bool operator==(const Effect &e) const{
             if ((id == Effect_Rudder_Jam_Left || id == Effect_Rudder_Jam_Right) &&
                 (e.id == Effect_Rudder_Jam_Left || e.id == Effect_Rudder_Jam_Right)) {
                 return true;
+            }
+            // Guns cannot be destroyed twice and so won't show as an option
+            // Multiple guns may appear because they may share the same name (linked twin spandaus for instance)
+            // Fuel tank hits should also be allowed to be done multiple times
+            else if (id == Effect_Gun_Destroyed || id == Effect_Fuel_Tank_Hit_3 || id == Effect_Fuel_Tank_Hit_6) {
+                return false;
             }
             return id == e.id;
         };

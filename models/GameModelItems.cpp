@@ -229,6 +229,7 @@ QJsonObject PlaneArmamentsItem::toJSON()
 
 PlaneCrewItem::PlaneCrewItem(QJsonObject plane_crew_json, BaseItem *parent) : BaseItem(ItemType::Plane_Crew_Item_Type, parent)
 {
+    /// TODO: Remove the backwards compatiblity once plane files have been updated/modernized
     int role = 0;
     setData(Plane_Crew_Role, plane_crew_json["role"].toString());
     if (plane_crew_json.contains("role_id")) {
