@@ -44,6 +44,7 @@ SOURCES += \
     editor/GunEditorTab.cpp \
     turn_logger/PlaneSelectionDialog.cpp \
     turn_logger/PreGamePrompt.cpp \
+    turn_logger/StatusEffectsInterface.cpp \
     turn_logger/StatusViewerDlg.cpp \
     turn_logger/TurnTrackerDialog.cpp
 
@@ -75,6 +76,7 @@ HEADERS += \
     editor/GunEditorTab.h \
     turn_logger/PlaneSelectionDialog.h \
     turn_logger/PreGamePrompt.h \
+    turn_logger/StatusEffectsInterface.h \
     turn_logger/StatusViewerDlg.h \
     turn_logger/TurnTrackerDialog.h
 
@@ -91,6 +93,7 @@ FORMS += \
     editor/GunEditorTab.ui \
     turn_logger/PlaneSelectionDialog.ui \
     turn_logger/PreGamePrompt.ui \
+    turn_logger/StatusEffectsInterface.ui \
     turn_logger/StatusViewerDlg.ui \
     turn_logger/TurnTrackerDialog.ui
 

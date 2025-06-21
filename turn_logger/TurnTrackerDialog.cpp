@@ -4,7 +4,7 @@
 #include "CEManeuvers.h"
 #include "CrewControls.h"
 #include "GunRotationControl.h"
-#include "StatusViewerDlg.h"
+#include "StatusEffectsInterface.h"
 #include "models/GameModel.h"
 #include "models/GameModelItems.h"
 #include "graphics/ManeuverScene.h"
@@ -80,11 +80,8 @@ TurnTrackerDialog::TurnTrackerDialog(GameModel* game_model, QWidget *parent) :
         }
     }
 
+    ui->status_effects_grpbox->layout()->addWidget(new StatusEffectsInterface(crew_proxy, plane_filtered_idx, ui->status_effects_grpbox));
     connect(maneuver_scene, &ManeuverScene::maneuverClicked, this, &TurnTrackerDialog::handleManeuverSelection);
-    connect(ui->openStatusViewerBtn, &QPushButton::clicked, this, [&](){
-        StatusViewerDlg dlg(crew_proxy, crew_proxy->mapFromSource(plane_idx));
-        dlg.exec();
-    });
 }
 
 TurnTrackerDialog::~TurnTrackerDialog()

@@ -49,7 +49,9 @@ public:
         Effect_Rudder_Jam_Right,
         Effect_Fuel_Tank_Hit_3,
         Effect_Fuel_Tank_Hit_6,
-        Effect_Gun_Destroyed
+        Effect_Gun_Destroyed,
+        Effect_Smoking,
+        Effect_On_Fire
     };
 
     struct Effect {
@@ -59,14 +61,22 @@ public:
         QString desc;
 
         bool operator==(const Effect &e) const{
+            // All jams are considered the same so that we can override any jam with another easily
             if ((id == Effect_Rudder_Jam_Left || id == Effect_Rudder_Jam_Right) &&
                 (e.id == Effect_Rudder_Jam_Left || e.id == Effect_Rudder_Jam_Right)) {
                 return true;
             }
-            // Guns cannot be destroyed twice and so won't show as an option
-            // Multiple guns may appear because they may share the same name (linked twin spandaus for instance)
-            // Fuel tank hits should also be allowed to be done multiple times
-            else if (id == Effect_Gun_Destroyed || id == Effect_Fuel_Tank_Hit_3 || id == Effect_Fuel_Tank_Hit_6) {
+            // Fire and Smoking are equivalent for purposes of this list
+            else if ((id == Effect_Smoking || id == Effect_On_Fire) &&
+                     (e.id == Effect_On_Fire || e.id == Effect_Smoking)) {
+                return true;
+            }
+            // Guns cannot be destroyed twice but we may have multiple so we need to check their name as well
+            else if (id == Effect_Gun_Destroyed) {
+                return name == e.name;
+            }
+            // Fuel tank hits should be allowed to be done multiple times
+            else if (id == Effect_Fuel_Tank_Hit_3 || id == Effect_Fuel_Tank_Hit_6) {
                 return false;
             }
             return id == e.id;
