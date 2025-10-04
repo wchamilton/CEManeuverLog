@@ -28,8 +28,13 @@ TurnTrackerDialog::TurnTrackerDialog(GameModel* game_model, QWidget *parent) :
     crew_proxy->setAutoAcceptChildRows(true);
 
     turn_proxy = QSharedPointer<FilterProxy>::create(game_model, this);
+    turn_proxy->setTypeFilter(BaseItem::Turn_Item_Type);
     turn_proxy->setRecursiveFilteringEnabled(true);
     turn_proxy->setAutoAcceptChildRows(true);
+
+    effects_proxy = QSharedPointer<FilterProxy>::create(game_model, this);
+    effects_proxy->setTypeFilter({BaseItem::Plane_Item_Type, BaseItem::Plane_Effect_Item_Type});
+    effects_proxy->setRecursiveFilteringEnabled(true);
 
     // Extract the selected plane index
     QModelIndex game_idx = game_model->gameRootIdx();
@@ -60,9 +65,9 @@ TurnTrackerDialog::TurnTrackerDialog(GameModel* game_model, QWidget *parent) :
     ui->alt_ctrl_gv->setScene(alt_ctrl_scene);
 
     // Iterate over the crew members and populate their controls
-    QPersistentModelIndex plane_filtered_idx = crew_proxy->mapFromSource(plane_idx);
+    QModelIndex plane_filtered_idx = crew_proxy->mapFromSource(plane_idx);
     for (int crew_row=0; crew_row<crew_proxy->rowCount(plane_filtered_idx); ++crew_row) {
-        QPersistentModelIndex crew_idx = crew_proxy->index(crew_row, PlaneCrewItem::Plane_Crew_Name, plane_filtered_idx);
+        QModelIndex crew_idx = crew_proxy->index(crew_row, PlaneCrewItem::Plane_Crew_Name, plane_filtered_idx);
         CrewControls* cc = new CrewControls(crew_idx, crew_proxy, maneuver_proxy, ui->crew_tab);
         ui->crew_tab->addTab(cc, crew_idx.sibling(crew_idx.row(), PlaneCrewItem::Plane_Crew_Role).data().toString() + " (" + crew_idx.data().toString() + ")");
 
@@ -75,12 +80,12 @@ TurnTrackerDialog::TurnTrackerDialog(GameModel* game_model, QWidget *parent) :
 
         // Add each of the guns to the firing arc combobox
         for (int gun_row=0; gun_row<crew_proxy->rowCount(crew_idx); ++gun_row) {
-            QPersistentModelIndex gun_idx = crew_proxy->index(gun_row, PlaneArmamentsItem::Plane_Armaments_Name, crew_idx);
+            QModelIndex gun_idx = crew_proxy->index(gun_row, PlaneArmamentsItem::Plane_Armaments_Name, crew_idx);
             ui->gun_rotation_tab->addTab(new GunRotationControl(crew_proxy, gun_idx, ui->gun_rotation_tab), QString("%1 (%2)").arg(gun_idx.data().toString(), crew_idx.data().toString()));
         }
     }
 
-    ui->status_effects_grpbox->layout()->addWidget(new StatusEffectsInterface(crew_proxy, plane_filtered_idx, ui->status_effects_grpbox));
+    ui->status_effects_grpbox->layout()->addWidget(new StatusEffectsInterface(crew_proxy, effects_proxy, plane_idx, ui->status_effects_grpbox));
     connect(maneuver_scene, &ManeuverScene::maneuverClicked, this, &TurnTrackerDialog::handleManeuverSelection);
 }
 

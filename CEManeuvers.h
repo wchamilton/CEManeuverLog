@@ -11,9 +11,11 @@ Q_DECLARE_METATYPE(QList<int>)
 #if IS_RELEASE
 static const QString GRAPHICS_LOCATION = "./graphics";
 static const QString PLANES_LOCATION = "./Planes";
+static const QString TURN_LOG_LOCATION = "./Matches";
 #else
 static const QString GRAPHICS_LOCATION("../../../CEManeuverLog/graphics");
 static const QString PLANES_LOCATION("../../../CEManeuverLog/Planes");
+static const QString TURN_LOG_LOCATION = "../../../Matches";
 #endif
 
 struct Maneuver
@@ -90,14 +92,15 @@ public:
         Base_Item_Type = 0,
         Maneuver_Item_Type,
         Plane_Item_Type,
+        Plane_Effect_Item_Type,
         Plane_Maneuver_Item_Type,
         Plane_Armaments_Item_Type,
         Plane_Armaments_Link_Item_Type,
         Plane_Crew_Item_Type,
-        Active_Effect_Item_Type,
         Chit_Item_Type,
         Game_Item_Type,
         Turn_Item_Type,
+        Turn_Effects_Type,
         Turn_Crew_Item_Type,
         Turn_Armament_Item_Type
     };

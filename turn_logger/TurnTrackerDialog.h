@@ -31,6 +31,7 @@ private:
     QSharedPointer<FilterProxy> maneuver_proxy;
     QSharedPointer<FilterProxy> crew_proxy;
     QSharedPointer<FilterProxy> turn_proxy;
+    QSharedPointer<FilterProxy> effects_proxy;
     ManeuverScene* maneuver_scene = nullptr;
     AltCtrlScene* alt_ctrl_scene = nullptr;
     QPersistentModelIndex plane_idx;

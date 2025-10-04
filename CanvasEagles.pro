@@ -27,25 +27,17 @@ SOURCES += \
     CEManeuvers.cpp \
     models/GameModel.cpp \
     models/GameModelItems.cpp \
-    models/TurnItems.cpp \
-    models/TurnModel.cpp \
-    turn_logger/EffectsSelectionDialog.cpp \
     turn_logger/GunRotationControl.cpp \
-    turn_logger/MainWindow.cpp \
     turn_logger/CrewControls.cpp \
     turn_logger/PlanePartDamageTracker.cpp \
     graphics/HexTile.cpp \
     graphics/ManeuverGraphic.cpp \
     graphics/ManeuverScene.cpp \
-    models/PlaneItems.cpp \
-    models/PlaneModel.cpp \
     editor/PlaneEditor.cpp \
     editor/CrewEditorTab.cpp \
     editor/GunEditorTab.cpp \
     turn_logger/PlaneSelectionDialog.cpp \
-    turn_logger/PreGamePrompt.cpp \
     turn_logger/StatusEffectsInterface.cpp \
-    turn_logger/StatusViewerDlg.cpp \
     turn_logger/TurnTrackerDialog.cpp
 
 HEADERS += \
@@ -59,42 +51,30 @@ HEADERS += \
     graphics/SelectionBox.h \
     models/GameModel.h \
     models/GameModelItems.h \
-    models/TurnItems.h \
-    models/TurnModel.h \
-    turn_logger/EffectsSelectionDialog.h \
     turn_logger/GunRotationControl.h \
-    turn_logger/MainWindow.h \
     turn_logger/CrewControls.h \
     turn_logger/PlanePartDamageTracker.h \
     graphics/HexTile.h \
     graphics/ManeuverGraphic.h \
     graphics/ManeuverScene.h \
-    models/PlaneItems.h \
-    models/PlaneModel.h \
     editor/PlaneEditor.h \
     editor/CrewEditorTab.h \
     editor/GunEditorTab.h \
     turn_logger/PlaneSelectionDialog.h \
-    turn_logger/PreGamePrompt.h \
     turn_logger/StatusEffectsInterface.h \
-    turn_logger/StatusViewerDlg.h \
     turn_logger/TurnTrackerDialog.h
 
 FORMS += \
     EntryDialog.ui \
     editor/PlaneEditorSelector.ui \
-    turn_logger/EffectsSelectionDialog.ui \
     turn_logger/GunRotationControl.ui \
-    turn_logger/MainWindow.ui \
     turn_logger/CrewControls.ui \
     turn_logger/PlanePartDamageTracker.ui \
     editor/PlaneEditor.ui \
     editor/CrewEditorTab.ui \
     editor/GunEditorTab.ui \
     turn_logger/PlaneSelectionDialog.ui \
-    turn_logger/PreGamePrompt.ui \
     turn_logger/StatusEffectsInterface.ui \
-    turn_logger/StatusViewerDlg.ui \
     turn_logger/TurnTrackerDialog.ui
 
 # Default rules for deployment.

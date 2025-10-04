@@ -125,12 +125,44 @@ bool GameModel::setData(const QModelIndex &idx, const QVariant &value, int role)
     return false;
 }
 
+void GameModel::writeTurnsToJSON()
+{
+    BaseItem* gameItem = static_cast<BaseItem*>(gameRootIdx().internalPointer());
+    BaseItem* turnItem = static_cast<BaseItem*>(turnsRootIdx().internalPointer());
+
+    QJsonObject json;
+    json["game"] = gameItem->toJSON();
+
+    QJsonArray turns;
+    for (int i=0; i<turnItem->childCount(); ++i) {
+        turns << turnItem->childAt(i)->toJSON();
+    }
+    json["turns"] = turnItem->toJSON();
+
+    if (json.isEmpty()) {
+        qWarning() << "Error when trying to save the turns to file. Nothing to write.";
+        return;
+    }
+
+    QFile file(TURN_LOG_LOCATION + "/" + gameItem->data(GameItem::Game_Conflict_Name).toString() + ".json");
+    if (!file.open(QIODevice::WriteOnly|QIODevice::Text)) {
+        qWarning() << "Could not open" << file.fileName();
+        return;
+    }
+    file.close();
+}
+
+void GameModel::readTurnsFromJSON()
+{
+    // read all the stuff
+}
+
 QPersistentModelIndex GameModel::addPlane()
 {
     QModelIndex planes_root_idx = planesRootIdx();
     BaseItem* planes_root_ptr = static_cast<BaseItem*>(planes_root_idx.internalPointer());
 
-    beginInsertRows(planes_root_idx, rowCount(planes_root_idx), rowCount(planes_root_idx)+1);
+    beginInsertRows(planes_root_idx, rowCount(planes_root_idx), rowCount(planes_root_idx));
     PlaneItem* item = new PlaneItem(planes_root_ptr);
     planes_root_ptr->addChild(item);
     endInsertRows();
@@ -141,7 +173,7 @@ QPersistentModelIndex GameModel::addManeuver(const Maneuver &m, const QModelInde
 {
     BaseItem* plane_ptr = static_cast<BaseItem*>(parent_plane_idx.internalPointer());
 
-    beginInsertRows(parent_plane_idx, rowCount(parent_plane_idx), rowCount(parent_plane_idx)+1);
+    beginInsertRows(parent_plane_idx, rowCount(parent_plane_idx), rowCount(parent_plane_idx));
     PlaneManeuverItem* maneuver_ptr = new PlaneManeuverItem(m, plane_ptr);
     plane_ptr->addChild(maneuver_ptr);
     endInsertRows();
@@ -152,7 +184,7 @@ QPersistentModelIndex GameModel::addCrew(const QModelIndex &parent_plane_idx)
 {
     BaseItem* plane_ptr = static_cast<BaseItem*>(parent_plane_idx.internalPointer());
 
-    beginInsertRows(parent_plane_idx, rowCount(parent_plane_idx), rowCount(parent_plane_idx)+1);
+    beginInsertRows(parent_plane_idx, rowCount(parent_plane_idx), rowCount(parent_plane_idx));
     PlaneCrewItem* crew_ptr = new PlaneCrewItem(plane_ptr);
     plane_ptr->addChild(crew_ptr);
     endInsertRows();
@@ -163,11 +195,22 @@ QPersistentModelIndex GameModel::addGun(const QModelIndex &parent_crew_idx)
 {
     BaseItem* plane_ptr = static_cast<BaseItem*>(parent_crew_idx.internalPointer());
 
-    beginInsertRows(parent_crew_idx, rowCount(parent_crew_idx), rowCount(parent_crew_idx)+1);
+    beginInsertRows(parent_crew_idx, rowCount(parent_crew_idx), rowCount(parent_crew_idx));
     PlaneArmamentsItem* gun_ptr = new PlaneArmamentsItem(plane_ptr);
     plane_ptr->addChild(gun_ptr);
     endInsertRows();
     return index(rowCount(parent_crew_idx)-1, 0, parent_crew_idx);
+}
+
+QPersistentModelIndex GameModel::addEffect(const QModelIndex &parent_plane_idx)
+{
+    BaseItem* plane_ptr = static_cast<BaseItem*>(parent_plane_idx.internalPointer());
+
+    beginInsertRows(parent_plane_idx, rowCount(parent_plane_idx), rowCount(parent_plane_idx));
+    PlaneEffectItem* effect_ptr = new PlaneEffectItem(plane_ptr);
+    plane_ptr->addChild(effect_ptr);
+    endInsertRows();
+    return index(rowCount(parent_plane_idx)-1, 0, parent_plane_idx);
 }
 
 void GameModel::removeManeuver(const QModelIndex &idx)
@@ -177,6 +220,16 @@ void GameModel::removeManeuver(const QModelIndex &idx)
 
     beginRemoveRows(idx.parent(), idx.row(), idx.row());
     plane_ptr->removeChild(maneuver_ptr->row());
+    endRemoveRows();
+}
+
+void GameModel::removeEffect(const QModelIndex &idx)
+{
+    BaseItem* plane_ptr = static_cast<BaseItem*>(idx.parent().internalPointer());
+    BaseItem* effect_ptr = static_cast<BaseItem*>(idx.internalPointer());
+
+    beginRemoveRows(idx.parent(), idx.row(), idx.row());
+    plane_ptr->removeChild(effect_ptr->row());
     endRemoveRows();
 }
 
@@ -194,12 +247,6 @@ void GameModel::removeChildren(const QModelIndex &parent)
     beginRemoveRows(parent, 0, rowCount(parent));
     parent_ptr->removeChildren();
     endRemoveRows();
-}
-
-QJsonObject GameModel::dumpPlaneToJson(const QModelIndex &plane_idx)
-{
-    PlaneItem* plane_ptr = static_cast<PlaneItem*>(plane_idx.internalPointer());
-    return plane_ptr->toJSON();
 }
 
 QModelIndex GameModel::gameRootIdx() const

@@ -3,7 +3,6 @@
 
 #include <QWidget>
 #include <QPersistentModelIndex>
-#include "models/GameModelItems.h"
 
 namespace Ui {
 class StatusEffectsInterface;
@@ -15,18 +14,17 @@ class StatusEffectsInterface : public QWidget
     Q_OBJECT
 
 public:
-    explicit StatusEffectsInterface(QSharedPointer<FilterProxy> crew_proxy, QPersistentModelIndex plane_idx, QWidget *parent = nullptr);
+    explicit StatusEffectsInterface(QSharedPointer<FilterProxy> crew_proxy, QSharedPointer<FilterProxy> effects_proxy, QPersistentModelIndex base_plane_idx, QWidget *parent = nullptr);
     ~StatusEffectsInterface();
-    void updateStatusList();
 
 private slots:
-    void addStatusEffectToList();
-    void removeStatusEffectFromList(PlaneItem::Effect effect);
+    void handleEffectSelection(bool checked);
 
 private:
     Ui::StatusEffectsInterface *ui;
     QSharedPointer<FilterProxy> crew_proxy;
-    QPersistentModelIndex plane_idx;
+    QSharedPointer<FilterProxy> effects_proxy;
+    QPersistentModelIndex base_plane_idx;
 };
 
 #endif // STATUSEFFECTSINTERFACE_H

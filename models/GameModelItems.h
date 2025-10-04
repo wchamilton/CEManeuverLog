@@ -2,6 +2,7 @@
 #define GAMEMODELITEMS_H
 
 #include "CEManeuvers.h"
+#include <QJsonObject>
 
 /**
  * @brief The PlaneItem class
@@ -31,7 +32,6 @@ public:
         Plane_Current_Speed,            ///< Current speed value the plane has been going
         Plane_Stability_Rating,         ///< Character value A, B, or C. C rated planes can alternate L+R without needing S
         Plane_Payload_Count,            ///< Amount of bombs/payloads the plane can drop
-        Plane_Active_Effects,           ///< List<Effect> of currently active effects
         PLANE_COL_COUNT
     };
 
@@ -41,52 +41,64 @@ public:
         Era_Late_War
     };
 
-    enum ActiveEffectIDs {
-        Effect_No_Restricted_Maneuvers = 0,
-        Effect_No_Speed_3_or_4,
-        Effect_Force_Slower_Maneuver,
-        Effect_Rudder_Jam_Left,
-        Effect_Rudder_Jam_Right,
-        Effect_Fuel_Tank_Hit_3,
-        Effect_Fuel_Tank_Hit_6,
-        Effect_Gun_Destroyed,
-        Effect_Smoking,
-        Effect_On_Fire
-    };
-
-    struct Effect {
-        int id;
-        int remaining_turns;
-        QString name;
-        QString desc;
-
-        bool operator==(const Effect &e) const{
-            // All jams are considered the same so that we can override any jam with another easily
-            if ((id == Effect_Rudder_Jam_Left || id == Effect_Rudder_Jam_Right) &&
-                (e.id == Effect_Rudder_Jam_Left || e.id == Effect_Rudder_Jam_Right)) {
-                return true;
-            }
-            // Fire and Smoking are equivalent for purposes of this list
-            else if ((id == Effect_Smoking || id == Effect_On_Fire) &&
-                     (e.id == Effect_On_Fire || e.id == Effect_Smoking)) {
-                return true;
-            }
-            // Guns cannot be destroyed twice but we may have multiple so we need to check their name as well
-            else if (id == Effect_Gun_Destroyed) {
-                return name == e.name;
-            }
-            // Fuel tank hits should be allowed to be done multiple times
-            else if (id == Effect_Fuel_Tank_Hit_3 || id == Effect_Fuel_Tank_Hit_6) {
-                return false;
-            }
-            return id == e.id;
-        };
-    };
-
     PlaneItem(BaseItem* parent = nullptr) : BaseItem(ItemType::Plane_Item_Type, parent) {}
     PlaneItem(QJsonObject plane_json, BaseItem* parent = nullptr);
 
     QJsonObject toJSON() override;
+};
+
+class PlaneEffectItem : public BaseItem
+{
+public:
+    enum PlaneEffectItemCols {
+        Plane_Effect_ID = 0,
+        Plane_Effect_Name,
+        Plane_Effect_Desc,
+        Plane_Effect_Remaining_Turns,
+        PLANE_EFFECT_COL_COUNT
+    };
+
+    /// TODO: This should be a fixed list in an array, similar to maneuvers
+    enum PlaneEffectIds {
+        Effect_No_Restricted_Maneuvers = 0,
+        Effect_No_Speed_3_or_4,
+        Effect_Force_Slower_Maneuver,
+        Effect_Gun_Destroyed,
+        Effect_Rudder_Jam_Left,
+        Effect_Rudder_Jam_Right,
+        Effect_Fuel_Tank_Hit_3,
+        Effect_Fuel_Tank_Hit_6,
+        Effect_Smoking,
+        Effect_On_Fire
+    };
+
+    PlaneEffectItem(BaseItem* parent = nullptr) : BaseItem(ItemType::Plane_Effect_Item_Type, parent) {}
+    PlaneEffectItem(QJsonObject plane_effect_json, BaseItem* parent = nullptr);
+
+    bool operator==(const PlaneEffectItem &e) const{
+        QVariant id = data(Plane_Effect_ID);
+        QVariant comp_id = e.data(Plane_Effect_ID);
+
+        // All jams are considered the same so that we can override any jam with another easily
+        if ((id == Effect_Rudder_Jam_Left || id == Effect_Rudder_Jam_Right) &&
+            (comp_id == Effect_Rudder_Jam_Left || comp_id == Effect_Rudder_Jam_Right)) {
+            return true;
+        }
+        // Fire and Smoking are equivalent for purposes of this list
+        else if ((id == Effect_Smoking || id == Effect_On_Fire) &&
+                 (comp_id == Effect_On_Fire || comp_id == Effect_Smoking)) {
+            return true;
+        }
+        // Guns cannot be destroyed twice but we may have multiple so we need to check their name as well
+        else if (id == Effect_Gun_Destroyed) {
+            return data(Plane_Effect_Name) == e.data(Plane_Effect_Name);
+        }
+        // Fuel tank hits should be allowed to be done multiple times
+        else if (id == Effect_Fuel_Tank_Hit_3 || id == Effect_Fuel_Tank_Hit_6) {
+            return false;
+        }
+        return id == comp_id;
+    };
 };
 
 /**
@@ -129,7 +141,8 @@ class PlaneArmamentsItem : public BaseItem
 {
 public:
     enum PlaneArmamentsItemCols {
-        Plane_Armaments_Name = 0,
+        Plane_Armaments_UID = 0,
+        Plane_Armaments_Name,
         Plane_Armaments_Gun_Destroyed,
         Plane_Armaments_Gun_Jammed,
         Plane_Armaments_Gun_Is_Linked,
@@ -171,7 +184,8 @@ class PlaneCrewItem : public BaseItem
 {
 public:
     enum PlaneCrewItemCols {
-        Plane_Crew_Name = 0,
+        Plane_Crew_UID = 0,
+        Plane_Crew_Name,
         Plane_Crew_Role_ID,
         Plane_Crew_Role,
         Plane_Crew_Ability_Unrestricted_Maneuvers,
@@ -208,6 +222,24 @@ public:
         int target_range = 0;           ///< Range at which the shot was taken. Important for range 3
         int burst_len = 0;              ///< Number of bullet units consumed, also modifies damage. Long burst can jam
         bool caused_jam = false;        ///< Whether or not the shot caused a jam. Can only trigger on a long burst
+
+        ShotProperties() = default;
+        ShotProperties(QJsonObject json) {
+            target_delta = json["target_delta"].toInt();
+            target_range = json["target_range"].toInt();
+            burst_len = json["burst_len"].toInt();
+            caused_jam = json["caused_jam"].toBool();
+        };
+
+        QJsonObject toJson() {
+            QJsonObject json;
+            json["target_delta"] = target_delta;
+            json["target_range"] = target_range;
+            json["burst_len"] = burst_len;
+            json["caused_jam"] = caused_jam;
+
+            return json;
+        }
     };
 
     PlaneCrewItem(BaseItem* parent = nullptr): BaseItem(ItemType::Plane_Crew_Item_Type, parent) {}
@@ -242,21 +274,36 @@ class TurnItem : public BaseItem
 public:
     enum TurnItemCols {
         Turn_Number = 0,
-        Turn_Selected_Maneuver,             ///< Name of the selected maneuver
-        Turn_Maneuver_Direction,            ///< Left, Straight, Right (LSR)
-        Turn_Maneuver_Speed,                ///< Speed of the chosen maneuver
-        Turn_Plane_Speed_Last_Turn,         ///< Speed the plane went last turn (or started at for turn 1)
-        Turn_Plane_Alt_Last_Turn,           ///< Altitude of the plane last turn (or started at for turn 1)
-        Turn_Plane_State_Fuel,              ///< Remaining fuel for the plane
-        Turn_Plane_State_Engine_HP,         ///< Current HP value for the engine
-        Turn_Plane_State_Wing_HP,           ///< Current HP value for the wings
-        Turn_Plane_State_Fuse_HP,           ///< Current HP value for the fuse
-        Turn_Plane_State_Tail_HP,           ///< Current HP value for the tail
-        Turn_Plane_State_Active_Effects,    ///< List of effects actively applied to the plane
+        Turn_Selected_Maneuver,         ///< Name of the selected maneuver
+        Turn_Maneuver_Direction,        ///< Left, Straight, Right (LSR)
+        Turn_Maneuver_Speed,            ///< Speed of the chosen maneuver
+        Turn_Plane_Alt,                 ///< Altitude of the plane this turn
+        Turn_Plane_Speed_Last_Turn,     ///< Speed the plane went last turn (or started at for turn 1)
+        Turn_Plane_Alt_Last_Turn,       ///< Altitude of the plane last turn (or started at for turn 1)
+        Turn_Plane_Fuel,                ///< Remaining fuel for the plane
+        Turn_Plane_Engine_HP,           ///< Current HP value for the engine
+        Turn_Plane_Wing_HP,             ///< Current HP value for the wings
+        Turn_Plane_Fuse_HP,             ///< Current HP value for the fuse
+        Turn_Plane_Tail_HP,             ///< Current HP value for the tail
+        Turn_Plane_Payload_Count,       ///< Remaining bombs/payloads the plane can drop
         TURN_PLANE_COL_COUNT
     };
 
     TurnItem(BaseItem* parent = nullptr) : BaseItem(ItemType::Turn_Item_Type, parent) {}
+    QJsonObject toJSON() override;
+};
+
+class TurnPlaneEffects : public BaseItem
+{
+public:
+    enum TurnPlaneEffectCols {
+        Turn_Plane_Effect_ID = 0,
+        Turn_Plane_Effect_Name,
+        Turn_Plane_Effect_Remaining_Turns,
+        TURN_PLANE_EFFECT_COL_COUNT
+    };
+
+    TurnPlaneEffects(BaseItem* parent = nullptr) : BaseItem(ItemType::Turn_Effects_Type, parent) {}
     QJsonObject toJSON() override;
 };
 

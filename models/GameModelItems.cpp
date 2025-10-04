@@ -79,6 +79,12 @@ QJsonObject PlaneItem::toJSON()
     return json;
 }
 
+PlaneEffectItem::PlaneEffectItem(QJsonObject plane_effect_json, BaseItem *parent) :
+    BaseItem(Plane_Effect_Item_Type, parent)
+{
+
+}
+
 PlaneManeuverItem::PlaneManeuverItem(Maneuver maneuver, BaseItem *parent) : BaseItem(ItemType::Plane_Maneuver_Item_Type, parent)
 {
     QStringList tolerances = maneuver.tolerances.split('/');
@@ -229,7 +235,6 @@ QJsonObject PlaneArmamentsItem::toJSON()
 
 PlaneCrewItem::PlaneCrewItem(QJsonObject plane_crew_json, BaseItem *parent) : BaseItem(ItemType::Plane_Crew_Item_Type, parent)
 {
-    /// TODO: Remove the backwards compatiblity once plane files have been updated/modernized
     int role = 0;
     setData(Plane_Crew_Role, plane_crew_json["role"].toString());
     if (plane_crew_json.contains("role_id")) {
@@ -273,6 +278,7 @@ QJsonObject PlaneCrewItem::toJSON()
     json["role_id"] =           data(Plane_Crew_Role).toString();
     json["can_drop_bombs"] =    data(Plane_Crew_Can_Drop_Payloads).toBool();
 
+    /// TODO: REPLACE THIS GARBAGE WITH THE CREW ONLY
     QJsonArray guns;
     for (int i=0; i<childCount(); ++i) {
         if (childAt(i)->getType() == BaseItem::Plane_Armaments_Item_Type) {
@@ -360,72 +366,68 @@ QJsonObject TurnItem::toJSON()
     json["selected_maneuver"] = data(Turn_Selected_Maneuver).toString();
     json["maneuver_direction"] = data(Turn_Maneuver_Direction).toString();
     json["maneuver_speed"] = data(Turn_Maneuver_Speed).toInt();
-    json["current_fuel"] = data(Turn_Plane_State_Fuel).toInt();
-    json["current_engine_hp"] = data(Turn_Plane_State_Engine_HP).toInt();
-    json["current_wing_hp"] = data(Turn_Plane_State_Wing_HP).toInt();
-    json["current_fuse_hp"] = data(Turn_Plane_State_Fuse_HP).toInt();
-    json["current_tail_hp"] = data(Turn_Plane_State_Tail_HP).toInt();
+    json["current_alt"] = data(Turn_Plane_Alt).toInt();
+    json["speed_last_turn"] = data(Turn_Plane_Speed_Last_Turn).toInt();
+    json["alt_last_turn"] = data(Turn_Plane_Alt_Last_Turn).toInt();
+    json["current_fuel"] = data(Turn_Plane_Fuel).toInt();
+    json["current_engine_hp"] = data(Turn_Plane_Engine_HP).toInt();
+    json["current_wing_hp"] = data(Turn_Plane_Wing_HP).toInt();
+    json["current_fuse_hp"] = data(Turn_Plane_Fuse_HP).toInt();
+    json["current_tail_hp"] = data(Turn_Plane_Tail_HP).toInt();
+    json["current_payload_count"] = data(Turn_Plane_Payload_Count).toInt();
 
-    // Extract the active effects and convert them into a json array format
-    QList<PlaneItem::Effect> effects_list = data(Turn_Plane_State_Active_Effects).value<QList<PlaneItem::Effect>>();
-    QJsonArray effects_json_array;
-    for(int i=0; i<effects_list.size(); ++i) {
-        QJsonObject effect;
-        effect["id"] = effects_list.at(i).id;
-        effect["remaining_turns"] = effects_list.at(i).remaining_turns;
-        effect["description"] = effects_list.at(i).desc;
-        effects_json_array << effect;
-    }
-    json["active_effects"] = effects_json_array;
-
-    // Iterate over the crew's actions and return their json output as a json array
-    QJsonArray crew_turn;
+    QJsonArray effects_array;
+    QJsonArray crew_array;
     for (int i=0; i<childCount(); ++i) {
-        crew_turn << childAt(i)->toJSON();
+        if (childAt(i)->getType() == BaseItem::Turn_Effects_Type) {
+            effects_array << childAt(i)->toJSON();
+        }
+        else if (childAt(i)->getType() == BaseItem::Turn_Crew_Item_Type) {
+            crew_array << childAt(i)->toJSON();
+        }
     }
-    json["crew"] = crew_turn;
 
+    json["effects"] = effects_array;
+    json["crew"] = crew_array;
+
+    return json;
+}
+
+QJsonObject TurnPlaneEffects::toJSON()
+{
+    QJsonObject json;
+    json["effect_id"] = data(Turn_Plane_Effect_ID).toInt();
+    json["effect_name"] = data(Turn_Plane_Effect_Name).toString();
+    json["remaining_turns"] = data(Turn_Plane_Effect_Remaining_Turns).toInt();
     return json;
 }
 
 QJsonObject TurnCrewItem::toJSON()
 {
     QJsonObject json;
-    json["crew_name"] = data(Turn_Crew_Index).toPersistentModelIndex().data().toString();
-
-    int action_id = data(Turn_Crew_Action_Taken).toInt();
-    json["action_taken"] = action_id;
-
-    // Need to determine which datatype to export to json for the extra data
-    switch (action_id) {
-    case PlaneCrewItem::Action_None:           json["action_extra_data"] = data(Turn_Crew_Action_Extra_Data).toString(); break;
-    case PlaneCrewItem::Action_Shoot: {
-        PlaneCrewItem::ShotProperties shot_properties = data(Turn_Crew_Action_Extra_Data).value<PlaneCrewItem::ShotProperties>();
-        QJsonObject shot_properties_json;
-        shot_properties_json["target_delta"] = shot_properties.target_delta;
-        shot_properties_json["target_range"] = shot_properties.target_range;
-        shot_properties_json["burst_len"] = shot_properties.burst_len;
-        shot_properties_json["caused_jam"] = shot_properties.caused_jam;
-        json["action_extra_data"] = shot_properties_json;
-        break;
+    json["crew_id"] = data(Turn_Crew_Index).toModelIndex().sibling(data(Turn_Crew_Index).toModelIndex().row(), PlaneCrewItem::Plane_Crew_UID).data().toString();
+    json["action_taken"] = data(Turn_Crew_Action_Taken).toInt();
+    // TODO: Handle extra data
+    QVariant extra_data = data(Turn_Crew_Action_Extra_Data);
+    switch(data(Turn_Crew_Action_Taken).toInt()) {
+    case PlaneCrewItem::Action_None: json["action_extra_data"] = extra_data.toString(); break;
+    case PlaneCrewItem::Action_Shoot: json["action_extra_data"] = extra_data.value<PlaneCrewItem::ShotProperties>().toJson(); break;
+    case PlaneCrewItem::Action_Reload: json["action_extra_data"] = extra_data.toString(); break;
+    case PlaneCrewItem::Action_Unjam: json["action_extra_data"] = extra_data.toBool(); break;
+    case PlaneCrewItem::Action_Drop_Payload: json["action_extra_data"] = extra_data.toBool(); break;
+    case PlaneCrewItem::Action_Observe: json["action_extra_data"] = extra_data.toString(); break;
+    case PlaneCrewItem::Action_Custom: json["action_extra_data"] = extra_data.toString(); break;
+    default: break;
     }
-    case PlaneCrewItem::Action_Reload:         json["action_extra_data"] = data(Turn_Crew_Action_Extra_Data).toString(); break;
-    case PlaneCrewItem::Action_Unjam:          json["action_extra_data"] = data(Turn_Crew_Action_Extra_Data).toBool(); break;
-    case PlaneCrewItem::Action_Drop_Payload:   json["action_extra_data"] = data(Turn_Crew_Action_Extra_Data).toBool(); break;
-    case PlaneCrewItem::Action_Observe:        json["action_extra_data"] = data(Turn_Crew_Action_Extra_Data).toString(); break;
-    case PlaneCrewItem::Action_Custom:         json["action_extra_data"] = data(Turn_Crew_Action_Extra_Data).toString(); break;
-    }
+    json["wounds"] = data(Turn_Crew_Wounds_Accrued).toInt();
+    json["reds"] = data(Turn_Crew_Total_Red_Hits).toInt();
+    json["kills"] = data(Turn_Crew_Total_Kills).toInt();
 
-    json["current_wounds"] = data(Turn_Crew_Wounds_Accrued).toInt();
-    json["current_reds"] = data(Turn_Crew_Total_Red_Hits).toInt();
-    json["current_kills"] = data(Turn_Crew_Total_Kills).toInt();
-
-    // Iterate over the crew's weapons and return their json output as a json array
-    QJsonArray crew_armament;
+    QJsonArray crew_weapon_array;
     for (int i=0; i<childCount(); ++i) {
-        crew_armament << childAt(i)->toJSON();
+        crew_weapon_array << childAt(i)->toJSON();
     }
-    json["gun_states"] = crew_armament;
+    json["guns"] = crew_weapon_array;
 
     return json;
 }

@@ -33,7 +33,7 @@ void CrewEditorTab::populateCrewItem(FilterProxy* model, QPersistentModelIndex c
     for (int i=0; i<ui->gun_tab_widget->count(); ++i) {
         QModelIndex gun_idx = model->index(i, 0, crew_idx);
         if (!gun_idx.isValid()) {
-            gun_idx = static_cast<GameModel*>(model->sourceModel())->addGun(model->mapToSource(crew_idx));
+            gun_idx = model->mapFromSource(static_cast<GameModel*>(model->sourceModel())->addGun(model->mapToSource(crew_idx)));
         }
         static_cast<GunEditorTab*>(ui->gun_tab_widget->widget(i))->populateGunItem(model, gun_idx);
     }
