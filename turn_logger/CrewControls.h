@@ -31,6 +31,7 @@ public slots:
     void updateBombState();
     void applyManeuverRestrictions(QPersistentModelIndex maneuver_idx);
     void refreshGunWidgets();
+    void resetSelection();
 
 private slots:
     void setSliderStylesheet(QString colour);

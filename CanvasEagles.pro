@@ -38,6 +38,9 @@ SOURCES += \
     editor/GunEditorTab.cpp \
     turn_logger/PlaneSelectionDialog.cpp \
     turn_logger/StatusEffectsInterface.cpp \
+    turn_logger/TurnHistory/TurnHistoryCrewTab.cpp \
+    turn_logger/TurnHistory/TurnHistoryDialog.cpp \
+    turn_logger/TurnHistory/TurnHistoryGunTab.cpp \
     turn_logger/TurnTrackerDialog.cpp
 
 HEADERS += \
@@ -62,6 +65,9 @@ HEADERS += \
     editor/GunEditorTab.h \
     turn_logger/PlaneSelectionDialog.h \
     turn_logger/StatusEffectsInterface.h \
+    turn_logger/TurnHistory/TurnHistoryCrewTab.h \
+    turn_logger/TurnHistory/TurnHistoryDialog.h \
+    turn_logger/TurnHistory/TurnHistoryGunTab.h \
     turn_logger/TurnTrackerDialog.h
 
 FORMS += \
@@ -75,6 +81,9 @@ FORMS += \
     editor/GunEditorTab.ui \
     turn_logger/PlaneSelectionDialog.ui \
     turn_logger/StatusEffectsInterface.ui \
+    turn_logger/TurnHistory/TurnHistoryCrewTab.ui \
+    turn_logger/TurnHistory/TurnHistoryDialog.ui \
+    turn_logger/TurnHistory/TurnHistoryGunTab.ui \
     turn_logger/TurnTrackerDialog.ui
 
 # Default rules for deployment.

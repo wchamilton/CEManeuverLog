@@ -27,7 +27,7 @@ QRectF ManeuverGraphic::boundingRect() const
     return shape().boundingRect();
 }
 
-void ManeuverGraphic::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void ManeuverGraphic::paint(QPainter *painter, const QStyleOptionGraphicsItem*, QWidget*)
 {
     qreal hex_center = childItems().constFirst()->boundingRect().width() / 2;
     qreal hex_height = childItems().constFirst()->boundingRect().height();
@@ -55,7 +55,7 @@ void ManeuverGraphic::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 void ManeuverGraphic::addHex(Maneuver::Directions position, HexTile::TileType tile_type, qreal rotation)
 {
     HexTile* tile = new HexTile(tile_type, rotation, this);
-    for (Maneuver::Directions direction : directions_list) {
+    for (const Maneuver::Directions &direction : std::as_const(directions_list)) {
         moveTile(tile, direction);
     }
     moveTile(tile, position);
@@ -98,20 +98,20 @@ QPainterPath ManeuverGraphic::shape() const
     return path;
 }
 
-void ManeuverGraphic::updateManeuverState()
-{
-    // for (auto child : childItems()) {
-    //     HexTile* hex = static_cast<HexTile*>(child);
-    //     hex->setIsAvailable(maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Can_Be_Used).data().toBool());
-    // }
-    // setEnabled(maneuver_idx.sibling(maneuver_idx.row(), ManeuverItem::Can_Be_Used).data().toBool());
-}
-
 void ManeuverGraphic::setSelected(bool selected)
 {
     for (auto child : childItems()) {
         static_cast<HexTile*>(child)->setSelected(selected);
     }
+}
+
+void ManeuverGraphic::setEnabled(bool enabled)
+{
+    for (auto child : childItems()) {
+        HexTile* hex = static_cast<HexTile*>(child);
+        hex->setIsAvailable(enabled);
+    }
+    QGraphicsItem::setEnabled(enabled);
 }
 
 void ManeuverGraphic::hoverEnterEvent(QGraphicsSceneHoverEvent *event)

@@ -12,6 +12,8 @@ class GameModel;
 class FilterProxy;
 class ManeuverScene;
 class AltCtrlScene;
+class TurnHistoryDialog;
+class StatusEffectsInterface;
 
 class TurnTrackerDialog : public QDialog
 {
@@ -24,8 +26,11 @@ public:
 private slots:
     void handleTurnEnd();
     void handleManeuverSelection(QModelIndex maneuver_idx);
+    int calculateFuelUsage();
 
 private:
+    void updateAvailableManeuvers();
+
     Ui::TurnTrackerDialog *ui;
     GameModel* game_model = nullptr;
     QSharedPointer<FilterProxy> maneuver_proxy;
@@ -34,6 +39,8 @@ private:
     QSharedPointer<FilterProxy> effects_proxy;
     ManeuverScene* maneuver_scene = nullptr;
     AltCtrlScene* alt_ctrl_scene = nullptr;
+    TurnHistoryDialog* turn_log_view = nullptr;
+    StatusEffectsInterface* effects_interface = nullptr;
     QPersistentModelIndex plane_idx;
     QPersistentModelIndex pilot_idx;
 };

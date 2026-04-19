@@ -333,7 +333,7 @@ Right (2 Turns)</string>
     </widget>
    </item>
    <item row="6" column="0" colspan="2">
-    <widget class="QListView" name="effects_list"/>
+    <widget class="QListWidget" name="effects_list"/>
    </item>
   </layout>
  </widget>

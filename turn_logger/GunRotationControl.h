@@ -18,6 +18,7 @@ class GunRotationControl : public QWidget
 public:
     explicit GunRotationControl(QSharedPointer<FilterProxy> crew_proxy, QPersistentModelIndex gun_idx, QWidget *parent = nullptr);
     ~GunRotationControl();
+    void saveGunRotation();
 
 private slots:
     void rotateGun(const int &delta);

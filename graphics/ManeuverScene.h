@@ -17,9 +17,10 @@ public:
     void addManeuver(QPersistentModelIndex maneuver_idx);
     void removeManeuver(QPersistentModelIndex maneuver_idx);
     void setManeuver(QPersistentModelIndex maneuver_idx);
-    void updateManeuver(QString id);
     void clearSelection();
-
+    void setManeuversAvailable(int prev_speed, QChar prev_direction, int prev_alt, int forced_alt_delta, QChar rudder_jam_direction,
+                               bool restricted_maneuvers_allowed, bool has_unrestricted_maneuvers, bool forced_speed);
+    
 signals:
     void maneuverClicked(QPersistentModelIndex maneuver_idx);
 
@@ -28,7 +29,6 @@ private slots:
 
 private:
     void applyScheduleBG();
-
     QMap<QString, ManeuverGraphic*> maneuver_map;
     ManeuverGraphic* selected_maneuver = nullptr;
     QGraphicsPixmapItem* background_item = nullptr;

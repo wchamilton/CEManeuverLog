@@ -15,9 +15,9 @@ StatusEffectsInterface::StatusEffectsInterface(QSharedPointer<FilterProxy> crew_
     base_plane_idx(base_plane_idx)
 {
     ui->setupUi(this);
-    ui->effects_list->setModel(effects_proxy.data());
-    ui->effects_list->setRootIndex(effects_proxy->mapFromSource(base_plane_idx));
-    ui->effects_list->setModelColumn(PlaneEffectItem::Plane_Effect_Name);
+    // ui->effects_list->setModel(effects_proxy.data());
+    // ui->effects_list->setRootIndex(effects_proxy->mapFromSource(base_plane_idx));
+    // ui->effects_list->setModelColumn(PlaneEffectItem::Plane_Effect_Name);
 
     // Assign the effect information to the provided button, this will be used to populate a new effect item
     auto assignEffect = [=](QPushButton* btn, int id, const QString &name, const QString &desc, int turns) {
@@ -32,10 +32,10 @@ StatusEffectsInterface::StatusEffectsInterface(QSharedPointer<FilterProxy> crew_
     assignEffect(ui->no_3_4_maneuvers_btn, PlaneEffectItem::Effect_No_Speed_3_or_4, "No speed 3 or 4 maneuvers", "Cannot perform speed 3 or 4 maneuvers for the duration of the match.", -1);
     assignEffect(ui->force_slower_btn, PlaneEffectItem::Effect_Force_Slower_Maneuver, "Must do slower maneuver", "Must perform a slower maneuver.", 1);
     assignEffect(ui->gun_destroyed_btn, PlaneEffectItem::Effect_Gun_Destroyed, "Gun destroyed", "A gun was destroyed, it cannot be used for the remainder of the match.", -1);
-    assignEffect(ui->rudder_jam_left_2_btn, PlaneEffectItem::Effect_Rudder_Jam_Left, "Rudder Jam Left", "Rudder is jammed left for %1 turn(s).", 2);
-    assignEffect(ui->rudder_jam_left_3_btn, PlaneEffectItem::Effect_Rudder_Jam_Left, "Rudder Jam Left", "Rudder is jammed left for %1 turn(s).", 3);
-    assignEffect(ui->rudder_jam_right_2_btn, PlaneEffectItem::Effect_Rudder_Jam_Right, "Rudder Jam Right", "Rudder is jammed right for %1 turn(s).", 2);
-    assignEffect(ui->rudder_jam_right_3_btn, PlaneEffectItem::Effect_Rudder_Jam_Right, "Rudder Jam Right", "Rudder is jammed right for %1 turn(s).", 3);
+    assignEffect(ui->rudder_jam_left_2_btn, PlaneEffectItem::Effect_Rudder_Jam_Left, "Rudder Jam Left", "Rudder is jammed left for %1 turns.", 2);
+    assignEffect(ui->rudder_jam_left_3_btn, PlaneEffectItem::Effect_Rudder_Jam_Left, "Rudder Jam Left", "Rudder is jammed left for %1 turns.", 3);
+    assignEffect(ui->rudder_jam_right_2_btn, PlaneEffectItem::Effect_Rudder_Jam_Right, "Rudder Jam Right", "Rudder is jammed right for %1 turns.", 2);
+    assignEffect(ui->rudder_jam_right_3_btn, PlaneEffectItem::Effect_Rudder_Jam_Right, "Rudder Jam Right", "Rudder is jammed right for %1 turns.", 3);
     assignEffect(ui->fuel_tank_hit_3, PlaneEffectItem::Effect_Fuel_Tank_Hit_3, "Fuel tank hit! (-3 fuel)", "Fuel tank was hit, 3 fuel was lost.", -1);
     assignEffect(ui->fuel_tank_hit_6, PlaneEffectItem::Effect_Fuel_Tank_Hit_6, "Fuel tank hit! (-6 fuel)", "Fuel tank was hit, 6 fuel was lost.", -1);
     assignEffect(ui->smoking_btn, PlaneEffectItem::Effect_Smoking, "Smoking", "Plane is now smoking.", -1);
@@ -45,6 +45,26 @@ StatusEffectsInterface::StatusEffectsInterface(QSharedPointer<FilterProxy> crew_
 StatusEffectsInterface::~StatusEffectsInterface()
 {
     delete ui;
+}
+
+void StatusEffectsInterface::refreshEffectsList()
+{
+    ui->effects_list->clear();
+    QModelIndex filtered_plane_idx = effects_proxy->mapFromSource(base_plane_idx);
+    for (int i=0; i<effects_proxy->rowCount(filtered_plane_idx); ++i) {
+        QModelIndex effect_idx = effects_proxy->index(i, PlaneEffectItem::Plane_Effect_ID, filtered_plane_idx);
+
+        QString active_effect_text = effect_idx.siblingAtColumn(PlaneEffectItem::Plane_Effect_Name).data().toString();
+        int remaining_turns = effect_idx.siblingAtColumn(PlaneEffectItem::Plane_Effect_Remaining_Turns).data().toInt();
+        if (remaining_turns > 0) {
+            active_effect_text += QString(" (%1 turn%2 remain)").arg(remaining_turns).arg(remaining_turns == 1 ? "" : "s");
+        }
+        if (active_effect_text.isEmpty()) {
+            active_effect_text = "No effects currently applied";
+        }
+        QListWidgetItem* item = new QListWidgetItem(active_effect_text, ui->effects_list);
+        item->setToolTip(effect_idx.siblingAtColumn(PlaneEffectItem::Plane_Effect_Desc).data().toString().arg(remaining_turns));
+    }
 }
 
 void StatusEffectsInterface::handleEffectSelection(bool checked)
@@ -159,5 +179,5 @@ void StatusEffectsInterface::handleEffectSelection(bool checked)
     }
     default: break;
     }
-    ui->effects_list->update();
+    refreshEffectsList();
 }

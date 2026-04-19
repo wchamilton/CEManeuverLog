@@ -42,12 +42,17 @@ public:
     QPersistentModelIndex addCrew(const QModelIndex &parent_plane_idx);
     QPersistentModelIndex addGun(const QModelIndex &parent_crew_idx);
     QPersistentModelIndex addEffect(const QModelIndex &parent_plane_idx);
+    QPersistentModelIndex addTurn();
+    QPersistentModelIndex addTurnPlaneEffects(const QModelIndex &parent_turn);
+    QPersistentModelIndex addTurnCrew(const QModelIndex &parent_turn);
+    QPersistentModelIndex addTurnCrewGun(const QModelIndex &parent_turn_crew);
 
     // Removal functions
     void removeManeuver(const QModelIndex &idx);
     void removeEffect(const QModelIndex &idx);
     void removeChild(int row, const QModelIndex &parent);
     void removeChildren(const QModelIndex &parent);
+    void resetToTurn(const QModelIndex &turn);
 
     // Convenience functions
     QModelIndex gameRootIdx() const;

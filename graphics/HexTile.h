@@ -33,7 +33,7 @@ public:
     HexTile(TileType type, qreal rotation, QGraphicsItem *parent = nullptr);
     HexTile(TileType type, QGraphicsItem *parent = nullptr);
     QRectF boundingRect() const override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) override;
     void setHovered(bool hovered) { this->hovered = hovered; }
     void setWeightRestricted(bool is_weight_restricted) { this->is_weight_restricted = is_weight_restricted; }
     void setIsAvailable(bool is_available) { this->is_available = is_available; }

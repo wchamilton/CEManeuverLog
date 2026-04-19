@@ -17,12 +17,12 @@ public:
 
     ManeuverGraphic(QPersistentModelIndex maneuver_idx, ShiftText shift_val = Shift_None, QGraphicsItem *parent = nullptr);
     QRectF boundingRect() const override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) override;
     void addHex(Maneuver::Directions position, HexTile::TileType tile_type = HexTile::Blank_Tile, qreal rotation = 0);
     QPainterPath shape() const override;
-    void updateManeuverState();
     QPersistentModelIndex getIdx() { return maneuver_idx; }
     void setSelected(bool selected);
+    void setEnabled(bool enabled);
 
 protected:
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;

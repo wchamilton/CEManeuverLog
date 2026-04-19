@@ -87,6 +87,9 @@
    </item>
    <item row="2" column="1" colspan="2">
     <widget class="QPushButton" name="lock_movement_btn">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="font">
       <font>
        <bold>true</bold>
@@ -101,10 +104,17 @@
     </widget>
    </item>
    <item row="3" column="1" rowspan="2" colspan="2">
-    <widget class="QTabWidget" name="crew_tab"/>
+    <widget class="QTabWidget" name="crew_tab">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
    <item row="4" column="3">
     <widget class="QPushButton" name="view_log_btn">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="font">
       <font>
        <bold>true</bold>
@@ -117,6 +127,9 @@
    </item>
    <item row="4" column="4">
     <widget class="QPushButton" name="end_turn_btn">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="font">
       <font>
        <bold>true</bold>
@@ -138,5 +151,86 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>lock_movement_btn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>crew_tab</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>820</x>
+     <y>138</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>854</x>
+     <y>263</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lock_movement_btn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>end_turn_btn</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>957</x>
+     <y>136</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1377</x>
+     <y>871</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lock_movement_btn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>alt_ctrl_grp_box</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>910</x>
+     <y>139</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>817</x>
+     <y>28</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lock_movement_btn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>gun_rotation_tab</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>927</x>
+     <y>137</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1028</x>
+     <y>70</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lock_movement_btn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>maneuver_gv</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>683</x>
+     <y>134</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>540</x>
+     <y>155</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

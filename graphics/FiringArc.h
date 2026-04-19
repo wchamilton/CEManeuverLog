@@ -12,7 +12,7 @@ public:
     void addHex(QList<int> gun_positions, HexTile* hex, QList<int> hex_position);
     void setGunPos(int pos);
     QRectF boundingRect() const override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override {}
+    void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) override {}
     QPainterPath shape() const override;
 
 private:

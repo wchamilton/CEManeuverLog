@@ -43,7 +43,7 @@ void FiringArc::setGunPos(int pos)
             return;
         }
     }
-    for (auto hexes : hexes_by_pos) {
+    for (const auto &hexes : std::as_const(hexes_by_pos)) {
         for (auto hex : hexes) {
             hex->setIsAvailable(false);
         }

@@ -79,12 +79,6 @@ QJsonObject PlaneItem::toJSON()
     return json;
 }
 
-PlaneEffectItem::PlaneEffectItem(QJsonObject plane_effect_json, BaseItem *parent) :
-    BaseItem(Plane_Effect_Item_Type, parent)
-{
-
-}
-
 PlaneManeuverItem::PlaneManeuverItem(Maneuver maneuver, BaseItem *parent) : BaseItem(ItemType::Plane_Maneuver_Item_Type, parent)
 {
     QStringList tolerances = maneuver.tolerances.split('/');
@@ -109,7 +103,7 @@ PlaneManeuverItem::PlaneManeuverItem(QJsonObject plane_maneuver_json, BaseItem *
     QStringList tolerances =                        plane_maneuver_json["tolerances"].toString().split('/');
     setData(Plane_Maneuver_Name,                    name);
     setData(Plane_Maneuver_Speed,                   name.right(1).toInt());
-    setData(Plane_Maneuver_Direction,               name.right(2).left(1));
+    setData(Plane_Maneuver_Direction,               name.right(2).at(0));
     setData(Plane_Maneuver_Tolerances,              tolerances);
     setData(Plane_Maneuver_Climb_Val,               tolerances.at(0));
     setData(Plane_Maneuver_Level_Val,               tolerances.at(1));
@@ -146,7 +140,8 @@ QJsonObject PlaneManeuverItem::toJSON()
 PlaneArmamentsItem::PlaneArmamentsItem(QJsonObject plane_armaments_json, BaseItem *parent) : BaseItem(ItemType::Plane_Armaments_Item_Type, parent)
 {
     setData(Plane_Armaments_Name,                   plane_armaments_json["name"].toVariant());
-    setData(Plane_Armaments_Gun_Destroyed,          false); // Need to track this individually in cases of linked weapons
+    setData(Plane_Armaments_Gun_Destroyed,          false);
+    setData(Plane_Armaments_Gun_Jammed,             false);
     setData(Plane_Armaments_Gun_Is_Linked,          plane_armaments_json["is_linked"].toVariant());
 
     int fire_template =                             plane_armaments_json["fire_template"].toInt();
@@ -159,8 +154,8 @@ PlaneArmamentsItem::PlaneArmamentsItem(QJsonObject plane_armaments_json, BaseIte
     int box_capacity =                              plane_armaments_json["ammo_box_capacity"].toInt();
     int box_count =                                 plane_armaments_json["ammo_box_count"].toInt();
     setData(Plane_Armaments_Ammo_Box_Capacity,      box_capacity);
-    setData(Plane_Armaments_Shots_Fired,    box_capacity);
-    setData(Plane_Armaments_Ammo_Box_Count,         box_count);
+    setData(Plane_Armaments_Ammo_In_Current_Box,    box_capacity);
+    setData(Plane_Armaments_Spare_Ammo_Box_Count,   box_count - 1); // Simulate first box already loaded
     setData(Plane_Armaments_Total_Ammo,             box_capacity * box_count);
 
     QList<int> rotation_range;
@@ -229,7 +224,7 @@ QJsonObject PlaneArmamentsItem::toJSON()
     json["fire_base_1"]       = data(Plane_Armaments_Fire_Base_1).toInt();
     json["fire_base_0"]       = data(Plane_Armaments_Fire_Base_0).toInt();
     json["ammo_box_capacity"] = data(Plane_Armaments_Ammo_Box_Capacity).toInt();
-    json["ammo_box_count"]    = data(Plane_Armaments_Ammo_Box_Count).toInt();
+    json["ammo_box_count"]    = data(Plane_Armaments_Spare_Ammo_Box_Count).toInt();
     return json;
 }
 
@@ -309,20 +304,30 @@ QVariant PlaneArmamentLinkItem::data(int column) const
     case PlaneArmamentsItem::Plane_Armaments_Name: {
         QStringList compound_name_components;
         QMap<QString, int> multi_gun_count;
-        for (const auto &gun : linked_guns) {
+        for (const auto &gun : std::as_const(linked_guns)) {
             QString gun_name = gun->data(column).toString();
             multi_gun_count[gun_name] = multi_gun_count.contains(gun_name) ? multi_gun_count[gun_name] + 1 : 1;
         }
 
-        for (QString gun_name : multi_gun_count.keys()) {
-            switch (multi_gun_count[gun_name]) {
-                case 2: gun_name.prepend("Twin "); break;
-                case 3: gun_name.prepend("Triple "); break;
-                case 4: gun_name.prepend("Quad "); break;
-                case 5: gun_name.prepend("Penta "); break;
-                case 6: gun_name.prepend("Hexa "); break;
+        for (auto [gun_name, gun_name_count] : multi_gun_count.asKeyValueRange()) {
+            QString prefix;
+            switch (gun_name_count) {
+                case 1: break;
+                case 2: prefix = "Twin "; break;
+                case 3: prefix = "Triple "; break;
+                case 4: prefix = "Quad "; break;
+                case 5: prefix = "Penta "; break;
+                case 6: prefix = "Hexa "; break;
+                case 7: prefix = "Hepta "; break;
+                case 8: prefix = "Octa "; break;
+                case 9: prefix = "Nona "; break;
+                case 10: prefix = "Deca "; break; // How this ever happens, I don't know
+                default: {
+                    prefix = "Too Many ";
+                    break;
+                }
             }
-            compound_name_components << gun_name;
+            compound_name_components << prefix + gun_name;
         }
 
         return compound_name_components.join(" + ");
@@ -337,9 +342,9 @@ QVariant PlaneArmamentLinkItem::data(int column) const
         return linked_guns.first()->data(column).toInt() + 2*(linked_guns.size()-1);
     }
     default: {
-        for (auto gun : linked_guns) {
+        for (auto gun : std::as_const(linked_guns)) {
             // If any guns are drum based, base the other columns off it as that will be the most restrictive
-            if (gun->data(PlaneArmamentsItem::Plane_Armaments_Ammo_Box_Count).toInt() > 1) {
+            if (gun->data(PlaneArmamentsItem::Plane_Armaments_Spare_Ammo_Box_Count).toInt() > 1) {
                 return gun->data(column);
             }
         }
@@ -363,9 +368,7 @@ QJsonObject TurnItem::toJSON()
 {
     QJsonObject json;
     json["turn_number"] = data(Turn_Number).toInt();
-    json["selected_maneuver"] = data(Turn_Selected_Maneuver).toString();
-    json["maneuver_direction"] = data(Turn_Maneuver_Direction).toString();
-    json["maneuver_speed"] = data(Turn_Maneuver_Speed).toInt();
+    json["selected_maneuver"] = data(Turn_Selected_Maneuver_Idx).toPersistentModelIndex().data().toString(); // The stored index will always be the name for convenience
     json["current_alt"] = data(Turn_Plane_Alt).toInt();
     json["speed_last_turn"] = data(Turn_Plane_Speed_Last_Turn).toInt();
     json["alt_last_turn"] = data(Turn_Plane_Alt_Last_Turn).toInt();
@@ -405,7 +408,7 @@ QJsonObject TurnPlaneEffects::toJSON()
 QJsonObject TurnCrewItem::toJSON()
 {
     QJsonObject json;
-    json["crew_id"] = data(Turn_Crew_Index).toModelIndex().sibling(data(Turn_Crew_Index).toModelIndex().row(), PlaneCrewItem::Plane_Crew_UID).data().toString();
+    json["crew_name"] = data(Turn_Crew_Idx).toPersistentModelIndex().data().toString(); // The stored index will always be the name for convenience
     json["action_taken"] = data(Turn_Crew_Action_Taken).toInt();
     // TODO: Handle extra data
     QVariant extra_data = data(Turn_Crew_Action_Extra_Data);
@@ -435,7 +438,7 @@ QJsonObject TurnCrewItem::toJSON()
 QJsonObject TurnArmamentItem::toJSON()
 {
     QJsonObject json;
-    json["gun_name"] = data(Turn_Crew_Armament_Index).toPersistentModelIndex().data().toString();
+    json["gun_name"] = data(Turn_Crew_Armament_Idx).toPersistentModelIndex().data().toString();
     json["rotation_pos"] = data(Turn_Crew_Armament_Position).toInt();
     json["is_destroyed"] = data(Turn_Crew_Armament_Is_Destroyed).toBool();
     json["is_jammed"] = data(Turn_Crew_Armament_IsJammed).toBool();

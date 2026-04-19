@@ -155,15 +155,17 @@ void PlaneEditor::exportJSON()
         }
 
         QFile file(file_info.absoluteFilePath());
-        if (file.open(QIODevice::WriteOnly|QIODevice::Text)) {
-            // Ensure that if there are any unicode characters, they're preserved properly
-            QTextStream out(&file);
-            QString configDoc = QJsonDocument(game_model->dumpPlaneToJson(plane_idx)).toJson();
-
-            out << configDoc;
-            out.flush();
-            file.close();
+        if (!file.open(QIODevice::WriteOnly|QIODevice::Text)) {
+            qWarning() << "Could not open" << file.fileName();
+            return;
         }
+
+        QTextStream out(&file);
+        out.setAutoDetectUnicode(true);
+        BaseItem* plane_item_ptr = static_cast<BaseItem*>(plane_idx.internalPointer());
+        out << QJsonDocument(plane_item_ptr->toJSON()).toJson();
+        out.flush();
+        file.close();
     }
 
     // Clean up crew to avoid creating duplicate/extra entries

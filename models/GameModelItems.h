@@ -73,7 +73,6 @@ public:
     };
 
     PlaneEffectItem(BaseItem* parent = nullptr) : BaseItem(ItemType::Plane_Effect_Item_Type, parent) {}
-    PlaneEffectItem(QJsonObject plane_effect_json, BaseItem* parent = nullptr);
 
     bool operator==(const PlaneEffectItem &e) const{
         QVariant id = data(Plane_Effect_ID);
@@ -141,20 +140,19 @@ class PlaneArmamentsItem : public BaseItem
 {
 public:
     enum PlaneArmamentsItemCols {
-        Plane_Armaments_UID = 0,
-        Plane_Armaments_Name,
+        Plane_Armaments_Name = 0,
         Plane_Armaments_Gun_Destroyed,
         Plane_Armaments_Gun_Jammed,
         Plane_Armaments_Gun_Is_Linked,
         Plane_Armaments_Fire_Template,
-        Plane_Armaments_Fire_Base_3,
-        Plane_Armaments_Fire_Base_2,
-        Plane_Armaments_Fire_Base_1,
         Plane_Armaments_Fire_Base_0,
+        Plane_Armaments_Fire_Base_1,
+        Plane_Armaments_Fire_Base_2,
+        Plane_Armaments_Fire_Base_3,
         Plane_Armaments_Shots_Fired,
         Plane_Armaments_Ammo_In_Current_Box,
         Plane_Armaments_Ammo_Box_Capacity,
-        Plane_Armaments_Ammo_Box_Count,
+        Plane_Armaments_Spare_Ammo_Box_Count,
         Plane_Armaments_Total_Ammo_Remaining,
         Plane_Armaments_Total_Ammo,
         Plane_Armaments_Gun_Rotation_Current_Pos,
@@ -184,8 +182,7 @@ class PlaneCrewItem : public BaseItem
 {
 public:
     enum PlaneCrewItemCols {
-        Plane_Crew_UID = 0,
-        Plane_Crew_Name,
+        Plane_Crew_Name = 0,
         Plane_Crew_Role_ID,
         Plane_Crew_Role,
         Plane_Crew_Ability_Unrestricted_Maneuvers,
@@ -274,12 +271,11 @@ class TurnItem : public BaseItem
 public:
     enum TurnItemCols {
         Turn_Number = 0,
-        Turn_Selected_Maneuver,         ///< Name of the selected maneuver
-        Turn_Maneuver_Direction,        ///< Left, Straight, Right (LSR)
-        Turn_Maneuver_Speed,            ///< Speed of the chosen maneuver
+        Turn_Selected_Maneuver_Idx,     ///< QPersistentModelIndex of the selected maneuver
         Turn_Plane_Alt,                 ///< Altitude of the plane this turn
         Turn_Plane_Speed_Last_Turn,     ///< Speed the plane went last turn (or started at for turn 1)
         Turn_Plane_Alt_Last_Turn,       ///< Altitude of the plane last turn (or started at for turn 1)
+        Turn_Plane_Fuel_Used,           ///< Fuel consumed for the turn
         Turn_Plane_Fuel,                ///< Remaining fuel for the plane
         Turn_Plane_Engine_HP,           ///< Current HP value for the engine
         Turn_Plane_Wing_HP,             ///< Current HP value for the wings
@@ -299,6 +295,7 @@ public:
     enum TurnPlaneEffectCols {
         Turn_Plane_Effect_ID = 0,
         Turn_Plane_Effect_Name,
+        Turn_Plane_Effect_Desc,
         Turn_Plane_Effect_Remaining_Turns,
         TURN_PLANE_EFFECT_COL_COUNT
     };
@@ -314,7 +311,7 @@ class TurnCrewItem : public BaseItem
 {
 public:
     enum TurnCrewItemCols {
-        Turn_Crew_Index = 0,            ///< QPersistentModelIndex linking to the crew member that performed this action
+        Turn_Crew_Idx = 0,              ///< QPersistentModelIndex of the crew this item pertains to
         Turn_Crew_Action_Taken,         ///< Enum value of the taken action
         Turn_Crew_Action_Extra_Data,    ///< Extra data regarding a taken action
         Turn_Crew_Wounds_Accrued,       ///< Current amount of wounds received
@@ -334,12 +331,12 @@ class TurnArmamentItem : public BaseItem
 {
 public:
     enum TurnArmamentItemCols {
-        Turn_Crew_Armament_Index = 0,               ///< QPersistentModelIndex linking to the armament item
+        Turn_Crew_Armament_Idx = 0,                 ///< QPersistentModelIndex of the armament item (might be linked in which case this will be the link item)
         Turn_Crew_Armament_Position,                ///< Current position of the armament (will always be 1 for fixed weapons)
         Turn_Crew_Armament_Is_Destroyed,            ///< Is the gun destroyed (true/false
         Turn_Crew_Armament_IsJammed,                ///< Is the gun jammed (true/false)
         Turn_Crew_Armament_Current_Box_Ammo,        ///< Amount of ammo remaining in the current box
-        Turn_Crew_Armament_Remaining_Ammo_Boxes,    ///< Number of remaining ammo boxes
+        Turn_Crew_Armament_Remaining_Ammo_Boxes,    ///< Amount of remaining spare ammo boxes. This will be 0 for belt fed 20-round guns. This is internal for math reasons
         TURN_CREW_ARMAMENT_COL_COUNT
     };
 

@@ -8,6 +8,9 @@
 #include <QGraphicsScene>
 #include <QCheckBox>
 
+const QChar white_square(0x25A1);
+const QChar white_triangle(0x25B3);
+
 PlaneSelectionDialog::PlaneSelectionDialog(GameModel *game_model, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::PlaneSelectionDialog),
@@ -96,14 +99,12 @@ void PlaneSelectionDialog::planeSelected(QTreeWidgetItem *current, QTreeWidgetIt
     // Dump the plane metadata
     ui->plane_grpbox->setTitle(plane_idx.data().toString());
     ui->fuel_val->setText(plane_data(PlaneItem::Plane_Fuel_Cap).toString());
-    ui->engine_hp_val->setText(plane_data(PlaneItem::Plane_Engine_HP).toString());
-    ui->engine_critical_hp_val->setText(plane_data(PlaneItem::Plane_Engine_Critical).toString());
-    ui->wing_hp_val->setText(plane_data(PlaneItem::Plane_Wing_HP).toString());
-    ui->wing_critical_hp_val->setText(plane_data(PlaneItem::Plane_Wing_Critical).toString());
-    ui->fuse_hp_val->setText(plane_data(PlaneItem::Plane_Fuselage_HP).toString());
-    ui->fuse_critical_hp_val->setText(plane_data(PlaneItem::Plane_Fuselage_Critical).toString());
-    ui->tail_hp_val->setText(plane_data(PlaneItem::Plane_Tail_HP).toString());
-    ui->tail_critical_hp_val->setText(plane_data(PlaneItem::Plane_Tail_Critical).toString());
+
+    ui->engine_hp_val->setText(plane_data(PlaneItem::Plane_Engine_HP).toString() + " HP");
+    ui->tail_hp_val->setText(plane_data(PlaneItem::Plane_Tail_HP).toString() + " HP");
+    ui->wing_hp_val->setText(plane_data(PlaneItem::Plane_Wing_HP).toString() + " HP");
+    ui->fuse_hp_val->setText(plane_data(PlaneItem::Plane_Fuselage_HP).toString() + " HP");
+
     ui->rated_climb_val->setText(plane_data(PlaneItem::Plane_Rated_Climb).toString());
     ui->rated_dive_val->setText(plane_data(PlaneItem::Plane_Rated_Dive).toString());
     ui->max_alt_val->setText(plane_data(PlaneItem::Plane_Max_Altitude).toString() +

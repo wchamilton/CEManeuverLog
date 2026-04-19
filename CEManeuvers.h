@@ -15,7 +15,7 @@ static const QString TURN_LOG_LOCATION = "./Matches";
 #else
 static const QString GRAPHICS_LOCATION("../../../CEManeuverLog/graphics");
 static const QString PLANES_LOCATION("../../../CEManeuverLog/Planes");
-static const QString TURN_LOG_LOCATION = "../../../Matches";
+static const QString TURN_LOG_LOCATION = "../../../CEManeuverLog/Matches";
 #endif
 
 struct Maneuver

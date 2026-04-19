@@ -127,17 +127,17 @@ bool GameModel::setData(const QModelIndex &idx, const QVariant &value, int role)
 
 void GameModel::writeTurnsToJSON()
 {
-    BaseItem* gameItem = static_cast<BaseItem*>(gameRootIdx().internalPointer());
-    BaseItem* turnItem = static_cast<BaseItem*>(turnsRootIdx().internalPointer());
+    GameItem* gameItem = static_cast<GameItem*>(gameRootIdx().internalPointer());
 
     QJsonObject json;
     json["game"] = gameItem->toJSON();
 
     QJsonArray turns;
-    for (int i=0; i<turnItem->childCount(); ++i) {
-        turns << turnItem->childAt(i)->toJSON();
+    for (int i=0; i<rowCount(turnsRootIdx()); ++i) {
+        TurnItem* turnItem = static_cast<TurnItem*>(index(i, 0, turnsRootIdx()).internalPointer());
+        turns << turnItem->toJSON();
     }
-    json["turns"] = turnItem->toJSON();
+    json["turns"] = turns;
 
     if (json.isEmpty()) {
         qWarning() << "Error when trying to save the turns to file. Nothing to write.";
@@ -149,6 +149,11 @@ void GameModel::writeTurnsToJSON()
         qWarning() << "Could not open" << file.fileName();
         return;
     }
+
+    QTextStream out(&file);
+    out.setAutoDetectUnicode(true);
+    out << QJsonDocument(json).toJson();
+    out.flush();
     file.close();
 }
 
@@ -213,6 +218,51 @@ QPersistentModelIndex GameModel::addEffect(const QModelIndex &parent_plane_idx)
     return index(rowCount(parent_plane_idx)-1, 0, parent_plane_idx);
 }
 
+QPersistentModelIndex GameModel::addTurn()
+{
+    QModelIndex turns_root_idx = turnsRootIdx();
+    BaseItem* turns_root_ptr = static_cast<BaseItem*>(turns_root_idx.internalPointer());
+
+    beginInsertRows(turns_root_idx, rowCount(turns_root_idx), rowCount(turns_root_idx));
+    TurnItem* item = new TurnItem(turns_root_ptr);
+    turns_root_ptr->addChild(item);
+    endInsertRows();
+    return index(rowCount(turns_root_idx)-1, 0, turns_root_idx);
+}
+
+QPersistentModelIndex GameModel::addTurnPlaneEffects(const QModelIndex &parent_turn)
+{
+    BaseItem* turn_ptr = static_cast<BaseItem*>(parent_turn.internalPointer());
+
+    beginInsertRows(parent_turn, rowCount(parent_turn), rowCount(parent_turn));
+    TurnPlaneEffects* turn_plane_effects_ptr = new TurnPlaneEffects(turn_ptr);
+    turn_ptr->addChild(turn_plane_effects_ptr);
+    endInsertRows();
+    return index(rowCount(parent_turn)-1, 0, parent_turn);
+}
+
+QPersistentModelIndex GameModel::addTurnCrew(const QModelIndex &parent_turn)
+{
+    BaseItem* turn_ptr = static_cast<BaseItem*>(parent_turn.internalPointer());
+
+    beginInsertRows(parent_turn, rowCount(parent_turn), rowCount(parent_turn));
+    TurnCrewItem* turn_crew_ptr = new TurnCrewItem(turn_ptr);
+    turn_ptr->addChild(turn_crew_ptr);
+    endInsertRows();
+    return index(rowCount(parent_turn)-1, 0, parent_turn);
+}
+
+QPersistentModelIndex GameModel::addTurnCrewGun(const QModelIndex &parent_turn_crew)
+{
+    BaseItem* turn_ptr = static_cast<BaseItem*>(parent_turn_crew.internalPointer());
+
+    beginInsertRows(parent_turn_crew, rowCount(parent_turn_crew), rowCount(parent_turn_crew));
+    TurnArmamentItem* turn_gun_ptr = new TurnArmamentItem(turn_ptr);
+    turn_ptr->addChild(turn_gun_ptr);
+    endInsertRows();
+    return index(rowCount(parent_turn_crew)-1, 0, parent_turn_crew);
+}
+
 void GameModel::removeManeuver(const QModelIndex &idx)
 {
     BaseItem* plane_ptr = static_cast<BaseItem*>(idx.parent().internalPointer());
@@ -246,6 +296,16 @@ void GameModel::removeChildren(const QModelIndex &parent)
     BaseItem* parent_ptr = static_cast<BaseItem*>(parent.internalPointer());
     beginRemoveRows(parent, 0, rowCount(parent));
     parent_ptr->removeChildren();
+    endRemoveRows();
+}
+
+void GameModel::resetToTurn(const QModelIndex &turn)
+{
+    BaseItem* parent_ptr = static_cast<BaseItem*>(turn.parent().internalPointer());
+    beginRemoveRows(turn.parent(), turn.row(), rowCount(turn.parent()));
+    for (int row = rowCount(turn.parent()) - 1; row > turn.row() ; --row) {
+        parent_ptr->removeChild(row);
+    }
     endRemoveRows();
 }
 

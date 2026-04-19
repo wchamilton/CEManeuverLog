@@ -25,6 +25,11 @@ GunRotationControl::~GunRotationControl()
     delete ui;
 }
 
+void GunRotationControl::saveGunRotation()
+{
+    crew_proxy->setData(gun_idx.sibling(gun_idx.row(), PlaneArmamentsItem::Plane_Armaments_Gun_Rotation_Last_Turn), ui->gun_pos_sb->value());
+}
+
 void GunRotationControl::rotateGun(const int &delta)
 {
     // Create local copies of stored data for manipulation before re-persisting a (possibly) modified position

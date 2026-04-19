@@ -16,6 +16,7 @@ class StatusEffectsInterface : public QWidget
 public:
     explicit StatusEffectsInterface(QSharedPointer<FilterProxy> crew_proxy, QSharedPointer<FilterProxy> effects_proxy, QPersistentModelIndex base_plane_idx, QWidget *parent = nullptr);
     ~StatusEffectsInterface();
+    void refreshEffectsList();
 
 private slots:
     void handleEffectSelection(bool checked);

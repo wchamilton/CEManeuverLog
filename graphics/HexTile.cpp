@@ -48,7 +48,7 @@ QRectF HexTile::boundingRect() const
     return QRectF(0, 0, 2 * size, sqrt(3)*size);
 }
 
-void HexTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void HexTile::paint(QPainter *painter, const QStyleOptionGraphicsItem*, QWidget*)
 {
     QPen old_pen = painter->pen();
     old_pen.setColor(Qt::black);

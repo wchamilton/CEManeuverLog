@@ -66,13 +66,6 @@ void ManeuverScene::removeManeuver(QPersistentModelIndex maneuver_idx)
     }
 }
 
-void ManeuverScene::updateManeuver(QString id)
-{
-    if (maneuver_map.contains(id)) {
-        maneuver_map[id]->updateManeuverState();
-    }
-}
-
 void ManeuverScene::clearSelection()
 {
     setFocusItem(background_item);
@@ -116,8 +109,97 @@ void ManeuverScene::handleFocusChanges(QGraphicsItem *newFocusItem, QGraphicsIte
     update();
 }
 
-// void ManeuverScene::setManeuversAvailable(QPersistentModelIndex pilot_idx)
-// {
+void ManeuverScene::setManeuversAvailable(int prev_speed, QChar prev_direction, int prev_alt, int forced_alt_delta, QChar rudder_jam_direction, bool restricted_maneuvers_allowed, bool has_unrestricted_maneuvers, bool forced_speed)
+{
+    for (auto [maneuver_name, maneuver] : maneuver_map.asKeyValueRange()) {
+        QModelIndex maneuver_idx = maneuver->getIdx();
+        QModelIndex plane_idx = maneuver_idx.parent();
+        maneuver->setEnabled(true); // Initially assume all maneuvers are allowed and they'll be restricted later
+
+        // Always allow the spin maneuver and stall to be selected for reasons
+        if (maneuver_name == "0S1" || maneuver_name == "1L0" || maneuver_name == "1S0" || maneuver_name == "1R0") {
+            continue;
+        }
+
+        int payload_count = plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Payload_Count).data().toInt();
+        bool is_weight_restricted = maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Has_Weight_Restriction).data().toBool();
+        if (is_weight_restricted && payload_count > 0) {
+            maneuver->setEnabled(false);
+            continue;
+        }
+
+        int maneuver_speed = maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Speed).data().toInt();
+        // If the prev_speed is forced like if it's the start of game then exclude any maneuvers that are not that speed
+        if (forced_speed && maneuver_speed != prev_speed) {
+            maneuver->setEnabled(false);
+            continue;
+        }
+        // Other speed changes can only be +/- 1
+        if (std::abs(prev_speed - maneuver_speed) > 1) {
+            maneuver->setEnabled(false);
+            continue;
+        }
+
+        // If the maneuver has a weight restriction and the plane still has bombs then disable the maneuver
+        // For maneuvers that are "weight restricted" by additional guns, there's no way to lose said weight so they're just created as a different plane file
+        if (maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Has_Weight_Restriction).data().toBool() &&
+            plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Payload_Count).data().toInt() > 0) {
+            maneuver->setEnabled(false);
+            continue;
+        }
+
+        // Based on last maneuver, apply restrictions. If this is the first turn, it's assumed a maneuver with S was used to start
+        // Directional restrictions. S can go either direction; L or R can only go in their direction or S. Rudder jam forces a set direction
+        QChar maneuver_direction = maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Direction).data().toChar();
+        if (rudder_jam_direction != QChar()) {
+            if (maneuver_direction == 'S') {
+                maneuver->setEnabled(false);
+                continue;
+            }
+            if (((rudder_jam_direction == 'R') && maneuver_direction == 'L') ||
+                ((rudder_jam_direction == 'L') && maneuver_direction == 'R')) {
+                maneuver->setEnabled(false);
+                continue;
+            }
+        }
+        // We check prev_direction separately as a plane with stability C doesn't follow the same rules when it comes to flipping between L and R
+        else if (plane_idx.sibling(plane_idx.row(), PlaneItem::Plane_Stability_Rating).data().toChar() != 'C') {
+            if (((prev_direction == 'R') && maneuver_direction == 'L') ||
+                ((prev_direction == 'L') && maneuver_direction == 'R')) {
+                maneuver->setEnabled(false);
+                continue;
+            }
+        }
+
+        // Check altitude constraints. This may involve a forced direction due to a shot at a target which is depicted by forced_shot_delta
+        // If forced_shot_delta == -1 then only maneuvers that allow a dive are allowed
+        QString dive_tolerance = maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Dive_Val).data().toString();
+        if (forced_alt_delta == -1 && dive_tolerance != "D1" && dive_tolerance != "D") {
+            maneuver->setEnabled(false);
+            continue;
+        }
+        // If forced_shot_delta == 1 then only maneuvers that allow a climb are allowed
+        QString climb_tolerance = maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Climb_Val).data().toString();
+        if (forced_alt_delta == 1 && climb_tolerance != "C1" && climb_tolerance != "C") {
+            maneuver->setEnabled(false);
+            continue;
+        }
+        // Prevent dive-only maneuvers when at min alt
+        QString level_tolerance = maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Level_Val).data().toString();
+        if (prev_alt == 1 && (dive_tolerance == "D1" || dive_tolerance == "D") && climb_tolerance == "-" && level_tolerance == "-") {
+            maneuver->setEnabled(false);
+            continue;
+        }
+
+        // Don't allow restricted maneuvers unless the prior movement was one that allowed pilot reloads OR the pilot has unrestricted maneuvers
+        // The maneuvers must still respect the direction and speed constraints which should have been done above
+        bool maneuver_is_restricted = maneuver_idx.sibling(maneuver_idx.row(), PlaneManeuverItem::Plane_Maneuver_Is_Restricted).data().toBool();
+        if (maneuver_is_restricted && !restricted_maneuvers_allowed && !has_unrestricted_maneuvers) {
+            maneuver->setEnabled(false);
+            continue;
+        }
+    }
+
     // QModelIndex last_turn = turn_model->lastIndex(TurnItem::Turn_Maneuver_Col);
     // QPersistentModelIndex last_maneuver = last_turn.isValid() ? last_turn.data(Qt::UserRole).toPersistentModelIndex() : QPersistentModelIndex();
     // int prev_alt = last_turn.isValid() ? last_turn.sibling(last_turn.row(), TurnItem::Turn_Altitude_Col).data(Qt::UserRole).toInt() : turn_model->getStartingAlt();
@@ -224,4 +306,4 @@ void ManeuverScene::handleFocusChanges(QGraphicsItem *newFocusItem, QGraphicsIte
     //     }
     //     updateManeuver(maneuver_name_idx.data().toString());
     // }
-// }
+}
